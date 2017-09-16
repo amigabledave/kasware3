@@ -1,0 +1,37 @@
+application: kasware3
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /bootstrap
+  static_dir: bootstrap
+
+- url: /images
+  static_dir: images
+
+- url: /css
+  static_dir: css
+
+- url: /js
+  static_dir: js
+  
+- url: /csv_files
+  static_dir: csv_files
+  application_readable: True
+
+
+- url: .*
+  script: main.app
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+
+- name: jinja2
+  version: "2.6"  

@@ -1,0 +1,1064 @@
+/*Validated for KASware3*/
+.BaseBackground {
+    background-color: #8ea2b2;
+}
+
+.TopBackground {
+    background-color: #342042;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+
+.CheckboxLabel{
+    display: block;
+    padding-left: 15px;
+    text-indent: -15px;
+}
+
+.CheckboxInput{
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    margin:0;
+    vertical-align: bottom;
+    position: relative;
+    top: -1px;
+    *overflow: hidden
+}
+
+.NoSideMarginOrPadding {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 100%;
+}
+
+.SectionTitle{
+    color: white; 
+    /*text-shadow: 0px 1px 0px rgba(255,255,255,.5);*/
+    display: block;
+    font-size: 50px;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    /*margin-left: 17px;*/
+    text-decoration: none;
+    font-family: 'Rationale', sans-serif;
+}
+
+.KaswareFont{
+    font-family: 'Rationale', sans-serif;
+}
+
+.SectionSelectionBar{
+
+    background-color: #828d95; 
+    padding: 45px;
+    padding-top: 20px;
+    padding-right: 35px;
+    /*min-height: 550px;*/
+    max-width: 250px;
+}
+
+.SectionButton{
+    height: 40px;
+    margin-bottom: 5px;
+    font-family: 'Rationale', sans-serif; 
+    font-size: 18px;
+    text-align: left;
+    -webkit-user-select: none;    
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open>.dropdown-toggle.btn-default {
+    color: white;
+    background-color: #3e3838;
+    border-color: white; /*set the color you want here*/
+}
+
+.SetIcon{
+    margin-right: 10px; 
+    margin-top: 5px;
+}
+
+.SelectedSection{
+    background-color: #3e3838;
+    color: white;
+}
+
+.my-btn {
+  .button-variant(red; white; blue);
+}
+
+.NavigationKASwareTitleText {
+    color: white;
+    font-size: 25px; 
+    /*font-weight: bold;*/
+    vertical-align: bottom;
+}
+
+.NagivationMiniTopTitle{
+    color: white;
+    /*color: #222;*/
+    font-size: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.KSUdisplaySection {
+   
+  background: #fff;  
+  border: 2px #ddd;
+
+  border-style: solid;  
+  /*border-color: white;*/
+  
+  padding:10px;
+  font-size: 13px;
+  max-width: 600px;
+
+  -webkit-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  -moz-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  /*box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);*/
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+
+  margin-bottom: 6px;
+}
+
+.EventDisplaySection {
+   
+  background: #fff;  
+  border: 1px #ddd;
+
+  border-radius: 5px;
+  border-style: solid;  
+  border-color: white;
+  
+  padding:5px;
+  font-size: 13px;
+  max-width: 600px;
+
+  -webkit-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  -moz-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  /*box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);*/
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+
+  margin-bottom: 6px;
+}
+
+
+.DashboardDisplaySection{
+  background: #fff;  
+  border: 1px #ddd;
+
+  min-height: 150px;
+
+  border-radius: 5px;
+  border-style: solid;  
+  border-color: white;
+  
+  padding-top:15px;
+  padding-left:20px;
+  padding-right:20px;
+  padding-bottom:15px;
+  
+  font-size: 13px;
+
+  -webkit-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  -moz-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  /*box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);*/
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  margin-bottom: 6px;
+}
+
+
+.DashboardTitle{
+    font-size: 35px; 
+    font-weight: bold;
+    font-family: 'Rationale', sans-serif;
+}
+
+.DashboardSubTitle{
+    font-size: 20px; 
+    font-family: 'Rationale', sans-serif;
+    line-height: 20px;
+}
+
+.DashboardKSUdescription{
+    font-size: 20px; 
+    margin-top: 5px;
+    margin-bottom: 10px;
+    line-height: 100%;
+
+}
+
+
+.SideOptionsContainer{
+    border: 1.5px;
+    border-style: dashed;
+    border-radius: 10px;
+    padding: 5px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-color: white;
+}
+
+
+.DashboardScore{
+    font-size: 40px;
+}
+
+.DashboardContrast{}
+
+
+
+.ScoreHolder{
+    height: 38px;
+    width: 38px;
+    text-align: center;
+    padding-top: 2px;
+    font-size: 20px;
+    font-weight: bold;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+}
+
+
+.ScoreHolderPerception{
+    font-size: 18px;
+    padding-top: 5px;
+}
+
+.ScoreHolderReality{
+    font-size: 11px;
+    word-wrap: break-word;
+}
+
+.ScoreHolderEffort{
+    color: #5cb85c;
+}
+
+.ScoreHolderStupidity{
+    color: #d9534f;
+}
+
+.ScoreHolderEndValue{
+    color: purple;
+}
+
+
+.EventDetails{
+    color:purple;
+    font-family: 'Rationale', sans-serif;
+}
+
+.EventDeleteButton {
+    height: 38px;
+    width: 38px;
+    padding: 6px;
+    font-size: 14px;
+    line-height: 1.33;
+    border-radius: 8px;
+}
+
+
+.WhiteToSuccessButton{
+    border-color:#3e3838;
+    color: #3e3838;
+    background-color: white;  
+}
+
+.WhiteToSuccessButton:hover{
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
+
+
+.MilestoneReachedButton{
+/*    border-color: #a58a2a;
+    color: #a58a2a;
+    background-color: #f5e5b3;*/
+    border-color:#3e3838;
+    color: #3e3838;
+
+    background-color: white;
+}
+
+.MilestoneReachedButton:hover {
+    color: #f5e5b3;
+    background-color: #a58a2a;
+    border-color: #f5e5b3;
+}
+
+
+
+.IsRealized {
+    border-color: #a58a2a;
+    /*color: #a58a2a;*/
+    /*background-color: #f5e5b3;*/
+}
+
+
+.IsHistory {
+  border-color: #6b8ac1;
+  color: #6b8ac1;
+  /*background-color: rgba(219, 236, 253, 1);  */
+}
+
+
+.IsCritical {
+   border-color: #bb6262 
+}
+
+
+.IsOptional {
+    border-color: #3a8a26
+}
+
+.ActionBorders{
+  border-radius: 25px;
+}
+
+
+.LifePieceBorder{
+    border-radius: 8px;
+}
+
+
+.TimeRuler{
+   
+  background: #fff;
+  color: white;
+  background-color: #342042;
+  
+  height: 20px;
+
+  max-width: 600px;
+  border: 1px #ddd;
+  border-style: solid;  
+  border-color: white;
+  
+  padding:0px;
+  font-size: 13px;
+
+  -webkit-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  -moz-box-shadow: 0.5px 2px 2px 0.5px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+
+.SexySelect{
+    color:purple;  
+    height: 25px;
+    padding: 0;
+}
+
+.SexyInput{    
+    height: 25px;
+    padding: 3px;
+/*    padding-top: 5;
+    padding-bottom: 5px;
+    padding-right: 3px*/
+}
+
+
+.KSUinput{
+    border: none;
+    padding: 0;
+    max-width: 100%;
+}
+
+.LifePiceShowDetailBtn {
+    height: 38px;
+    width: 38px;
+    padding: 6px;
+    font-size: 14px;
+    line-height: 1.33;
+    border-radius: 8px;
+}
+
+.ksu-circle-btn {
+    width: 38px;
+    height: 38px;
+    padding: 6px;
+    font-size: 14px;
+    line-height: 1.33;
+    border-radius: 25px;
+}
+
+.half-circle-btn {
+    margin-left: 3px; 
+    height: 22px; 
+    width: 38px; 
+    padding:0; 
+    text-align: center; 
+}
+
+
+
+
+.inKSUhr{
+    border: none;
+    height: 1px;
+    color: #D8D8D8;
+    background-color: #D8D8D8;
+    margin:5px; 
+    margin-top:5px; 
+    margin-bottom: 15px;
+}
+
+
+
+
+.inKSUhrDiv{
+    padding-right: 10px; 
+    padding-left: 10px    
+}
+
+.BarButton{
+/*    padding-left: 11px;
+    padding-right: 11px;*/
+    width: 40px;
+}
+
+
+
+.fileContainer {
+    overflow: hidden;
+    position: relative;
+}
+
+.fileContainer [type=file] {
+    cursor: inherit;
+    display: block;
+    font-size: 999px;
+    filter: alpha(opacity=0);
+    min-height: 100%;
+    min-width: 100%;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    top: 0;
+}
+
+/* Example stylistic flourishes */
+
+.fileContainer {
+    border-style: dashed;
+    border-radius: .5em;
+    float: left;
+    padding: .5em;
+}
+
+.fileContainer [type=file] {
+    cursor: pointer;
+}
+
+
+.PlayPulse {
+    /*border: 3px solid #999;*/
+    -webkit-animation: pulsate 8s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    opacity: 0.0
+}
+@-webkit-keyframes pulsate {
+    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+    50% {opacity: 1.0;}
+    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+}
+
+
+
+
+
+
+
+
+
+/*Validated for use in kasware2000*/
+
+
+.KASwareTopBarBackground{
+    background-color: #666699;
+}
+
+
+.GreyBackground{
+    background-color: #F0F0F0;
+}
+
+
+.copywright-message{
+    display: block;
+    color: #D3D3D3;
+    text-align: center;
+    text-decoration: none;
+
+}
+
+
+/*---Navigation bar-------*/
+
+.NavigationTopBar{
+    height: 42px;    
+}
+
+.NavigationTopBarBlock {
+    display: block;
+    color: #222;        
+    text-align: left;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    text-decoration: none;
+}
+
+
+
+
+
+.LeftNavigationBar{
+    /*font-size: 12px;*/
+    list-style-type: none;
+    margin: 0;
+    margin-top: 20px;
+    padding: 0;
+    width: 160px;
+    /*width: 25%;*/
+    /*background-color: #f1f1f1;*/
+    height: 100%; /* Full height */
+    position: fixed; /* Make it stick, even on scroll */
+    overflow: auto; /* Enable scrolling if the sidenav has too much content */
+}
+
+
+li a {
+    display: block;
+    /*color: #686868;*/
+    color: #A0A0A0;
+    padding: 8px 16px 8px 16px;
+    text-decoration: none;
+    /*font-size: 12px;*/
+    /*background-color: #666;*/
+    text-shadow: 0px 1px 0px rgba(255,255,255,.5);
+}
+
+li a.active {
+    background-color: #4CAF50;
+    color: white;
+    text-shadow: 0px 0px 0px rgba(255,255,255,.5);
+}
+
+li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+    text-shadow: 0px 0px 0px rgba(255,255,255,.5);
+}
+
+
+
+/*---LogInSighUp-------*/
+
+
+.KASwareTitleBlock {
+    display: block;
+    color: #222;        
+    text-align: left;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    text-decoration: none;
+}
+
+.KASwareTitleText {
+    color: white;
+    font-size: 30px; 
+    /*font-weight: bold;*/
+    vertical-align: bottom;
+}
+
+.MiniTopTitle{
+    color: white;
+    /*color: #222;*/
+    font-size: 14px;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+.corner-link{
+    display: inline-block;
+    margin-top: 25px;
+    text-align: right;
+}
+
+
+.SignUp_Title{
+    display: block;
+    color: #222;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.SignUp_SubTitle{
+    display: block;
+    color: #222;
+    font-size: 19px;
+    margin-bottom: 20px;
+}
+
+.SignUp_Input{
+    font-size: 18px;
+}
+
+
+.SignUp_SummaryTitle{
+    display: block;
+    color: #222;
+    font-size: 25px;
+    font-weight: 500;    
+}
+
+.SignUp_SummaryBullet{
+    /*display: block;*/
+    color: #222;
+    font-size: 18px;
+    /*white-space:pre;*/
+  
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+
+.SignUpGlyphicon{
+    color:grey; 
+    font-size: 35px;
+}
+
+
+.SignUp_Error{
+    color: red;
+    font-size: 18px;
+}
+
+
+
+
+
+/* Helps with the auto resize of text areas */
+textarea{  
+  display:block;
+  box-sizing: padding-box;
+  overflow:hidden;
+  /*height: auto;*/
+
+/*  padding:10px;
+  width:250px;
+  font-size:14px;
+  margin:50px auto;
+  border-radius:8px;
+  border:6px solid #556677;*/
+}
+
+
+/*--- Base Formats----------------------------*/
+
+
+
+
+.SetViewerOptionsButton{
+    height: 25px;
+    margin-bottom: 0px;
+    width: 20px;
+    padding-top: 4px;
+    padding-left: 2px;
+    font-size: 12px;
+    margin-left:-5px;
+}
+
+.ViewerOptionsButton{
+    height: 20px;
+    margin-bottom: 0px;
+    width: 30px;
+    padding-top: 2px;
+    padding-left: 7px;
+    font-size: 12px;
+    margin-left:-5px;
+}
+
+
+.respect-space{
+    white-space:pre;
+}
+
+
+
+
+.TodaysMissionButton{
+    width: 20px;
+    /*height: 27px;*/
+    line-height: 100%;
+    margin-left:7px;
+    margin-bottom: 2px;
+}
+
+
+.displaySectionButton{
+    height: 27px;
+    line-height: 100%;
+    margin-left:7px;
+    /*width: 100px;*/
+    /*margin-bottom: 8px;*/
+}
+
+.displaySectionVerticalButton{
+    margin-bottom: 2px;
+
+}
+
+.displaySectionTitle{
+    /*color: #A0A0A0;*/
+    /*color: #686868;*/
+    /*color: #808080;*/
+    color: #666699;
+    font-weight: bold;
+}
+
+.displaySectionBulletContent{
+    font-size: 13px;
+    /*color: #A0A0A0;*/
+    /*color: #686868;*/
+    /*color: #808080;*/
+    color: #666699;
+    /*font-weight: bold;*/
+    font-weight: normal;
+    font-size: 13px;
+}
+
+
+.displaySectionDescription{
+    font-size: 16px;
+}
+
+
+/*.SectionTitle{
+    /*color: #686868;*/
+    /*color: #808080;*/
+    /*color: #909090;*/
+    color: #A0A0A0; 
+    text-shadow: 0px 1px 0px rgba(255,255,255,.5);
+    display: block;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    /*margin-left: 17px;*/
+    text-decoration: none;
+}*/
+
+.ShowDetailViewerButton{
+/*    margin-top: 5px;*/
+}
+
+.MiniMissionValue{ 
+    color: #A0A0A0; 
+    text-shadow: 0px 1px 0px rgba(255,255,255,.5);
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+/*--- Today's Mission ---*/
+
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+
+
+.btn-circle.btn-lg {
+  width: 30px;
+  height: 30px;
+  /*padding: 10px 16px;*/
+  font-size: 14px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
+
+
+.MissionKsuKpts{
+    font-size: 13px;
+    color:#32CD32;
+/*    color: #666699;
+*/    /*font-weight: bold;*/
+    font-size: 13px;
+}
+
+/*---Old formats yet to be validated-------*/
+
+.section-title{
+    display: block;
+    color: #222;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+
+.NewEditKSU-title{
+    color: #222;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+
+
+
+
+.section-sub-title{
+    display: block;
+    color: #222;
+    font-size: 20px;
+/*    font-weight: bold;*/
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+
+
+.section-group-title{
+    display: block;
+    color: #222;
+    font-size: 23px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
+.mission-group-title{
+    display: block;
+    color: #222;
+    font-size: 23px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    text-decoration: none;
+}
+
+
+
+
+
+.BigO-title{
+    display: block;
+    color: #222;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+    text-decoration: none;
+}
+
+
+
+
+
+.new-ksu-button {
+    margin-top: 15px;
+    margin-left: 0px;
+}
+
+
+.score-title {
+    display: block;
+    color: #6600CC;
+    font-size: 15px;
+    /*font-weight: bold;*/
+    text-align: center;
+    margin-bottom: 5px;
+    margin-top: 25px;
+    text-decoration: none;
+    white-space:pre;
+}
+
+
+.small-score-title {
+    display: block;
+    color: #6600CC;
+    font-size: 15px;
+    /*font-weight: bold;*/
+    text-align: center;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    text-decoration: none;
+    white-space:pre;
+}
+
+
+
+
+
+.thick-hr-1px {
+    border: none;
+    height: 1px;
+    /* Set the hr color */
+    color: #333; /* old IE */
+    background-color: #333; /* Modern Browsers */
+}
+
+
+.hr-1px-gray {
+    border: none;
+    height: 1px;
+    color: #D8D8D8;
+    background-color: #D8D8D8;
+}
+
+/*.hr-1px-gray {
+    border: none;
+    height: 1px;
+    color: #E0E0E0;
+    background-color: #E0E0E0; 
+}
+*/
+
+
+.thick-hr-2px {
+    border: none;
+    height: 2px;
+    /* Set the hr color */
+    color: #333; /* old IE */
+    background-color: #333; /* Modern Browsers */
+}
+
+
+
+.field-header{
+    font-weight: 700;
+    font-style: italic;
+}
+
+
+
+.tile-ksu-edit{
+    font-size: 20px;
+
+}
+
+
+
+
+
+
+
+
+.mission-message{
+    display: block;
+    color: #222;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+
+}
+
+
+.PythonData {
+  width: 100%;
+  height: 800px;
+  /*font-size: 17px;*/
+  font-family: monospace;
+}
+
+
+
+/*Alignment*/
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
+
+
+
+/*To be deleted*/
+.mobile_button{
+     width: 40em;  
+     height: 10em;
+}
+
+
+.mission_time{
+    color: #0000FF;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+.error {
+    color: red;
+}
+
+.red {
+    color: red;
+}
+
+.mission_critical{
+    color: #D00000;
+    /*font-size: 15px;*/
+    font-weight: bold;
+    /*color: #0000FF;*/
+}
+
+.mission_any_any{
+    /*color: #00CC33; Light Green */
+    /*color: #993300; Marron */
+    font-size: 21px;
+    font-weight: bold;
+    color: #0000FF;
+}
+
+.purple {
+    color: #6600CC;
+}
+
+.blue {
+    color: #0000FF;
+}
+
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}

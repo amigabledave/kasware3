@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Rationale" rel="stylesheet">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/bootstrap/css/jquery-ui.css">
+	<link type="text/css" rel="stylesheet" href="/bootstrap/css/selectize.bootstrap3.css">	
+	<link rel="stylesheet" href="/css/magnify.css">
+
+	<link type="text/css" rel="stylesheet" href="/css/main.css">
+	
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
+	<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
+	<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script src="https://rawgit.com/RubaXa/Sortable/master/Sortable.js"></script>
+	
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" charset="UTF-8">
+	<title> KASware </title>
+	<!-- Aqui estaban el script y style -->
+
+</head>
+
+<body class="BaseBackground">
+
+	<div class="TopBackground navbar-fixed-top"> 
+		<div class="container NoSideMarginOrPadding" style="padding-left: 45px; padding-right: 45px;">		
+			<div class="row NavigationTopBar">
+
+				<div class="col-xs-4 col-sm-2 col-md-1 col-lg-1" style="padding-left:0px;"> 
+					<div class="NavigationTopBarBlock">
+						<span class="NavigationKASwareTitleText" style=" font-family: 'Rationale'"> KASware</span><span class="NagivationMiniTopTitle">α</span>	
+					</div>
+				</div>
+			
+				<div class="hidden-xs col-sm-5 col-md-5 col-lg-5 text-right">
+					
+					<div class="form-group" style="margin:10px; text-align: left;">
+						<div class="col-xs-10" style="padding-left: 0px; padding-right: 0px;">
+							<input type="text" style="height: 25px;" id="search_string" name="search_string" class="form-control" placeholder="Search your theory">	
+						</div>
+
+						<div class="col-xs-2" style="padding-left: 2px;">
+							<button class="btn SectionButton btn-default" style="height: 25px; width: 40px; padding-top: 0px;" aria-label="Left Align" name="action_description" value="search">
+									<span class="glyphicon glyphicon-search" style="font-size: 15px;" aria-hidden="true"></span>
+							</button>
+						</div>
+					</div>
+					
+				</div>
+
+				<div class="col-xs-2 hidden-sm hidden-md hidden-lg">						
+					<button type="button" class="btn btn-default" style="background-color:transparent;border:1px; padding-top:3px; padding-bottom:0px;margin-left:-40px; color:white; margin-top: 5px;" id="MobileTheorySearchButton"><span class="glyphicon glyphicon-search" style="font-size:20px;"></span></button>						
+				</div>
+
+				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+					
+					<button type="button" class="btn SectionButton btn-default" value="history" style="height: 25px; margin-top: 12px; padding-top: 2px; font-size: 16px;"><span class="glyphicon glyphicon-flag" aria-hidden="true" style="margin-right: 5px;"></span></span><span id="merits_earned">?</span></button>
+					
+				</div>
+
+
+				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+					<div style="margin-top: 16px; color: white;">
+						<span class="glyphicon glyphicon-piggy-bank"> </span><span id="piggy_bank">?</span>
+					</div>
+				</div>
+
+				<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+					<div style="margin-top: 16px; color: white;">
+						<span class="glyphicon glyphicon-fire"></span><span id="streak_day">?</span>   
+					</div>
+				</div>
+				<!-- <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> KSU  -->
+				<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left">						
+					<button  class="btn btn-success btn-xs" style="height: 25px; width: 70px; margin-top:12px; font-weight: bold; padding-top: 3px;" aria-label="Left Align" id="CreateNewKSU"  name="action_description" value="NewKSU"> New <img style="height: 15px; margin-top: -3px; margin-left: 3px;" class="img-circle" src="images/ic_extension_white_24dp_2x.png"></button>
+				</div>
+											
+				<div class="hidden-xs col-xs-2 col-sm-2 col-md-2 col-lg-2 text-right">
+					<div style="margin-top: 12px; color: white; white-space: pre;"><span style="color: white;">{{theory.first_name}}'s theory</span>   |  <a href="/LogOut" style="color: white;"> Log out</a> </div>
+				</div>
+				<div class="hidden col-xs-12 hidden-sm hidden-md hidden-lg text-right" id="MobileSearchBar">
+					<form class="form-horizontal" method="post">
+						<div class="form-group" style="margin:10px; text-align: left;">
+							<div class="col-xs-10" style="padding-left: 0px; padding-right: 0px;">
+								<input type="text" style="height: 25px;" name="new_lookup_string" class="form-control" placeholder="Search your theory">	
+							</div>
+							<div class="col-xs-2" style="padding-left: 2px;">
+								<button type="submit" class="btn btn-default btn-xs" style="height: 25px; width: 40px; background-color: #E8E8E8;" aria-label="Left Align" name="action_description" value="SearchTheory">
+  									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>					
+			</div>
+		</div>
+	</div>
+
+	<div class="container NoSideMarginOrPadding" style="position: relative; margin-top: 50px;">
+		<div class="row" style="width: 100%">
+			<div class="col-xs-3 SectionSelectionBar" id="SectionSelectionBar">						
+				<div class="btn-group-vertical" style="width: 100%;">
+				  <button type="button" class="btn SectionButton btn-default SelectedSection" value="mission"><span class="glyphicon glyphicon-flag SetIcon" aria-hidden="true"></span>Today's Mission</button>
+
+				  <button type="button" class="btn SectionButton btn-default" value="purpose"><span class="glyphicon glyphicon-screenshot SetIcon" aria-hidden="true"></span> Current Purpose </button>
+				</div>
+
+				<div class="btn-group-vertical" style="width: 100%; margin-top: 15px">
+
+				  <button type="button" class="btn SectionButton btn-default" value="kas"><span class="glyphicon glyphicon-tower SetIcon" aria-hidden="true"></span>Key Actions Set</button>
+
+				  <button type="button" class="btn SectionButton btn-default" value="objectives"><span class="glyphicon glyphicon-road SetIcon" aria-hidden="true"></span> Milestones </button>
+
+				</div>
+
+				<div class="btn-group-vertical" style="width: 100%; margin-top: 15px">
+								  		  
+					<button type="button" class="btn SectionButton btn-default" value="experiences"><span class="glyphicon glyphicon-gift SetIcon" aria-hidden="true"></span>Joy Experiences</button>
+
+					<button type="button" class="btn SectionButton btn-default" value="mybestself"><span class="glyphicon glyphicon-user SetIcon " aria-hidden="true"></span> Mybestself</button>
+
+					<button type="button" class="btn SectionButton btn-default" value="people"><span class="glyphicon glyphicon-heart SetIcon" aria-hidden="true"></span> Love & Friendship </button>
+
+					<button type="button" class="btn SectionButton btn-default" value="possesions"><span class="glyphicon glyphicon-wrench SetIcon" aria-hidden="true"></span> Possesions </button>
+
+					<button type="button" class="btn SectionButton btn-default" value="environment"><span class="glyphicon glyphicon-home SetIcon" aria-hidden="true"></span> Environment </button>
+
+					<button type="button" class="btn SectionButton btn-default" value="contributions"><span class="glyphicon glyphicon-globe SetIcon" aria-hidden="true"></span>Contribution</button>					
+				</div>
+
+				<div id="more_buttons" class="btn-group-vertical hidden" style="width: 100%; margin-top: 15px">
+				  
+					<button type="button" class="btn SectionButton btn-default" value="wisdom"><span class="glyphicon glyphicon-tree-deciduous SetIcon" aria-hidden="true"></span> Wisdom </button>
+
+					<button type="button" class="btn SectionButton btn-default" value="indicators"><span class="glyphicon glyphicon-scale SetIcon" aria-hidden="true"></span>Indicators</button>
+
+				 	<button type="button" class="btn SectionButton btn-default" value="dashboard"><span class="glyphicon glyphicon-dashboard SetIcon" aria-hidden="true"></span>Dashboard</button>
+
+				 	<button type="button" class="btn SectionButton btn-default" value="money"><span class="glyphicon glyphicon-usd SetIcon" aria-hidden="true"></span>Money Req.</button>
+					
+				 	<button type="button" class="btn SectionButton btn-default" value="settings"><span class="glyphicon glyphicon-cog SetIcon" aria-hidden="true"></span>Settings</button>
+
+				</div>
+
+				<div class="btn-group-vertical" style="width: 100%; margin-top: 15px">				  
+					<button type="button" class="btn SectionButton btn-default" value="more">
+						<span id="ShowMoreSpan"><span class="glyphicon glyphicon-plus SetIcon" aria-hidden="true"></span> Show More </span>
+						<span id="ShowLessSpan" class="hidden"><span class="glyphicon glyphicon-minus SetIcon" aria-hidden="true"></span> Show Less </span>
+					</button>
+				</div>
+			</div>
+			<div class="col-xs-7" id="center_column" style="padding-left: 50px; padding-right: 50px; overflow-y: auto;">
+				
+				<div class="row">
+					<div class="col-xs-12"> 
+						<div class="SectionTitle" id="SectionTitle"> 
+							Today's Mission
+						</div>	
+					</div>
+				</div>
+			
+				<div class="row" id="ReasonsHolder">			
+					<div class="form-group hidden" style="" id="reasons_select_group">	
+					<label style="">Reason</label>
+					<select name="reason_id" id="reasons_select" class="ReasonSelect SexySelect" style="margin-bottom: -5px; height: 25px">
+						<option value="" selected="">What's your reason?</option>				
+					</select>
+					</div>
+				</div>
+				
+				<div class="row" name="PicInputRoe">
+					<div action="{{new_pic_input_action|safe}}" class="hidden" id="new_pic_input_action"></div>  
+				</div>
+				
+				<div class="row" name="TheoryRow">
+					<div id="TheoryHolder" class="col-xs-12 sortable">
+						{% include "MasterKSU.html" %}
+					</div>
+				</div>
+
+				<div class="row" name="HistoryRow">
+					<div id="HistoryHolder" class="col-xs-12">
+						{% include "MasterEvent.html" %}
+					</div>
+				</div>
+
+				<div class="row" name="DashboardHolder"  id="DashboardHolder">					
+					{% include "Dashboard.html" %}										
+				</div>
+				
+				<div class="row" name="MoneyRequirementsHolder">
+					<div id="MoneyRequirementsHolder" class="col-xs-12">
+					</div>			
+				</div>
+
+				<div class="row" name="SettingsHolder">
+					<div id="SettingsHolder" class="col-xs-12">
+						
+					</div>						
+				</div>
+
+				<br><br>				
+				<div class="row">
+					<div class="col-xs-12 copywright-message"> What Would You Have To Do To Experience The Best Lives You Could Live? </div>
+				</div>
+				
+				<div class="row">
+					<div class="col-xs-12 copywright-message"> Kasware Inc. © 2017 </div>
+				</div>
+				<br><br><br>
+			</div>
+
+			<div class="col-xs-2" style="padding-top: 35px; margin-left: 25px">
+				
+				<div class="row SideOption hidden SideOptionsContainer" target_view="dashboard">
+				
+					<div class="col-xs-8 form-group" style="font-size: 14px; color: white;">
+						<label class="TypeSpecific" target_type="Indicator"> Period End </label>
+						<input type="date" class="form-control" style="padding-right:3px; padding-left: 4px;" name="period_end_date" id="period_end_date" value="">
+					</div>
+
+					<div class="col-xs-4 form-group">	
+						<label style="font-size: 14px; color: white;">Days</label>
+						<input type="number" min="1" step="1" class="form-control" id="period_duration" name="period_duration" placeholder="Days">
+					</div>
+
+					<div class="col-xs-12">
+						<button type="button" class="btn SectionButton btn-default" value="dashboard" style="width: 100%;text-align: center; padding-top: 8px;"><span class="glyphicon glyphicon-refresh" aria-hidden="true" style="margin-right: 10px"></span>Refresh </button>	
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>	
+</body>
+
+<script src="/js/jquery.magnify.js"></script>
+<!-- <script src="/js/jquery.min.js"></script> -->
+<script src="/js/selectize.js"></script>
+<!-- <script src="/js/jquery.magnify-mobile.js"></script> -->
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/KASware3app.js"></script>
+
+</html>

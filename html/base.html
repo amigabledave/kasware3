@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<link type="text/css" rel="stylesheet" href="/bootstrap/css/main.css">
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+	<script src="https://rawgit.com/RubaXa/Sortable/master/Sortable.js"></script>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" charset="UTF-8">
+	<title> KASware </title>
+</head>
+
+<body class="GreyBackground">
+
+	<div class="KASwareTopBarBackground"> 
+		<div class="container">		
+
+			<div class="row" {% if theory %}hidden{% endif %}>			
+				<div class="col-xs-6 col-sm-9 col-md-7 col-lg-7"> 
+					<div class="KASwareTitleBlock">
+						<span class="KASwareTitleText"> KASware</span><span class="MiniTopTitle">α</span>
+					</div>
+				</div>
+			
+				<div class="col-xs-12 col-sm-3 col-md-5 col-lg-5 text-right">
+					<form class="form-horizontal" method="post">
+						<div class="form-group" style="margin:10px; text-align: left;">
+							<div class="col-xs-5 col-sm-5" style="padding-left: 0px;">
+								<label style="color:white; font-weight:500; font-size:12px; margin-bottom: 0px">Email</label>
+									<input type="email" style="height: 25px; margin-bottom:0px;" name="email" id="login_email" class="form-control">									
+									<span class="hidden" style="color:red; font-size:12px;" id="InvalidEmailOrPasswordError">Invalid email or password.</span>									
+							</div>
+
+							<div class="col-xs-5 col-sm-5" style="padding-left: 0px;">
+								<label style="color:white; font-weight:500; font-size:12px; margin-bottom: 0px">Password</label>
+   								<input type="password" style="height: 25px; margin-bottom:0px;" name="password" id="login_password" class="form-control">
+   								<div style="text-align:center;">
+   									<a href="/Accounts?user_request=password_reset" style="font-size:12px;color:#E6E6FA;">Forgot your password?</a>
+   								</div>
+							</div>
+
+							<div class="col-xs-2" style="padding-left: 0px;">
+								<button type="button" class="btn btn-xs btn-info" style="margin-top: 20px" name="action_description" value="LogIn" id="LogInButton"> Log In </button>
+							</div>
+
+						</div>
+					</form>
+
+				</div>					
+			</div>
+
+			{% if theory %}
+
+				<div class="row NavigationTopBar">
+
+					<div class="col-xs-2 hidden-sm hidden-md hidden-lg">
+						<div class="dropdown">	
+							<button type="button" class="btn btn-default" style="background-color:transparent;border:1px; padding-top:3px; padding-bottom:0px;margin-left:0; color:white; margin-top: 5px;" id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-menu-hamburger" style="font-size:25px;"></span></button>
+							<!-- xx					 -->
+							<ul class="dropdown-menu" aria-labelledby="dLabel"">
+								<li><a {% if time_frame == 'Today' %} class="active" {% endif %} href="/MissionViewer?time_frame=Today">Today's Mission</a></li>
+								<li><a {% if time_frame == 'Upcoming' %} class="active" {% endif %} href="/MissionViewer?time_frame=Upcoming">Upcoming</a></li>
+								<br>
+								<li><a {% if set_name == 'KeyA' %} class="active" {% endif %} href="/SetViewer?set_name=KeyA">Core Actions</a></li>
+								<li><a {% if set_name == 'BigO' %} class="active" {% endif %} href="/SetViewer?set_name=BigO">Objectives</a></li>
+								<li><a {% if set_name == 'Wish' %} class="active" {% endif %} href="/SetViewer?set_name=Wish">Dreams & Wishes</a></li>
+								<li><a {% if set_name == 'Idea' %} class="active" {% endif %} href="/SetViewer?set_name=Idea">Principles</a></li>
+								<li><a {% if set_name == 'EVPo' %} class="active" {% endif %} href="/SetViewer?set_name=EVPo">Joy Generators</a></li>
+								<li><a {% if set_name == 'ImPe' %} class="active" {% endif %} href="/SetViewer?set_name=ImPe">Important People</a></li>				  
+								<li><a {% if set_name == 'RTBG' %} class="active" {% endif %} href="/SetViewer?set_name=RTBG">Reasons To Be Grateful</a></li>
+								<br>
+								<li><a {% if set_name == 'Diary' %} class="active" {% endif %} href="/SetViewer?set_name=Diary">Diary</a></li>
+								<li><a {% if set_name == 'ImIn' %} class="active" {% endif %} href="/SetViewer?set_name=ImIn">Indicators</a></li>
+								<li><a {% if set_name == 'Dashboard' %} class="active" {% endif %} href="/SetViewer?set_name=Dashboard">Dashboard</a></li>
+								<li><a {% if set_name == 'Graveyard' %} class="active" {% endif %} href="/SetViewer?set_name=Graveyard"> Graveyard </a></li>
+								<br>
+								<li><a href="/Settings">Settings</a></li>
+								<li><a href="/LogOut">Log Out</a></li>
+							</ul>
+
+						</div>
+					</div>
+
+					<div class="col-xs-4 col-sm-2 col-md-1 col-lg-1" style="padding-left:0px;"> 
+						<div class="NavigationTopBarBlock">
+							<span class="NavigationKASwareTitleText"> KASware</span><span class="NagivationMiniTopTitle">α</span>
+						</div>
+					</div>
+				
+					<div class="hidden-xs col-sm-5 col-md-5 col-lg-5 text-right">
+						<form class="form-horizontal" method="post">
+							<div class="form-group" style="margin:10px; text-align: left;">
+								<div class="col-xs-10" style="padding-left: 0px; padding-right: 0px;">
+									<input type="text" style="height: 25px;" name="new_lookup_string" class="form-control" placeholder="Search your theory">	
+								</div>
+								<div class="col-xs-2" style="padding-left: 2px;">
+									<button type="submit" class="btn btn-default btn-xs" style="height: 25px; width: 40px; background-color: #E8E8E8;" aria-label="Left Align" name="action_description" value="SearchTheory">
+	  									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<div class="col-xs-2 hidden-sm hidden-md hidden-lg">						
+						<button type="button" class="btn btn-default" style="background-color:transparent;border:1px; padding-top:3px; padding-bottom:0px;margin-left:-40px; color:white; margin-top: 5px;" id="MobileTheorySearchButton"><span class="glyphicon glyphicon-search" style="font-size:20px;"></span></button>						
+					</div>
+
+					<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+						<div style="margin-top: 12px; color: white;"><a href="/HistoryViewer" style="color:white;">
+							<span class="glyphicon glyphicon-flag"> </span><span id="PointsToday"> {{game['points_today']|round|int}}</span></a>			
+						</div>
+					</div>
+
+
+					<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+						<div style="margin-top: 12px; color: white;">
+							<span class="glyphicon glyphicon-piggy-bank"> </span><span id="EffortReserve"> {{game['piggy_bank']|round|int}}</span>
+						</div>
+					</div>
+
+					<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
+						<div style="margin-top: 12px; color: white;">
+							<span class="glyphicon glyphicon-fire"> </span><span id="Streak"> {{game['streak']}}</span>   
+						</div>
+					</div>
+
+					
+					<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left">
+						<form method="post">
+						<button type="Submit" class="btn btn-primary btn-xs" style="height: 25px; width: 60px; margin-top:10px; background-color:#00CCFF; color:white;" aria-label="Left Align"  name="action_description" value="NewKSU" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> KSU </button>
+						</form>
+					</div>
+								
+					<div class="hidden-xs col-xs-2 col-sm-2 col-md-2 col-lg-2 text-right">
+						<div style="margin-top: 12px; color: white; white-space: pre;"> <a href="/Settings" style="color: white;">{{theory.first_name}}'s theory</a>   |  <a href="/LogOut" style="color: white;"> Log out</a> </div>
+					</div>
+
+<!-- 					<div class="col-xs-3 hidden-sm hidden-md hidden-lg">						
+						<form method="post">
+						<button type="Submit" class="btn btn-primary btn-xs" style="height: 25px; width: 60px; margin-top:10px; background-color:#00CCFF; color:white;" aria-label="Left Align"  name="action_description" value="NewKSU" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> KSU </button>
+						</form>						
+					</div> -->
+
+					<div class="hidden col-xs-12 hidden-sm hidden-md hidden-lg text-right" id="MobileSearchBar">
+						<form class="form-horizontal" method="post">
+							<div class="form-group" style="margin:10px; text-align: left;">
+								<div class="col-xs-10" style="padding-left: 0px; padding-right: 0px;">
+									<input type="text" style="height: 25px;" name="new_lookup_string" class="form-control" placeholder="Search your theory">	
+								</div>
+								<div class="col-xs-2" style="padding-left: 2px;">
+									<button type="submit" class="btn btn-default btn-xs" style="height: 25px; width: 40px; background-color: #E8E8E8;" aria-label="Left Align" name="action_description" value="SearchTheory">
+	  									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+
+
+					
+				</div>
+
+			{% endif %}
+
+		</div>
+
+
+	</div>
+	
+	<div class="container" style="position: relative;">
+		<div class="row">
+		{% if not theory %}		
+			<div class="col-xs-12">
+		{% else %}
+			
+			<div class="hidden-xs col-sm-3 col-md-2 col-lg-2">
+				<ul class="LeftNavigationBar">
+				  <li><a {% if time_frame == 'Today' %} class="active" {% endif %} href="/MissionViewer?time_frame=Today">Today's Mission</a></li>
+				  <li><a {% if time_frame == 'Upcoming' %} class="active" {% endif %} href="/MissionViewer?time_frame=Upcoming">Upcoming</a></li>
+				  <br>
+				  <li><a {% if set_name == 'KeyA' %} class="active" {% endif %} href="/SetViewer?set_name=KeyA">Core Actions</a></li>
+				  <li><a {% if set_name == 'BigO' %} class="active" {% endif %} href="/SetViewer?set_name=BigO">Objectives</a></li>
+				  <li><a {% if set_name == 'Wish' %} class="active" {% endif %} href="/SetViewer?set_name=Wish">Dreams & Wishes</a></li>
+				  <li><a {% if set_name == 'Idea' %} class="active" {% endif %} href="/SetViewer?set_name=Idea">Principles</a></li>
+				  <li><a {% if set_name == 'EVPo' %} class="active" {% endif %} href="/SetViewer?set_name=EVPo">Joy Generators</a></li>
+				  <li><a {% if set_name == 'ImPe' %} class="active" {% endif %} href="/SetViewer?set_name=ImPe">Important People</a></li>				  
+				  
+				  <li><a {% if set_name == 'RTBG' %} class="active" {% endif %} href="/SetViewer?set_name=RTBG">Reasons To Be Grateful</a></li>
+				  <br>
+				  <li><a {% if set_name == 'Diary' %} class="active" {% endif %} href="/SetViewer?set_name=Diary">Diary</a></li>
+				  <li><a {% if set_name == 'ImIn' %} class="active" {% endif %} href="/SetViewer?set_name=ImIn">Indicators</a></li>
+				  <li><a {% if set_name == 'Dashboard' %} class="active" {% endif %} href="/SetViewer?set_name=Dashboard">Dashboard</a></li>
+				  <li><a {% if set_name == 'Graveyard' %} class="active" {% endif %} href="/SetViewer?set_name=Graveyard"> Graveyard </a></li>
+				</ul>														
+			</div>
+
+			<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6">				
+				<div style="height: 650px; overflow-y: auto; overflow-x: hidden;">
+		{% endif %}									
+
+		{% block content %}
+		{% endblock %}
+					<br><br>				
+					<div class="row">
+						<div class="col-xs-12 copywright-message"> What Would You Have To Do To Experience The Best Life You Could Live? </div>
+					</div>
+					
+					<div class="row">
+						<div class="col-xs-12 copywright-message"> Kasware Inc. © 2017 </div>
+					</div>
+					<br><br><br>
+				</div>
+			</div>
+
+		{% if theory %}
+			<div class="hidden-xs hidden-sm col-md-4 col-lg-4" style="margin-left:0; margin-right:0; padding:0;">
+				<div style="height: 650px; overflow-y: auto; overflow-x: hidden;">				
+				
+
+				<div class="row">
+					<div class="col-xs-12"> 
+						<div class="SectionTitle" style="font-size:26px;"> Remember your</div>
+					</div>
+				</div>
+				{% if ksu_to_remember %}
+				<div class="row KSUdisplaySection" id="MissionKSU" value="{{ksu_to_remember.key.id()}}" style="margin-right:7px; margin-top:0px; padding-bottom:8px; min-height:100px; max-width:410px;">
+					<div class="col-xs-12 displaySectionDescription" style="padding:8px;">
+						<div class="row" style="margin-bottom:5px;">
+							<div class="col-xs-11"><span style="font-weight: bold; color:purple;">{{constants['d_KsuSubtypes'][ksu_to_remember.ksu_subtype]}}</span></div>
+
+							<div class="col-xs-1" style="padding-left:0px">
+								<button type="button" class="btn btn-default displaySectionVerticalButton ViewerOptionsButton RedirectUserButton" name="action_description" value='EditKSU'>
+									<span class="glyphicon glyphicon-pencil" style="margin-left:2px;"></span></button>
+							</div>
+
+
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								{{ksu_to_remember.description}}
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+				<div class="row">
+					<div class="col-xs-12"> 
+						<div class="SectionTitle" style="font-size:26px;"> Active Objectives</div>
+					</div>
+				</div>
+				{% for ksu in current_objectives %}
+					<div class="row KSUdisplaySection" id="MissionKSU" value="{{ksu.key.id()}}" style="margin-right:7px; margin-top: 0px; padding-bottom:10px; max-width:410px;">
+						<div class="col-xs-12" style="padding:8px;">
+							<div class="row" style="margin-bottom:5px;">
+								<div class="col-xs-12" style="font-size:16px; font-weight:bold;">
+									{{ksu.description}}																			
+								</div>					
+
+							</div>
+
+							<div class="row" style="margin-bottom:3px;">
+								<div class="col-xs-12" style="color:grey; font-style:italic; font-size:13px;">
+									{{ksu.secondary_description}}
+								</div>
+							</div>	
+
+							{% if ksu.milestones %}
+								<div class="row" style="margin-bottom:3px;">
+									<div class="col-xs-12" style="color:blue;font-size:13px;">
+										{% if ksu.milestones_len == 1 %}									
+										<b>Next milestone: </b> {{ksu.milestones[0]}}
+										{% else %}
+										<b>Next milestones: </b> {% for i in range(0, ksu.milestones_len)%}{{ksu.milestones[i]}}{% if i < ksu.milestones_len -1 %}, {% endif %}{% endfor %}
+										{% endif %}
+									</div>
+								</div>
+															
+							{% endif %}
+
+
+							{% if ksu.parent_description %}
+							<div class="row" style="margin-bottom:3px;">
+								<div class="col-xs-12" style="color:purple;font-size:13px;">
+									<b>Because I dream of: </b>{{ksu.parent_description}} 
+								</div>
+							</div>						
+							{% endif %}
+							<div class="row">
+								<div class="col-xs-10" style="text-align:center">
+									<span>{{ksu.days_left}}</span>
+								</div>
+
+								<div class="col-xs-1" style="padding-left:0px">
+									<button type="button" class="btn btn-default displaySectionVerticalButton ViewerOptionsButton RedirectUserButton" name="action_description" value='EditKSU'>
+										<span class="glyphicon glyphicon-pencil" style="margin-left:2px;"></span></button>
+								</div>
+
+								<div class="col-xs-1" style="padding-left:0px;">									
+									<button type="button" class="btn btn-default displaySectionVerticalButton RedirectUserButton ViewerOptionsButton" name='action_description' value="ViewBigOPlan"><span style="font-size:12px; padding-left:1px;" class="glyphicon glyphicon-road"></span></button>
+								</div>
+
+							</div>
+						</div>
+					</div>					
+				{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+
+		</div>
+	</div>	
+
+</body>
+<!-- <script src="/js_files/jquery.min.js"></script> -->
+<script src="/js_files/app.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+</html>
+
+

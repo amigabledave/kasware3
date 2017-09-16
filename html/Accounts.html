@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br><br>	
+<div class="row"> 	
+
+
+{% if user_request == 'create_account' %}
+	<div class="col-xs-12"> 
+		<div class="row">
+			<div class="col-xs-12" style="padding-left:45%;padding-right:45%;"><span style="font-size:60px;" class="glyphicon glyphicon-envelope SectionTitle"></span></div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10" style="text-align:center;">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px"><b> We have just sent you an email!</b><br> Please check your inbox and confirm your account to start using KASware :)</div> 
+			</div>						
+		</div>
+	</div>
+{% elif user_request == 'password_reset' %}
+	<div class="col-xs-12"> 
+		<div class="row" id="request_reset_email">
+			<div class="col-xs-12" style="padding-left:45%;padding-right:45%;"><span style="font-size:60px;" class="glyphicon glyphicon-lock SectionTitle"></span></div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10" style="text-align:center;">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px">Please enter the email address associated with your kasware account</div> 
+			</div>
+			<div class="form-group">
+				<div class="col-xs-4"></div>
+				<div class="col-xs-4">
+					<input type="email" class="form-control SignUp_Input" id="user_email" placeholder="Email">
+					<div class="hidden" style="color:red" id="InvalidEmailError">There is no kasware account associated with that email, please verify and try again.</div>
+					<button type="button" class="btn btn-sm btn-success" id="RequestPasswordReset" name="action_description" value="SignUp" style="margin-top:8px;">  Request password reset </button>	
+				</div>
+			</div>						
+		</div>
+		<div class="row hidden" id="reset_email_sent">
+			<div class="col-xs-12" style="padding-left:45%;padding-right:45%;"><span style="font-size:60px;" class="glyphicon glyphicon-envelope SectionTitle"></span></div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10" style="text-align:center;">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px"><b> We have just sent you an email!</b><br> Please check your inbox and follow the instructions to reset your password.</div> 
+			</div>						
+		</div>		
+	</div>
+{% elif user_request == 'set_new_password' %}
+	<div class="col-xs-12"> 
+		<div class="row" id="enter_new_password">
+			<div class="col-xs-12" style="padding-left:45%;padding-right:45%;"><span style="font-size:60px;" class="glyphicon glyphicon-lock SectionTitle"></span></div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10" style="text-align:center;">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px">Please enter a new password for your kasware account</div> 
+			</div>
+			<div class="form-group">
+				<div class="col-xs-4"></div>
+				<div class="col-xs-4">
+					<input type="text" class="hidden" id="theory_id" value="{{theory_id}}">
+					<input type="text" class="hidden" id="password_hash" value="{{password_hash}}" >
+					<input type="text" class="form-control SignUp_Input" id="NewPassword" placeholder="Password" required>
+					<div class="hidden" style="color:red" id="InvalidPasswordError">The password you enter or the code on the link are invalid, please verify and try again.</div>
+					<button type="button" class="btn btn-sm btn-success" id="PasswordResetButton" name="action_description" value="PasswordReset" style="margin-top:8px;margin-bottom:20px;"> Reset my password </button>	
+				</div>
+			</div>						
+		</div>
+		<div class="row hidden" id="password_reseted">
+			<div class="col-xs-12" style="padding-left:45%;padding-right:45%;"><span style="font-size:60px;" class="glyphicon glyphicon-ok SectionTitle"></span></div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-10" style="text-align:center;">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px"><b> You have successfully updated your password!</b>
+				<form action="/MissionViewer">
+					<button type="submit" class="btn btn-sm btn-success" name="time_frame" value="Today" style="margin-top:8px;margin-bottom:20px;"> Go to my Theory </button>	
+				</form>					
+			</div>						
+		</div>	
+
+
+	</div>	
+
+{% endif %}
+
+
+</div>	
+
+{% endblock %}

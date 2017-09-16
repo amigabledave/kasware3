@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br><br>	
+<div class="row"> 	
+
+	<div class="col-xs-hidden col-sm-4 col-md-6 col-lg-8"> 
+		<div class="row">
+			<div class="col-xs-1"></div>
+			<div class="col-xs-9">
+				<div class="SignUp_SummaryTitle" style="padding: 42px 0 24px"> Consciously manage your self and experience the best life you could live with Kasware.</div> 
+			</div>						
+		</div>
+
+<!-- 		<div class="row">
+			<div class="col-xs-12">
+				<div class="SignUp_SummaryBullet" style="padding: 10px 0">     <span class="glyphicon glyphicon-gift" style="color:grey;" aria-hidden="true"></span>   Improve your understanding of the person you are. </div> 
+			</div>						
+		</div> 
+ -->
+
+		<div class="row" style="margin-bottom: 20px;">
+			<div class="col-xs-1 vcenter"></div>
+			<div class="col-xs-1 vcenter">
+				<div class="glyphicon SignUpGlyphicon glyphicon-pencil" aria-hidden="true"></div>
+			</div>
+	     	<div class="col-xs-8 vcenter">
+	     		<div class="SignUp_SummaryBullet"> Record all your <b style="font-size: 18px;">dreams</b>, goals and ideas in general on how you could get the most out of life. </div>
+	     	</div>						
+		</div> 
+
+
+		<div class="row" style="margin-bottom: 20px;">
+			<div class="col-xs-1 vcenter"></div>
+			<div class="col-xs-1 vcenter">
+				<div class="glyphicon glyphicon-flag SignUpGlyphicon" aria-hidden="true"></div>
+			</div>
+	     	<div class="col-xs-8 vcenter">
+	     		<div class="SignUp_SummaryBullet"> Define the <b style="font-size: 18px;">concreate set of actions</b>, you need to take to enjoy of the life you want. </div>
+	     	</div>						
+		</div> 
+
+
+		<div class="row" style="margin-bottom: 20px;">
+			<div class="col-xs-1 vcenter"></div>
+			<div class="col-xs-1 vcenter">
+				<div class="glyphicon glyphicon-eye-open SignUpGlyphicon" aria-hidden="true"></div>
+			</div>
+	     	<div class="col-xs-8 vcenter">
+	     		<div class="SignUp_SummaryBullet"> Monitor your <b style="font-size: 18px;">self discipline</b>, effort and measure your results. </div>
+	     	</div>						
+		</div> 
+
+
+
+
+
+	</div>
+
+
+	<div class="col-xs-12 col-sm-8 col-md-6 col-lg-4">  
+		<form class="form-horizontal" method="post">
+		
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">  
+					<div class="SignUp_Title"> Sign Up! </div> 	
+				</div>				
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">  
+					<div class="SignUp_SubTitle"> it's free and sexy. </div> 	
+				</div>				
+			</div>
+
+			<div class="form-group">
+				<div class="col-xs-6" style="padding-right: 4px;">
+					<input type="text" class="form-control SignUp_Input" name="first_name" id="first_name" placeholder="First name"  value="{% if input_error %}{{post_details['first_name']}}{% endif %}" required> 					
+				</div>
+
+				<div class="col-xs-6" style="padding-left: 4px;">
+					<input type="text" class="form-control SignUp_Input" name="last_name" id="last_name" placeholder="Last name" value="{% if input_error %}{{post_details['last_name']}}{% endif %}" required>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<input type="email" class="form-control SignUp_Input" name="email" id="email" placeholder="Email" value="{% if input_error %}{{post_details['email']}}{% endif %}" required>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<input type="email" class="form-control SignUp_Input" name="confirm_email" id="confirm_email" placeholder="Re-enter email" value="{% if input_error %}{{post_details['confirm_email']}}{% endif %}" required>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<input type="text" class="form-control SignUp_Input" name="password" id="password" placeholder="New password" required>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-xs-12">
+					<button type="button" class="btn btn-lg btn-success" name="action_description"  value="SignUp" id="SignUpButton">   Sign Up   </button>	
+				</div>
+			</div>
+		</form>
+
+		<!-- Random button to be hidden in production -->
+<!-- 		<form class="form-horizontal" method="post"> 
+			<div class="form-group">
+				<div class="col-xs-12">
+					<button type="submit" class="btn btn-sm btn-success respect-space" name="action_description" value="Random_SignUp">     Random     </button>
+				</div>
+			</div>
+		</form> -->
+		<!-- Random button to be hidden in production -->
+		
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="SignUp_Error" id="input_error"></div>
+				
+			</div>
+		</div>
+
+	</div>
+</div>	
+
+
+{% endblock %}

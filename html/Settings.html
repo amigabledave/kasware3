@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<form class="form-horizontal" method="post" autocomplete="off">
+
+<div class="form-group">
+<!-- 	<div class="hidden">theory</div> -->
+	<div class="col-xs-6 col-sm-8"><span class="SectionTitle"  style="margin-left:0;" id="KsuEditorTitle">Settings</span></div>
+
+	<div class="col-xs-6 col-sm-4 btn-group" style="margin-top:25px;">
+		<button type="submit" class="btn btn-success btn-md" name="action_description" value="SaveChanges" style="margin-right: 8px;"><span class="glyphicon glyphicon-floppy-disk"></span>  Save  </button>
+		<button type="submit" class="btn btn-danger btn-md" name="action_description" value="DiscardChanges">Discard</button> 
+	</div>
+</div>
+
+<!-- 	<div class="form-group">
+		<div class="col-xs-12">
+			Current system time and date: {{today}}
+		</div>	
+	</div>
+
+	<div class="form-group">
+		<div class="col-xs-12">
+			Current local time and date: {{local_today}}
+		</div>	
+	</div>
+
+	<div class="form-group">
+		<div class="col-xs-12">
+			Current KASware time and date: {{user_today}}
+		</div>	
+	</div> -->
+
+
+	<div class="form-group">
+		<div class="col-xs-4 col-sm-5">
+			<label> First Name </label>
+			<input type="text" class="form-control" name="first_name" value="{{theory.first_name}}">
+		</div>
+
+		<div class="col-xs-4 col-sm-5">
+			<label> Last Name </label>
+			<input type="text" class="form-control" name="last_name" value="{{theory.last_name}}">
+		</div>		
+		
+		<div class="col-xs-3 col-sm-2">
+			<div class="checkbox"> 
+				<label> <input type="checkbox" name="hide_private_ksus" {% if theory.hide_private_ksus %}checked{% endif %}> Hide private KSUs </label> 
+			</div>
+		</div>
+	</div>
+	
+	<hr class="hr-1px-gray" style="margin-top:0px; margin-bottom:8px;">
+	<div class="form-group">
+		<div class="col-xs-4">
+			<label> Language </label>
+			<select class="form-control" name="language">
+				<option {% if theory.language == 'Spanish' %}selected="selected"{% endif %} value="Spanish">Spanish</option>
+				<option {% if theory.language == 'English' %}selected="selected"{% endif %} value="English">English</option>
+			</select>
+		</div>
+	
+		<div class="col-xs-4">
+			<label> Timezone </label>
+			<select class="form-control" name="timezone">
+			{% for i in range(-11,12) %}
+				{% if theory.timezone == i %}
+					<option selected="selected" value="{{i}}">U.T.C {% if i >= 0 %}+{% endif %}{{i}}</option>
+				{% else %}
+					<option value="{{i}}">U.T.C {% if i >= 0 %}+{% endif %}{{i}}</option>
+				{% endif %}
+			{% endfor %}
+			</select>
+		</div>
+
+	</div>
+
+	<div class="form-group">
+		<div class="col-xs-4"> 
+			<label> Mission burn (Kpts.) </label>			
+			<input type="number" min="0" class="form-control" name="mission_burn" placeholder="10" value="{{theory.game['mission_burn']|round|int}}">
+		</div>
+
+		<div class="col-xs-4"> 
+			<label> Critical burn (Kpts.) </label>			
+			<input type="number" min="0" class="form-control" name="critical_burn" placeholder="10" value="{{theory.game['critical_burn']|round|int}}">
+		</div>
+	</div>
+
+
+	<div class="form-group">
+
+		<div class="col-xs-4"> 
+			<label> Daily goal (Kpts.) </label>			
+			<input type="number" min="0" class="form-control" name="minimum_daily_effort" placeholder="100" value="{{theory.game['daily_goal']|round|int}}">
+		</div>		
+
+		<div class="col-xs-4"> 
+			<label> Piggy Bank (Kpts.) </label>			
+			<input type="number" min="0" class="form-control" name="piggy_bank" placeholder="0" value="{{theory.game['piggy_bank']|round|int}}">
+		</div>
+
+		<div class="col-xs-4"> 
+			<label> Streak (Days) </label>			
+			<input type="number" min="0" class="form-control" name="streak" placeholder="0" value="{{theory.game['streak']|round|int}}">
+		</div>	
+
+	</div>
+
+
+	<hr class="hr-1px-gray" style="margin-top:0px; margin-bottom:8px;">
+	<div class="form-group">
+		<div class="col-xs-12 SectionTitle" style="margin-left:0px;">
+			Tags
+		</div>
+	</div>
+
+	{% for tag in tags %}
+		<div class="form-group" style="margin-bottom:10px;">			
+<!-- 			<div class="col-xs-1">
+				<button type="button" class="btn btn-danger displaySectionVerticalButton UserActionButton ViewerOptionsButton" style="height:33px; margin-left:10px;" name='action_description' originaltag="{{tag}}" value='DeleteTag'><span class="glyphicon glyphicon-trash" style="margin-top:5px;"></span></button>				
+			</div> -->			
+
+			<div class="col-xs-10 col-sm-8">
+				<input class="form-control SettingsTag" style="color:purple; font-weight:bold; width:100%;" originaltag="{{tag}}" placeholder="Tag" type="text" name="tag" value="{{tag}}">
+			</div>
+			<div class="col-xs-1"></div>		
+		</div>	
+	{% endfor %}
+
+	<br>
+	<br>
+</form>		
+
+
+{% endblock %}

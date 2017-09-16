@@ -1,0 +1,481 @@
+<div id="KSUTemplate" ksu_type="" value="" class="row hidden KSU"><div class="col-xs-12">
+<div class="row TimeRuler hidden TypeSpecific" id="TimeRuler" target_type='Action' style="margin-left:0px;">
+	<div class="col-xs-3">
+		<input style="padding: 0px; border: 0px; height: 16px; background-color: #342042" type="time" class="KsuAttr" name="best_time" id="best_time" value="">	
+	</div>
+	<div class="col-xs-9"></div>
+</div>
+
+<div class="KSUdisplaySection" id="KSUdisplaySection">
+
+<div class="row" id="MainSection"><div class="col-xs-12" style="">
+	<div class="row" id="PreviewDiv">
+		
+		<div class="col-xs-1 TypeSpecific" target_type="Experience Contribution SelfAttribute Person Possesion Environment Wisdom Indicator" style="padding-right: 0px; max-height: 38px; text-align:center;">
+			<div id="img_holder">
+				<span id="glyphicon" class="glyphicon" style="font-size: 35px;"></span>
+			<!-- <img style="height: 38px; margin-top: -3px; margin-left: 3px;" class="img-circle" src="images/ic_extension_black_48dp_2x.png" id="blah"> -->
+			</div>
+			
+			<img src="#" id="ksu_pic" data-magnify-src="" class="zoom hidden" style="border-radius: 5px; height: 38px;">		
+		</div>	
+
+		<div class="col-xs-1 TypeSpecific" target_type="Objective">
+			<button type="button" class="btn WhiteToSuccessButton ksu-circle-btn KsuActionButton" name="action_description" value='Milestone_Reached' style="margin-left: 3px" id="MilestoneReachedButton"><span class="glyphicon glyphicon-ok"></span></button>
+		</div>
+
+
+		<div class="col-xs-1 TypeSpecific" target_type='Action'>
+			<button type="button" class="btn btn-success ksu-circle-btn KsuActionButton SubtypeSpecific" avoid_subtype="Reactive" name="action_description" value='Action_Done' style="margin-left: 3px" id="EffortDoneButton">
+			<span class="SubtypeSpecific" avoid_subtype="Reactive" id="Proactive_Merits" style="font-weight: bold;">1</span>
+			</button>
+
+			<button type="button" class="btn half-circle-btn btn-success KsuActionButton SubtypeSpecific hidden" avoid_subtype="Proactive" name="action_description" value='Action_Done' style="border-top-left-radius: 100px; border-top-right-radius: 100px; height: 38px;">
+				<span class="SubtypeSpecific" avoid_subtype="Proactive" id="Reactive_Merits" style="font-weight: bold;">1</span>				
+			</button>
+
+			<button type="button" class="btn half-circle-btn btn-danger KsuActionButton SubtypeSpecific hidden IsStupidity" avoid_subtype="Proactive" name="action_description" value='Stupidity_Commited' style="margin-top: 3px; border-bottom-left-radius: 100px; border-bottom-right-radius: 100px;">
+				<span id="Negative_Merits" style="font-weight: bold;">1</span>
+			</button>
+
+
+		</div>
+		
+		<div class="" id="DescriptionHolder">
+			<textarea style="width:100%; border:0; font-style: italic; padding-bottom: 0px; background-color: inherit;" class="KsuAttr autoExpand SubtypeSpecific TypeSpecific hidden" target_type="Action" avoid_subtype="Proactive Negative" rows="1" data-min-rows='1' name="trigger" id="trigger" placeholder="Trigger circumstance"></textarea>
+			
+			<textarea style="width:100%; border:0; background-color: inherit;" class="KsuAttr autoExpand" rows="1" data-min-rows='1' name="description" id="description" placeholder="Action description"></textarea>
+
+			<textarea style="width:100%; border:0; padding-bottom: 0px; background-color: inherit;" class="KsuAttr autoExpand SubtypeSpecific TypeSpecific hidden" target_type="Action" avoid_subtype="Proactive" rows="1" data-min-rows='1' name="negative_alternative" id="negative_alternative" placeholder="Negative alternative"></textarea>
+
+			<textarea style="width:100%; border:0; font-style: italic; padding-bottom: 0px; background-color: inherit;" class="KsuAttr autoExpand TypeSpecific" target_type="Indicator" rows="1" data-min-rows='1' name="question" id="question" placeholder="Question"></textarea>			
+
+		</div>
+		
+		<div class="col-xs-1 TypeSpecific" target_type='Action'>
+		
+			<div class="row" avoid_subtype="">
+				<input type="number" name="counter" class="KsuAttr ScoreInput" id="counter" style="height: 18px; width: 35px; text-align: center; border: 0px; color: purple;" value="0">
+			</div>
+
+			<div class="row SubtypeSpecific" avoid_subtype="Reactive Negative">
+				<button type="button" class="btn btn-default displaySectionVerticalButton PlayStopButton ViewerOptionsButton" id="ksu_timer_button" button_action="Play" style="margin-left: 4px"><span id="PlayStopGlyphicon" class="glyphicon glyphicon-play" style="margin-top: -1px;"></span></button>
+			</div>
+
+			<div class="row SubtypeSpecific" avoid_subtype="Proactive">
+				<div class="col-xs-12 KaswareFont" style="font-size: 13px;font-weight: bold;color: purple; padding-left: 10px;">Rep.</div>
+			</div>
+
+		</div>
+
+		<div class="col-xs-1" style="padding-left: 0px">
+			<button type="button" class="btn btn-primary ksu-circle-btn hidden KsuActionButton pull-right" id='SaveNewKSUButton' value="SaveNewKSU" style="margin-left: -5px"><span style="margin-left:2px;" class="glyphicon glyphicon-floppy-disk"></span></button>
+
+			<button type="button" class="btn ShowDetailButton pull-right KsuActionButton" name="action_description" value='ShowKsuDetail' id="ShowDetailButton" style="margin-left: -5px;"><span id="PlusMinusGlyphicon" class="glyphicon glyphicon-plus" style="margin-left:2px; margin-top: -1px;"></span></button>
+		</div>
+	</div>
+
+	<div class="row hidden" id="DetailDiv"><div class="col-xs-12" style=" padding-left: 20px; padding-right: 20px;">							
+		<div class="row TypeSpecific" name="ActionActionsRow" target_type='Action'>			
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
+			<div class="col-xs-6 form-group">							
+				<b class="SubtypeSpecific" avoid_subtype="Reactive Negative">Effort Intensity:</b>
+				<b class="SubtypeSpecific" avoid_subtype="Proactive Negative">Reaction Difficulty:</b>
+				<form id="size" name="size">
+					<label class="radio-inline">
+						<input type="radio" name="size" value="1" class="KsuAttr ScoreInput">
+						<span class="SubtypeSpecific" avoid_subtype="Reactive"> Relaxed </span>
+						<span class="SubtypeSpecific" avoid_subtype="Proactive"> Easy </span>
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="size" value="2" class="KsuAttr ScoreInput" checked="checked">	
+						<span class="SubtypeSpecific" avoid_subtype="Reactive"> Focused </span> 
+						<span class="SubtypeSpecific" avoid_subtype="Proactive"> Challenging </span>
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="size" value="3" class="KsuAttr ScoreInput">		
+						<span> Heroic </span>
+					</label>			
+				</form>	
+			</div>
+
+
+			<div class="col-xs-6 form-group SubtypeSpecific" avoid_subtype="Proactive">
+				<b>Stupidity Severity:</b>
+				<form id="negative_size" name="negative_size">
+					<label class="radio-inline">
+						<input type="radio" name="negative_size" value="1" class="KsuAttr ScoreInput">
+						<span> Minor </span> 
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="negative_size" value="2" class="KsuAttr ScoreInput" checked="checked"	
+						<span> Unaceptable </span> 
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="negative_size" value="3" class="KsuAttr ScoreInput">
+						<span> Despicable </span>
+					</label>			
+				</form>	
+			</div>
+
+			<div class="col-xs-6 TypeSpecific SubtypeSpecific" target_type='Action' avoid_subtype="Reactive">
+				<div class="btn-group pull-right form-group" role="group" aria-label="..." style="margin-top: 3px;">
+					
+					<button type="button" class="btn btn-default TimeBarButton BarButton" name="" value=''><img style="height: 15px;" class="img-circle" src="images/ic_watch_later_black_24dp_1x.png"></button>
+					
+					<button type="button" class="btn btn-default BarButton KsuActionButton" name="action_description" value='SendToMission'><span class="glyphicon glyphicon-share-alt"></span></button>
+					
+					<button type="button" class="btn btn-default BarButton KsuActionButton" name="action_description" value='Action_Pushed'><span class="glyphicon glyphicon-forward BarButton"  style="margin-left:-10px;"></span></button>
+					
+					<button type="button" class="btn btn-default KsuActionButton BarButton"  name="action_description" value='Action_Skipped'><span class="glyphicon glyphicon-remove""></button>																							
+				</div>
+			</div>
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
+		</div>
+		
+		<div class="row TypeSpecific" name="LifePieceSizeAndStatusRow" target_type="Experience Contribution SelfAttribute Person Possesion Environment">
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>			
+			
+			<div class="col-xs-2" id="pic_col">
+				<iframe name="hiddenFrame" class="hide"></iframe>
+				<form action="" id="pic_form" method="POST" enctype="multipart/form-data" target="hiddenFrame">										
+					<label class="fileContainer" style="width: 40px; height: 34px;">
+						<span class="glyphicon glyphicon-picture" style="margin-left: 3px; font-size: 16px;"></span>
+						<input type="file" name="file" id="imgInp"  class="pic_input"  multiple>
+					</label>
+
+					<input style="background-color: white; border-color: black; margin-left: -20px;" type="submit" class="fileContainer hidden SavePicure pull-right" name="submit" value="Save" id="SavePic">
+				</form>									
+			</div>
+			
+			<div class="col-xs-7 TypeSpecific" name="size_col" target_type="Experience Contribution SelfAttribute Person Possesion Environment">
+				<b>Life Piece Importance:</b>
+				<form id="size" name="size">
+					<label class="radio-inline">
+						<input type="radio" name="size" value="1" class="KsuAttr"> Tiny
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="size" value="2" class="KsuAttr"> Small
+					</label>
+					
+					<label class="radio-inline">
+						<input type="radio" name="size" value="3" class="KsuAttr" checked="checked"> Average
+					</label>
+					
+					<label class="radio-inline">
+						<input type="radio" name="size" value="4" class="KsuAttr"> Big
+					</label>
+
+					<label class="radio-inline">
+						<input type="radio" name="size" value="5" class="KsuAttr"> Huge
+					</label>
+				</form>	
+			</div>
+
+			<div class="col-xs-3" name="status_col">
+				<div class="form-group pull-right" style="margin-bottom: 0px;">
+					<label> Status </label>
+					<select id="status" class="KsuAttr form-control SexySelect StatusSelect ShowHideSelect" name="status">
+						<option value="Wish" class="SubtypeSpecific" avoid_subtype="JoyMine"> Wish </option>
+						<option value="Pursuit" class="SubtypeSpecific" avoid_subtype="JoyMine"> In Pursuit </option>
+						<option value="Reached" class="TypeSpecific" target_type="Objective"> Reached </option>
+						<option value="Present" class="TypeSpecific" target_type="Contribution SelfAttribute Person Possesion Environment"> Present </option>
+						<option value="Ready" class="TypeSpecific SubtypeSpecific" target_type="Experience" avoid_subtype="Moment Chapter"> Reloading </option>
+						<option value="Ready" class="TypeSpecific SubtypeSpecific" target_type="Experience" avoid_subtype="Moment Chapter"> Ready </option>
+						<option value="Past" class="TypeSpecific" target_type="Contribution SelfAttribute Person Possesion Environment"> Past </option>
+						<option value="Memory" class="TypeSpecific" target_type="Experience"> Memory </option>
+					</select>
+				</div>
+			</div>			
+		</div>
+
+
+		<div class="row TypeSpecific" name="IndicatorActionsRow" target_type='Indicator'>
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
+			
+			<div class="col-xs-1">
+				<button type="button" class="btn btn-success btn-circle btn-lg KsuActionButton" name="action_description" value='Measurement_Recorded'><span class="glyphicon glyphicon-record"></span></button>
+			</div>
+
+			<div class="col-xs-3 form-group SubtypeSpecific" avoid_subtype="Reality" style="margin-bottom: 0px;">							
+				<b>My perception:</b>
+				<form>
+					<label class="radio-inline">
+						<input type="radio" name="PerceptionSnapshot" value="1" checked="checked"> Yes
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="PerceptionSnapshot" value="0"> No
+					</label>
+				</form>	
+			</div>
+			
+			<div class="col-xs-3 form-group SubtypeSpecific" avoid_subtype="Perception" style="margin-bottom: 0px;" >	
+				<div class="input-group">
+			  		<input type="number" class="form-control" id="RealitySnapshot" name="RealitySnapshot" placeholder="Reality (#)">
+				</div>
+			</div>
+			
+			<div class="col-xs-5 form-group" style="margin-bottom: 0px;">
+			</div>
+
+			<div class="col-xs-3" style="margin-bottom: 0px;">
+				<div class="btn-group pull-right form-group" role="group" aria-label="..." >					
+					<button type="button" class="btn btn-default BarButton KsuActionButton" name="action_description" value='SendToMission'><span class="glyphicon glyphicon-share-alt"></span></button>
+					
+					<button type="button" class="btn btn-default BarButton KsuActionButton" name="action_description" value='Action_Pushed'><span class="glyphicon glyphicon-forward BarButton"  style="margin-left:-10px;"></span></button>
+					
+					<button type="button" class="btn btn-default UserActionButton BarButton" name="action_description" value='Action_Skipped'><span class="glyphicon glyphicon-remove""></button>
+																													
+				</div>
+			</div>
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
+		</div>
+
+
+		<div class="row" id="TypeSpecificDetailsRow">
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
+			
+			<div class="col-xs-3" name="subtype_col">
+				{% for ksu_type in constants['ksu_types'] %}
+				<div class="TypeSpecific form-group" target_type='{{ksu_type[0][0]}}' style="">	
+					<label  style=""> {{ksu_type[0][1]}} type </label>
+					<select id="ksu_subtype" class="KsuAttr SexySelect SubtypeSelect form-control" name="ksu_subtype">
+						{% for ksu_subtype in ksu_type[1] %}
+						<option value="{{ksu_subtype[0]}}" {% if ksu_subtype[2] %} selected="selected" {% endif %}> {{ksu_subtype[1]}} </option>
+						{% endfor %}
+					</select>
+				</div>
+				{% endfor %}
+			</div>
+
+			<div class="col-xs-9 ReasonHolder" name="reason_id" id="reason_holder" reason_id="">	
+			</div>
+
+
+			<div class="col-xs-3 form-group TypeSpecific" target_type="Objective" id="objective_status_col">
+				<label> Status </label>						
+				<select id="status" class="KsuAttr form-control SexySelect StatusSelect" name="status">	
+					<option value="Pipeline" selected="selected"> In Pipeline </option>						
+					<option value="Pursuit" > In Pursuit </option>
+					<option value="Reached"> Reached </option>					
+				</select>			
+			</div>
+
+			<div class="col-xs-3 form-group TypeSpecific" target_type="Action" id="priotiy_col">	
+				<label > Priority </label>
+				<select id="status" class="KsuAttr form-control SexySelect StatusSelect" name="status">	
+					<option value="Critical" > Critical </option>
+					<option value="Active" selected="selected" class="TypeSpecific" target_type="Action"> Active </option>
+					<option value="Optional"> Optional </option>						
+				</select>			
+			</div>
+
+
+			<div class="col-xs-3 TypeSpecific" target_type="Experience" id="memory_level_col">
+				<label> Memory Level</label>
+				<select id="memory_level" class="KsuAttr form-control SexySelect" name="memory_level">
+					<option value="1">Ok</option>
+					<option value="2">Nice</option>
+					<option value="3">Very Nice</option>
+					<option value="4">Epic</option>
+					<option value="5">Legendary</option>
+				</select>				
+			</div>
+
+			<div class="col-xs-3 form-group TypeSpecific SubtypeSpecific" target_type='Experience Person Indicator' id="frequency_col" avoid_subtype="Moment Chapter Group Role">					
+				<label class="TypeSpecific" target_type="Experience"> Reload time </label>
+				<label class="TypeSpecific" target_type="Person"> Minimum Contact </label>
+				<label class="TypeSpecific" target_type="Indicator"> Question Freq. </label>
+				<select id="frequency" class="KsuAttr form-control SexySelect" name="frequency">
+					<option value="1"> Daily </option>
+					<option value="3"> Tridaily </option>					
+					<option value="7"> Weekly </option>
+					<option value="14"> Biweekly </option>
+					<option value="30" selected="selected"> Monthly </option>					
+					<option value="60"> Bimonthly </option>
+					<option value="180"> Semesterly </option>
+					<option value="365"> Yearly </option>
+				</select>
+				
+			</div>
+
+			<div class="col-xs-3 form-group TypeSpecific SubtypeSpecific" target_type='Action Objective Experience Indicator' avoid_subtype="Reactive">
+				<label class="TypeSpecific" target_type="Action"> Target Date </label>
+				<label class="TypeSpecific" target_type="Objective"> Target Date </label>
+				<label class="TypeSpecific" target_type="Experience"> Event Date </label>
+				<label class="TypeSpecific" target_type="Indicator"> Next Question </label>
+				<input type="date" class="KsuAttr form-control SexyInput" style="padding-right:3px; padding-left: 4px;" name="event_date" id="event_date" value="">
+			</div>	
+				
+			<div class="col-xs-3 form-group TypeSpecific SubtypeSpecific" target_type='Action' avoid_subtype="Reactive">
+				<label> Repeats </label>
+				<select id="repeats" class="KsuAttr form-control ShowHideSelect SexyInput" name="repeats">					
+					<option value="Never" selected="selected"> Never </option>
+					<option value="Always"> Always </option>
+					<option value="X_Days"> Every X Days </option>
+					<option value="Week"> Weekly </option>
+					<option value="Month"> Monthly </option>
+					<option value="Year"> Yearly </option>
+				</select> 
+			</div>
+			
+			<div class="col-xs-2 hidden form-group TypeSpecific" id="repeats_Xdays_col" target_type='Action'>
+				<label style="font-style: italic;"> X value </label>
+				<input type="number" min="1" class="KsuAttr form-control SexyInput" style="padding-right:3px; margin-bottom:7px;" name="every_x_days" id="every_x_days" placeholder="e.g. 1" value="1"> 		
+			</div>
+
+			<div class="col-xs-2 hidden form-group TypeSpecific" id="repeats_day_col" target_type='Action'>
+
+				<label  style="font-style: italic;"> on the: </label>
+				<select class="KsuAttr form-control SexyInput" name="on_the_day" id="on_the_day" style="margin-bottom:7px;">
+					{% for day in range(1,32) %}
+						<option value="{{day}}"> {{day}} </option>							
+					{% endfor %}
+				</select> 	
+			</div>
+				
+			<div class="col-xs-3 hidden form-group TypeSpecific" id="repeats_month_col" target_type='Action'>
+				<label style="font-style: italic;"> of: </label>
+				<select class="KsuAttr form-control SexyInput" name="of_month" id="of_month" style="margin-bottom:7px;">
+					{% for month in constants['l_months'] %}
+						<option value="{{month[0]}}"> {{month[1]}} </option>
+					{% endfor %}
+				</select>		
+			</div>
+
+			<div class="col-xs-6 hidden form-group TypeSpecific" id="repeats_week_col" target_type='Action'>
+				<div class="row" style="margin-top: 13px; margin-bottom: 25px">
+					{% for day in constants['l_weekdays'] %}
+					<div class="col-xs-1" style="margin-right:8px;"><label class="checkbox-inline" style="display:table-row;"><b>{{day[1]}}<input type="checkbox" class="KsuAttr" name="every_{{day[0]}}" id="every_{{day[0]}}" style="display:table-row; width:100%; margin-left: 2px"></b></label></div>
+					{% endfor %}	
+				</div>				
+			</div>
+
+
+		
+
+			<div class="col-xs-3 form-group TypeSpecific SubtypeSpecific" target_type='Person' id="birthday_col" avoid_subtype="Group Role">					
+				<label> Birthday </label>
+				<input type="date" class="KsuAttr form-control SexyInput" style="padding-right:3px; padding-left: 4px;" name="birthday" id="birthday" value="">	
+			</div>
+
+
+			<div class="col-xs-3 form-group TypeSpecific SubtypeSpecific" id="chapter_duration_col" target_type="Experience" avoid_subtype="Moment JoyMine">
+				<label>Chapter Duration</label>
+				<input type="number" min="1" step="1" class="form-control KsuAttr SexyInput" id="chapter_duration" name="chapter_duration" placeholder="Days">				
+			</div>
+
+
+			
+			<div class="col-xs-3 form-group TypeSpecific" id="money_cost_col" target_type="Experience Contribution SelfAttribute Person Possesion Environment">
+				<label>Money Cost</label>
+				<div class="input-group">
+					<span class="input-group-addon SexyInput">$</span>
+			  		<input type="number" min="1" step="1" class="form-control KsuAttr SexyInput" id="money_cost" name="money_cost" placeholder="Cost">
+				</div>
+			</div>
+
+			<div class="col-xs-3 form-group hidden TypeSpecific" id="cost_frequency_col" target_type="Experience Contribution SelfAttribute Person Possesion Environment">	
+				<label> Cost frequency </label>
+				<select id="cost_frequency" class="KsuAttr form-control SexySelect" name="cost_frequency">
+					<option value="0" selected="selected"> One Time </option>
+					<option value="7"> Weekly </option>
+					<option value="30"> Monthly </option>
+					<option value="365"> Yearly </option>
+				</select>			
+			</div>
+
+
+			<div class="col-xs-9 form-group hidden TypeSpecific SubtypeSpecific" id="ExceptionsRow" target_type='Action' avoid_subtype='Proactive'>
+				<label>Valid exceptions</label>
+				<textarea class="KsuAttr form-control SexyInput" rows="1" data-min-rows='1' name="exceptions" id="exceptions" placeholder="Exceptions" style="padding-left: 10px;"></textarea>	
+			</div>
+
+
+			<div class="col-xs-12 form-group TypeSpecific" id="source_col" target_type='Wisdom'>
+				<label>Source</label>
+				<textarea class="KsuAttr form-control SexyInput" rows="1" data-min-rows='1' name="source" id="source" placeholder="Source. e.g. author name, book or movie title, url, etc" style="padding-left: 10px;"></textarea>	
+			</div>
+		</div>
+		
+		<div class="row" id="BooleanRow">
+			<div class="inKSUhrDiv"><hr class="inKSUhr"></div>
+			<div class="col-xs-8">
+				<label class="checkbox-inline"><input type="checkbox" id="is_private" name="is_private" class="KsuAttr"><b>Private</b></label>
+
+				<label class="checkbox-inline"><input type="checkbox" id="monitor" name="monitor" class="KsuAttr MonitorCheckbox"><b>Monitor</b></label>
+
+				<label class="checkbox-inline TypeSpecific" target_type="Contribution SelfAttribute Person Possesion Environment"><input type="checkbox" id="needs_mtnc" name="needs_mtnc" class="KsuAttr"><b>Needs Maintenace</b></label>
+				
+				<label class="checkbox-inline TypeSpecific" target_type="Action"><input type="checkbox" id="anywhere" name="anywhere" class="KsuAttr"><b>Anywhere</b></label>
+				
+			</div>
+			<div class="col-xs-4">
+				<input class="KsuAttr" style="color:purple; border:0; width:100%; text-align:left; margin-left:-10px; font-style: italic;" type="text" list="tags" name="tag" id="tag" value="" placeholder="Tag">		
+			</div>
+		</div>
+
+		<div class="row hidden" id="MonitorDetails">
+			<div class="inKSUhrDiv"><hr class="inKSUhr" style="margin-top: 15px;"></div>
+			
+			<div class="col-xs-3 form-group TypeSpecific" id="goal_type_col" target_type="Indicator">
+				<label> Goal Type </label>
+				<select id="goal_type" class="KsuAttr form-control SexySelect" name="goal_type">	
+					<option value="More" selected="selected"> More Than </option>								
+					<option value="Less"> Less Than </option>					
+				</select>				
+			</div>
+
+			<div class="col-xs-3 form-group" id="merits_goal_col">				
+				<label class="TypeSpecific SubtypeSpecific" target_type="Action" avoid_subtype="Proactive Reactive Reality Perception">Indulgence Limit</label>
+				<label class="SubtypeSpecific" avoid_subtype="Negative Reality Perception">Effort Minimum</label>
+				<label class="TypeSpecific" target_type="Indicator">Value Average</label>
+				<input type="number" min="0" step="1" class="form-control KsuAttr SexyInput" id="goal_score" name="goal_score" placeholder="Goal">			
+			</div>
+
+			<div class="col-xs-3 form-group SubtypeSpecific" id="count_goal_col" avoid_subtype="Reality Perception">
+				<label class="SubtypeSpecific" avoid_subtype="Negative Reactive">Time Minimum</label>	
+				<label class="SubtypeSpecific" avoid_subtype="Proactive Negative">Rep. Minimum</label>
+				<label class="TypeSpecific SubtypeSpecific" target_type="Action" avoid_subtype="Proactive Reactive">Rep. Limit</label>
+				<input type="number" min="0" step="1" class="form-control KsuAttr SexyInput" id="goal_counter" name="goal_counter" placeholder="Goal">			
+			</div>
+
+			<div class="col-xs-3 form-group SubtypeSpecific" id="events_goal_col" avoid_subtype="Reality Perception">
+				<label class="SubtypeSpecific" avoid_subtype="Negative">Events Minimum</label>
+				<label class="TypeSpecific SubtypeSpecific" target_type="Action" avoid_subtype="Proactive Reactive">Events Limit</label>				
+				<input type="number" min="0" step="1" class="form-control KsuAttr SexyInput" id="goal_events" name="goal_events" placeholder="Goal">			
+			</div>
+
+			<div class="col-xs-3 form-group SubtypeSpecific" id="goal_time_frame_col" avoid_subtype="Reality Perception">
+				<label> Goal Time Frame </label>
+				<select id="goal_time_frame" class="KsuAttr form-control SexySelect" name="goal_time_frame">	
+					<option value="1"> Daily </option>										
+					<option value="7"  selected="selected"> Weekly </option>					
+					<option value="30"> Monthly </option>
+					<option value="365"> Yearly </option>
+				</select>				
+			</div>
+
+		</div>
+
+		<div class="row" id="CommentsRow">
+			<div class="col-xs-10">
+				<textarea style="width:100%; border:0; margin-top: 10px; background-color: inherit;" class="KsuAttr" rows="2" data-min-rows='1' name="comments" id="comments" placeholder="Comments"></textarea>	
+			</div>
+			<div class="col-xs-2">							
+					<button type="button" class="btn btn-danger ksu-circle-btn KsuActionButton pull-right" name="action_description" value='DeleteKSU' style="margin-top: 10px;"><span class="glyphicon glyphicon-trash"></span></button>
+			</div>
+		</div>	
+
+	</div></div>
+</div></div>
+<div class="row hidden" id="KsuHiddenAttributes">
+	<input type="text" id="ksu_type" name="ksu_type" value="" class="KsuAttr">
+	<input type="text" id="pic_url" name="pic_url" value="" class="KsuAttr">
+</div>
+</div></div></div>
