@@ -11,24 +11,20 @@ from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api import images
 
-constants = constants.constants
-
-Theory = datastore.Theory
-
-KSU = datastore.KSU
-KSU3 = datastore.KSU3
-
-Event = datastore.Event
-Event3 = datastore.Event3
-
-GameLog = datastore.GameLog
-
-os_ksus = kasware_os.os_ksus
-
-
 template_dir = os.path.join(os.path.dirname(__file__), 'html')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
+constants = constants.constants
+os_ksus = kasware_os.os_ksus
+
+Theory = datastore.Theory
+KSU = datastore.KSU
+KSU3 = datastore.KSU3
+Event = datastore.Event
+Event3 = datastore.Event3
+GameLog = datastore.GameLog
+
+time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -77,25 +73,25 @@ class Handler(webapp2.RequestHandler):
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		theory_id = self.read_secure_cookie('theory_id')
 		self.theory = theory_id and Theory.get_by_theory_id(int(theory_id)) #if the user exist, 'self.theory' will store the actual theory object
-		self.game_log = self.theory and self.update_game() #xx 
+		self.game_log = self.theory and self.update_game()
 
 	def update_game(self):
-		time_travel = 0
 		theory = self.theory
 		game_log = GameLog.get_by_id(theory.game_log_key.id())
 		
 		game_log_user_date = game_log.user_date
-		today = (datetime.today()+timedelta(hours=self.theory.timezone)+ timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
-
-		print 
-		print 'Todays date'
-		print today
-		print 'Game log user date'
-		print game_log_user_date
-		print
+		today = (datetime.today()+timedelta(hours=self.theory.timezone)+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
 
 		if today > game_log_user_date: #XX Aqui nos quedamos, sigue hacer un experimento de darle una accion de 1000 merits y ver que aumente streak y disminuya el piggy bank lo correspondiente y que aumente piggy bank sod
-			self.check_n_burn()			
+
+			print 
+			print 'Todays date'
+			print today
+			print 'Game log user date'
+			print game_log_user_date
+			print
+
+			self.check_n_burn(game_log)			
 			days_gap = today.toordinal() - game_log_user_date.toordinal()
 
 			for i in range(0, days_gap):
@@ -104,37 +100,55 @@ class Handler(webapp2.RequestHandler):
 
 		return game_log 
 
-	def check_n_burn(self):
+	def check_n_burn(self, game_log):
 		theory = self.theory
-		user_date = (datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0)
-		ksu_set = KSU3.query(KSU3.theory_id == theory.key).filter(KSU3.status == 'Critical').filter(KSU3.event_date != None).filter(KSU3.event_date <= user_date).fetch()
-
-		print
-		print 'Estos son los KSUs criticos'
-		print
-
+		critical_burn = 10
+		game_log_user_date = game_log.user_date
+		ksu_set = KSU3.query(KSU3.theory_id == theory.key).filter(KSU3.status == 'Critical').filter(KSU3.event_date != None).filter(KSU3.event_date <= game_log_user_date).fetch()
+		
 		for ksu in ksu_set:
 			print ksu.description
-		# EL CHECK AND BURN TIENE QUE MODIFICAR MERITS EOD DEL ACTIVE LOG Y MERITS LOSS, ADEMAS DE GENERAR EVENTOS
+			
+			reason_status = 'NoReason'
+			if ksu.reason_id:
+				reason_ksu = KSU3.get_by_id(ksu.reason_id.id())
+				reason_status = reason_ksu.status
+
+			event = Event3(
+				theory_id = ksu.theory_id,
+				ksu_id = ksu.key,
+				description = 'Critical burn for not: ' + ksu.description,
+				reason_status = reason_status,
+				event_date = game_log_user_date,
+				event_type = 'Stupidity',
+				score = critical_burn)
+			
+			event.put()
+			self.update_game_log(event, game_log)
+
 		return
 
-
-	def create_new_game_log(self, old_game_log): #xx
+	def create_new_game_log(self, old_game_log):
 		theory = self.theory
-		
+
+		old_game_log.piggy_bank_eod = int(old_game_log.piggy_bank_sod + old_game_log.merits_earned - old_game_log.merits_goal * (1 - old_game_log.slack_cut) - old_game_log.merits_loss)
+		old_game_log.put()
+
 		attempt = old_game_log.attempt
 		
-		if old_game_log.piggy_bank_eod > 0:
+		if old_game_log.piggy_bank_eod >= 0:
 			streak_day = old_game_log.streak_day + 1
-
+			piggy_bank_sod = old_game_log.piggy_bank_eod
 		else:
 			streak_day = 0
+			piggy_bank_sod = 0
 			if old_game_log.streak_day > 0:
 				attempt = old_game_log.attempt + 1
 
 		game_log = GameLog(
 			theory_id=theory.key,
 			user_date=old_game_log.user_date + timedelta(days=1),
+			piggy_bank_sod=piggy_bank_sod,
 			merits_goal=define_merits_goal(streak_day),
 			streak_day=streak_day,
 			attempt=attempt,
@@ -145,6 +159,23 @@ class Handler(webapp2.RequestHandler):
 		theory.put()
 
 		return game_log
+
+	def update_game_log(self, event, game_log, delete_event=False):
+
+		event_type = event.event_type
+		score = event.score
+		if delete_event:
+			score = -score
+
+		if event_type == 'Effort':
+			game_log.merits_earned += score
+		
+		elif event_type == 'Stupidity':
+			game_log.merits_loss += score 
+
+		game_log.put()
+		return game_log
+
 
 
 # ---- KASware3 ----
@@ -169,7 +200,7 @@ class Home(Handler):
 			ksu = self.update_ksu(ksu, user_action)
 			ksu.put()
 
-			game_log = self.update_game_log(event)
+			game_log = self.update_game_log(event, self.game_log)
 			event_dic = self.event_to_dic(event)
 			
 			self.response.out.write(json.dumps({
@@ -279,7 +310,7 @@ class Home(Handler):
 
 		elif user_action == 'DeleteEvent':
 			event = Event3.get_by_id(int(event_details['event_id']))
-			game_log = self.update_game_log(event, delete_event=True)
+			game_log = self.update_game_log(event, self.game_log, delete_event=True)
 			ksu = KSU3.get_by_id(event.ksu_id.id())
 			render_ksu = ksu.in_graveyard
 			ksu.in_graveyard = False
@@ -444,7 +475,7 @@ class Home(Handler):
 		return attributes
 
 	def update_event_date(self, ksu, user_action):
-		today = (datetime.today()+timedelta(hours=self.theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0)
+		today = (datetime.today()+timedelta(hours=self.theory.timezone)+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
 		# today = datetime(2017,12,5)
 		tomorrow = today + timedelta(days=1)
 		ksu_details = ksu.details
@@ -537,7 +568,7 @@ class Home(Handler):
 			elif ksu_subtype == 'Reality':
 				event_type = 'RealitySnapshot'
 
-		event_date = (datetime.today() + timedelta(hours=self.theory.timezone))
+		event_date = (datetime.today() + timedelta(hours=self.theory.timezone) + timedelta(days=time_travel))
 		if ksu.event_date and ksu_subtype not in ['Action', 'Objective']:
 			event_date = ksu.event_date
 
@@ -583,24 +614,6 @@ class Home(Handler):
 			size = size)
 
 		return event
-
-	def update_game_log(self, event, delete_event=False):
-		theory = self.theory
-		game_log = self.game_log
-
-		event_type = event.event_type
-		score = event.score
-		if delete_event:
-			score = -score
-
-		if event_type == 'Effort':
-			game_log.merits_earned += score
-		
-		elif event_type == 'Stupidity':
-			game_log.merits_loss += score 
-
-		self.game_log.put()
-		return game_log
 
 	def CreateDashboardBase(self, start_date, end_date):
 
@@ -772,8 +785,6 @@ class Home(Handler):
 				'score': dashboard_base['current']['WishRealized']['averages']['score'],
 				'contrast': dashboard_base['previous']['WishRealized']['averages']['score']},
 			]},
-
-
 		]
 
 
@@ -1008,7 +1019,7 @@ class SignUpLogIn(Handler):
 
 				game_log = GameLog(
 					theory_id=theory.key,
-					user_date=(datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0),
+					user_date=(datetime.today() + timedelta(hours=theory.timezone) +timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=define_merits_goal(0),
 					attempt=1,
 					)
@@ -1019,10 +1030,10 @@ class SignUpLogIn(Handler):
 				theory.put()
 
 				#Loads OS Ksus
-				for post_details in os_ksus:
-					ksu = KSU(theory=theory.key)
-					ksu = prepareInputForSaving(theory, ksu, post_details)
-					ksu.put()
+				# for post_details in os_ksus:
+				# 	ksu = KSU(theory=theory.key)
+				# 	ksu = prepareInputForSaving(theory, ksu, post_details)
+				# 	ksu.put()
 				
 				# self.login(theory)				
 				email_receiver = str(theory.email)
@@ -1162,9 +1173,9 @@ class Settings(Handler):
 	@super_user_bouncer
 	def get(self):
 		theory = self.theory
-		today = datetime.today()
+		today = datetime.today()+timedelta(days=time_travel)
 
-		local_today = datetime.today()+timedelta(hours=theory.timezone)
+		local_today = datetime.today()+timedelta(hours=theory.timezone)+timedelta(days=time_travel)
 
 		user_today = local_today
 
@@ -1273,7 +1284,7 @@ class PopulateRandomTheory(Handler):
 
 				game_log = GameLog(
 					theory_id=theory.key,
-					user_date=(datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0),
+					user_date=(datetime.today() + timedelta(hours=theory.timezone) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=define_merits_goal(0),
 					attempt=1,
 					)
@@ -1284,10 +1295,10 @@ class PopulateRandomTheory(Handler):
 				theory.put()
 
 				#Loads OS Ksus 
-				for post_details in os_ksus:
-					ksu = KSU(theory=theory.key)
-					ksu = prepareInputForSaving(theory, ksu, post_details)
-					ksu.put()
+				# for post_details in os_ksus:
+				# 	ksu = KSU(theory=theory.key)
+				# 	ksu = prepareInputForSaving(theory, ksu, post_details)
+				# 	ksu.put()
 
 				self.login(theory)
 				# self.redirect('/MissionViewer?time_frame=Today')
@@ -1296,7 +1307,7 @@ class PopulateRandomTheory(Handler):
 		theory_key = theory.key
 		username = theory.first_name + ' ' + theory.last_name
 
-		today =(datetime.today()+timedelta(hours=theory.timezone))
+		today =(datetime.today()+timedelta(hours=theory.timezone)+timedelta(days=time_travel))
 		print
 		print 'Este es el today de PopulateTheory:'
 		print today
@@ -1395,7 +1406,7 @@ class PopulateRandomHistory(Handler):
 		self.redirect('/')
 
 	def create_random_event(self, ksu):
-		event_date = datetime.today() - timedelta(days=random.randrange(0,13))
+		event_date = datetime.today() - timedelta(days=random.randrange(0,13) + timedelta(days=time_travel))
 		ksu_event_by_subtype = {
 			'Proactive':'Effort',
 			'Reactive': 'Effort',
@@ -1448,288 +1459,6 @@ def determine_return_to(self):
 
 
 	return return_to
-
-def update_next_event(self, user_action, post_details, ksu):
-
-	def days_to_next_event(ksu):
-
-		if ksu_subtype in ['EVPo']:
-			return ksu.frequency
-
-		def find_next_weekly_repetition(d_repeats_on):
-
-			def d_to_l_repeats_on(d_repeats_on):
-				result = []
-				l_repeats_on_keys = ['repeats_on_Mon', 'repeats_on_Tue', 'repeats_on_Wed', 'repeats_on_Thu', 'repeats_on_Fri', 'repeats_on_Sat', 'repeats_on_Sun']
-				for day in l_repeats_on_keys:
-					result.append(d_repeats_on[day])
-				return result
-
-			l_repeats_on = d_to_l_repeats_on(d_repeats_on)
-
-			def reorginize_list(l, position):
-				result = []
-				list_size = len(l)
-				active_position = position
-				for i in range(0, list_size):		
-					active_position += 1
-					if active_position >= list_size:
-						active_position = 0
-					result.append(l[active_position]) 
-				return result
-
-			today =(datetime.today()+timedelta(hours=self.theory.timezone))
-
-			active_position = today.weekday()
-
-			repeats_on_list = reorginize_list(l_repeats_on, active_position)
-
-			i = 1
-			for weekday in repeats_on_list:
-				if weekday:
-					return i
-				else:
-					i += 1
-			return 0
-
-		d_repeats_values = {'R000':'Never', 'R001':1, 'R007':7, 'R030':30, 'R365':365}
-		
-		repeats = ksu.repeats
-		repeats_on = ksu.repeats_on
-		frequency = ksu.frequency
-
-		result = 0
-
-		if repeats in ['R001', 'R030', 'R365']:		
-			result = d_repeats_values[repeats] * frequency
-
-		if repeats == 'R007':
-			result = find_next_weekly_repetition(repeats_on)
-
-		return result
-	
-	print 'Este es el tipo de KSU que se esta intentado actualizar el evento'
-	print ksu.ksu_subtype
-
-	today = (datetime.today()+timedelta(hours=self.theory.timezone))
-	tomorrow = today + timedelta(days=1)
-	ksu_subtype = ksu.ksu_subtype	
-	
-	if ksu_subtype in ['KAS1', 'EVPo']:
-		next_event = ksu.next_event
-		days_to_next_event = days_to_next_event(ksu)
-		print
-		print 'Si quiere actualizar el evento'
-
-
-		if not next_event:
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-			
-		if user_action in ['MissionDone', 'MissionSkip', 'ViewerDone']:
-			ksu.next_event = today + timedelta(days=days_to_next_event)
-			ksu.pretty_next_event = (today + timedelta(days=days_to_next_event)).strftime('%a, %b %d, %Y')
-
-		if user_action == 'MissionPush':
-			ksu.next_event = tomorrow
-			ksu.pretty_next_event = tomorrow.strftime('%a, %b %d, %Y')
-
-		if user_action == 'SendToMission':
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-			print ksu.pretty_next_event
-
-	elif ksu_subtype in ['KAS2']:
-
-		if user_action in ['MissionDone', 'ViewerDone'] and not ksu.is_mini_o:
-			ksu.next_event = None
-			ksu.pretty_next_event = None
-
-		if user_action == 'MissionSkip':
-			ksu.next_event = None
-			ksu.pretty_next_event = None
-
-
-		if user_action == 'MissionPush':
-			ksu.next_event = tomorrow
-			ksu.pretty_next_event = tomorrow.strftime('%a, %b %d, %Y')
-
-		if user_action == 'SendToMission':
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-
-
-	elif ksu_subtype in ['KAS3', 'KAS4']:
-		
-		next_event = ksu.next_event
-
-		if not next_event:
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-
-		print
-		print 'Hasta aqui ya llego a darse cuenta que es KAS3 o KAS4 '
-		
-
-		if user_action in ['MissionDone']:
-			if ksu.mission_view == 'Principal':
-				ksu.next_event = today
-				ksu.pretty_next_event = today.strftime('%a, %b %d, %Y')
-			else:
-				ksu.next_event = tomorrow
-				ksu.pretty_next_event = tomorrow.strftime('%a, %b %d, %Y')
-
-		if user_action == 'MissionPush':
-			ksu.next_event = tomorrow
-			ksu.pretty_next_event = tomorrow.strftime('%a, %b %d, %Y')
-
-
-	elif ksu_subtype in ['ImPe', 'RealitySnapshot', 'FibonacciPerception', 'TernaryPerception', 'BinaryPerception', 'Diary']:
-		
-		next_event = ksu.next_event
-
-		if not next_event:
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-		
-		if user_action in ['MissionDone', 'MissionSkip', 'ViewerDone', 'RecordValue']:
-			ksu.next_event += timedelta(days=ksu.frequency)
-			ksu.pretty_next_event = (next_event + timedelta(days=ksu.frequency)).strftime('%a, %b %d, %Y')
-
-		if user_action == 'MissionPush':
-			ksu.next_event = tomorrow
-			ksu.pretty_next_event = tomorrow.strftime('%a, %b %d, %Y')
-
-		if user_action == 'SendToMission':
-			ksu.next_event = today
-			ksu.pretty_next_event = (today).strftime('%a, %b %d, %Y')
-
-	return		
-
-def prepareInputForSaving(theory, ksu, post_details):
-
-	def determine_ksu_subtype(ksu, post_details):
-
-		ksu_type = ksu.ksu_type
-
-		if 'ksu_subtype' in post_details:
-			ksu_subtype = post_details['ksu_subtype']
-		else:
-			ksu_subtype = ksu_type
-
-		if ksu_type in ['OTOA', 'BOKA']:
-			ksu_subtype = 'KAS2'
-
-		return ksu_subtype
-
-
-	l_checkbox_attribute = [ 'is_active', 
-							 'is_critical', 
-							 'is_private']
-
-	d_repeats_on = {
-		'repeats_on_Mon': False,
-		'repeats_on_Tue': False, 
-		'repeats_on_Wed': False, 
-		'repeats_on_Thu': False,
-		'repeats_on_Fri': False,
-		'repeats_on_Sat': False,
-		'repeats_on_Sun': False}
-
-	for attribute in l_checkbox_attribute:
-		setattr(ksu, attribute, False)
-
-	d_attributeType = constants['d_attributeType']
-
-	for a_key in post_details:
-
-		a_val = post_details[a_key]
-		a_type = None
-		
-		if a_key in d_attributeType:
-			a_type = d_attributeType[a_key]
-		
-		if a_type == 'string':
-			setattr(ksu, a_key, a_val.encode('utf-8'))
-
-		if a_type == 'integer':
-			setattr(ksu, a_key, int(a_val))
-
-		if a_type == 'float':
-			setattr(ksu, a_key, float(a_val))
-
-		if a_type == 'date':
-			setattr(ksu, a_key, datetime.strptime(a_val, '%Y-%m-%d'))
-			if a_key == 'next_event':
-				setattr(ksu, 'pretty_'+a_key, datetime.strptime(a_val, '%Y-%m-%d').strftime('%a, %b %d, %Y'))
-
-		if a_type == 'time':
-			a_val = a_val[0:5]
-			setattr(ksu, a_key, datetime.strptime(a_val, '%H:%M').time())
-			setattr(ksu, 'pretty_'+a_key, a_val)
-
-		if a_type == 'checkbox':
-			if a_val == 'on':
-				a_val = True
-			setattr(ksu, a_key, a_val)
-
-		if a_type == 'checkbox_repeats_on':
-			if a_val == 'on':
-				a_val = True
-			d_repeats_on[a_key] = a_val
-
-
-		if a_type == 'dict_cost':
-			ksu.cost[a_key] = int(a_val)
-		
-
-		if a_type =='user_tags':
-			a_val, tags = prepare_tags_for_saving(a_val)
-			setattr(ksu, a_key, a_val.encode('utf-8'))
-			update_user_tags(theory, tags)
-			theory.categories['tags'] = update_user_tags(theory, tags)
-			theory.put()
-
-		if a_type == 'parent_id':
-			if a_val == 'None':
-				ksu.parent_id = None
-			else:			
-				parent_ksu = KSU.get_by_id(int(a_val))
-				parent_key = parent_ksu.key
-				ksu.parent_id = parent_key
-				# if post_details['ksu_type'] != 'BigO': #Segun yo esto esta mal
-				if parent_ksu.ksu_type == 'BigO': #Creo que esto es mas correcto
-					ksu.ksu_type = 'BOKA'
-
-	setattr(ksu, 'repeats_on', d_repeats_on)
-	
-	ksu.ksu_subtype = determine_ksu_subtype(ksu, post_details)
-
-	if ksu.ksu_subtype == 'ImPe' and not ksu.secondary_description:
-		ksu.secondary_description = 'Contact ' + ksu.description
-
-	if ksu.ksu_subtype in ['KAS1','KAS3','KAS4','ImPe', 'RealitySnapshot', 'Diary', 'FibonacciPerception', 'TernaryPerception', 'BinaryPerception'] and not ksu.next_event:
-		ksu.next_event = datetime.today() ## - timedelta(days=1) #Esto tenia una logica, pero por el momento se lo quito 
-
-	if ksu.ksu_subtype in ['KAS1','KAS3','KAS4','ImPe', 'RealitySnapshot', 'Diary', 'FibonacciPerception', 'TernaryPerception', 'BinaryPerception'] and not ksu.frequency:
-		ksu.frequency = 1
-
-	if ksu.ksu_subtype == 'MiniO':
-		ksu.ksu_type = 'BigO'
-
-	if ksu.ksu_subtype == 'EVPo' or ksu.is_jg:
-		ksu.kpts_value = ksu.effort_denominator
-
-	print
-	print 'Este es el nuevo sub tipo de KSU que estoy creando'
-	print ksu.ksu_type
-	print ksu.ksu_subtype
-
-	ksu.importance = (theory.size + 1) * 10000 
-	theory.size += 1
-	theory.put() 
-
-	return ksu
 
 def remplaza_acentos(palabra):
 	# -*- coding: utf-8 -*-
