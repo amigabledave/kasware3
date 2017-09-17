@@ -69,7 +69,7 @@ class Theory(ndb.Model):
 class GameLog(ndb.Model):
 	theory_id = ndb.KeyProperty(kind=Theory, required=True)
 	created = ndb.DateTimeProperty(auto_now_add=True)
-	user_date = ndb.DateProperty(required=True)
+	user_date = ndb.DateTimeProperty(required=True)
 
 	attempt = ndb.IntegerProperty(default=0)		
 	streak_day = ndb.IntegerProperty(default=0)

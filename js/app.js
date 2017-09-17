@@ -90,6 +90,12 @@ $('#CreateNewKSU').on('click',function(){
 	new_ksu.show()
 	new_ksu.find('#description').focus();
 	ShowDetail(new_ksu);
+
+	if(selected_section == 'mission'){
+		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+		set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
+	}
+
 });
 
 
@@ -202,7 +208,13 @@ $(document).on('click', '.KsuActionButton', function(){
 		}).done(function(data){			
 			console.log(data); 
 			set_ksu_attr_value(ksu, 'event_date', data['new_event_date'])
-				
+			var selected_section = $('.SelectedSection').first().attr('value');
+			
+			if(selected_section == 'mission' && inList(action, ['Action_Skipped','Action_Pushed'])){
+				ksu.hide()				
+			}
+			
+			ShowDetail(ksu);	
 		});			
 	};
 

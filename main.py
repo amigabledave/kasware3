@@ -80,8 +80,71 @@ class Handler(webapp2.RequestHandler):
 		self.game_log = self.theory and self.update_game() #xx 
 
 	def update_game(self):
-		game_log = GameLog.get_by_id(self.theory.game_log_key.id())
+		time_travel = 0
+		theory = self.theory
+		game_log = GameLog.get_by_id(theory.game_log_key.id())
+		
+		game_log_user_date = game_log.user_date
+		today = (datetime.today()+timedelta(hours=self.theory.timezone)+ timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
+
+		print 
+		print 'Todays date'
+		print today
+		print 'Game log user date'
+		print game_log_user_date
+		print
+
+		if today > game_log_user_date: #XX Aqui nos quedamos, sigue hacer un experimento de darle una accion de 1000 merits y ver que aumente streak y disminuya el piggy bank lo correspondiente y que aumente piggy bank sod
+			self.check_n_burn()			
+			days_gap = today.toordinal() - game_log_user_date.toordinal()
+
+			for i in range(0, days_gap):
+				game_log = self.create_new_game_log(game_log)	
+				self.game_log = game_log
+
 		return game_log 
+
+	def check_n_burn(self):
+		theory = self.theory
+		user_date = (datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0)
+		ksu_set = KSU3.query(KSU3.theory_id == theory.key).filter(KSU3.status == 'Critical').filter(KSU3.event_date != None).filter(KSU3.event_date <= user_date).fetch()
+
+		print
+		print 'Estos son los KSUs criticos'
+		print
+
+		for ksu in ksu_set:
+			print ksu.description
+		# EL CHECK AND BURN TIENE QUE MODIFICAR MERITS EOD DEL ACTIVE LOG Y MERITS LOSS, ADEMAS DE GENERAR EVENTOS
+		return
+
+
+	def create_new_game_log(self, old_game_log): #xx
+		theory = self.theory
+		
+		attempt = old_game_log.attempt
+		
+		if old_game_log.piggy_bank_eod > 0:
+			streak_day = old_game_log.streak_day + 1
+
+		else:
+			streak_day = 0
+			if old_game_log.streak_day > 0:
+				attempt = old_game_log.attempt + 1
+
+		game_log = GameLog(
+			theory_id=theory.key,
+			user_date=old_game_log.user_date + timedelta(days=1),
+			merits_goal=define_merits_goal(streak_day),
+			streak_day=streak_day,
+			attempt=attempt,
+			)
+
+		game_log.put()
+		theory.game_log_key = game_log.key
+		theory.put()
+
+		return game_log
 
 
 # ---- KASware3 ----
@@ -381,7 +444,7 @@ class Home(Handler):
 		return attributes
 
 	def update_event_date(self, ksu, user_action):
-		today = (datetime.today()+timedelta(hours=self.theory.timezone))
+		today = (datetime.today()+timedelta(hours=self.theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0)
 		# today = datetime(2017,12,5)
 		tomorrow = today + timedelta(days=1)
 		ksu_details = ksu.details
@@ -945,7 +1008,7 @@ class SignUpLogIn(Handler):
 
 				game_log = GameLog(
 					theory_id=theory.key,
-					user_date=datetime.today() + timedelta(hours=theory.timezone),
+					user_date=(datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=define_merits_goal(0),
 					attempt=1,
 					)
@@ -1210,7 +1273,7 @@ class PopulateRandomTheory(Handler):
 
 				game_log = GameLog(
 					theory_id=theory.key,
-					user_date=datetime.today() + timedelta(hours=theory.timezone),
+					user_date=(datetime.today() + timedelta(hours=theory.timezone)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=define_merits_goal(0),
 					attempt=1,
 					)
@@ -1783,7 +1846,7 @@ def define_merits_goal(streak_day):
 			return level[1]
 	return
 
-def game_log_to_dic(game_log): #xx
+def game_log_to_dic(game_log):
 	
 	change_in_piggy_bank = game_log.merits_earned - game_log.merits_goal * (1 - game_log.slack_cut) - game_log.merits_loss
 	symbol = ' - '

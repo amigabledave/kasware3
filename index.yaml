@@ -619,3 +619,14 @@ indexes:
   - name: theory
   - name: importance
   - name: created
+
+- kind: KSU3
+  properties:
+  - name: status
+  - name: theory_id
+  - name: event_date
+
+- kind: KSU3
+  properties:
+  - name: theory_id
+  - name: event_date
