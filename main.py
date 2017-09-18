@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 6 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -248,7 +248,7 @@ class Home(Handler):
 
 		elif user_action == 'RetrieveTheory':
 			ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).filter(KSU3.in_graveyard == False).fetch()
-			ksu_output = []
+			ksu_output = []			
 			reasons_index = []
 			
 			for ksu in ksu_set:
@@ -259,12 +259,18 @@ class Home(Handler):
 			event_output = []
 			for event in history:
 				event_output.append(self.event_to_dic(event))
+
+			game_logs = GameLog.query(GameLog.theory_id == self.theory.key).order(-GameLog.user_date).fetch()
+			game_logs_output = []
+			for game_log in game_logs:
+				game_logs_output.append(game_log_to_dic(game_log))
 				
 			self.response.out.write(json.dumps({
 				'mensaje':'Esta es la teoria del usuario:',
 				'ksu_set': ksu_output,
 				'history': event_output,
 				'game_log': game_log_to_dic(self.game_log),
+				'game_logs': game_logs_output,
 				'reasons_index':reasons_index,
 				'ksu_type_attributes': KASware3.ksu_type_attributes,
 				'attributes_guide': KASware3.attributes_guide,
@@ -707,7 +713,7 @@ class Home(Handler):
 
 	def CreateDashboardSections(self, dashboard_base):
 
-		game = self.game
+		game = self.theory.game
 		
 		dashboard_sections = [
 			{'section_type':'Overall',
@@ -1586,7 +1592,8 @@ def game_log_to_dic(game_log):
 	game_log_dic = {
 		# 'theory_id': game_log.theory_id,
 		# 'created': game_log.created,
-		'user_date': game_log.user_date.strftime('%I:%M %p. %a, %b %d, %Y'),
+		# 'user_date': game_log.user_date.strftime('%I:%M %p. %a, %b %d, %Y'),
+		'user_date': game_log.user_date.strftime('%b %d, %Y'),
 
 		'attempt': game_log.attempt,
 		'streak_day': game_log.streak_day,
@@ -1599,7 +1606,7 @@ def game_log_to_dic(game_log):
 		'merits_earned': game_log.merits_earned,
 		'merits_loss': game_log.merits_loss,
 		
-		'slack_cut': game_log.slack_cut,
+		'slack_cut': str(int(game_log.slack_cut))+'%',
 	}
 
 	return game_log_dic

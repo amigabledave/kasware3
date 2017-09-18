@@ -162,6 +162,12 @@ indexes:
   - name: event_date
     direction: desc
 
+- kind: GameLog
+  properties:
+  - name: theory_id
+  - name: user_date
+    direction: desc
+
 - kind: KAS1
   properties:
   - name: theory

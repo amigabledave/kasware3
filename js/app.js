@@ -29,8 +29,13 @@ $(document).ready(function(){
 		}
 
 		var history = data['history']
-		for (var i = history.length - 1; i >= 0; i--) {
-			render_event(history[i])
+		for (var j = history.length - 1; j >= 0; j--) {
+			render_event(history[j])
+		}
+
+		var game_logs = data['game_logs']
+		for (var k = game_logs.length - 1; k >= 0; k--) {
+			render_game_log(game_logs[k])
 		}
 
 		FixTheoryView()		
@@ -213,7 +218,7 @@ $(document).on('click', '.KsuActionButton', function(){
 			if(selected_section == 'mission' && inList(action, ['Action_Skipped','Action_Pushed'])){
 				ksu.hide()				
 			}
-			
+
 			ShowDetail(ksu);	
 		});			
 	};
@@ -735,6 +740,26 @@ function render_event(event_dic){
 	event.removeClass('hidden');
 }
 
+function render_game_log(game_log_dic){
+	var game_log = $('#GameLogTemplate').clone();
+
+	game_log.attr("id", 'GameLog');	
+	game_log.attr("value", game_log_dic['game_log_id']);
+
+	game_log.find('#streak_day').text(game_log_dic['streak_day']);
+	game_log.find('#user_date').text(game_log_dic['user_date']);
+	game_log.find('#attempt').text(game_log_dic['attempt']);
+	game_log.find('#merits_goal').text(game_log_dic['merits_goal']);
+	game_log.find('#slack_cut').text(game_log_dic['slack_cut']);
+	game_log.find('#merits_earned').text(game_log_dic['merits_earned']);
+	game_log.find('#merits_loss').text(game_log_dic['merits_loss']);
+	game_log.find('#piggy_bank_eod').text(game_log_dic['piggy_bank_eod']);
+
+	game_log.prependTo('#StreakHolder');
+	game_log.removeClass('hidden');
+}
+
+
 function HideShowCostFrequency(ksu){
 	var money_cost = get_ksu_attr_value(ksu, 'money_cost');	
 	if(money_cost > 0){
@@ -886,7 +911,6 @@ function ShowHideSelect(ksu, select, option){
 	if(option in select_toBeShown[select]){
 		HideUnhideKsuProperties(ksu, select_toBeShown[select][option], 'Show');
 	}	
-
 };
 
 
@@ -1056,7 +1080,7 @@ function FixTheoryView(){
 	var section_ksu_type = section_details[selected_section]['new_ksu_type'];
 	var holder = section_details[selected_section]['holder'];
 
-	var holders = ['TheoryHolder', 'HistoryHolder', 'SettingsHolder', 'DashboardHolder'];
+	var holders = ['TheoryHolder', 'HistoryHolder', 'SettingsHolder', 'DashboardHolder', 'StreakHolder', 'PiggyBankHolder'];
 	for (var i = holders.length - 1; i >= 0; i--) {
 		$('#' + holders[i]).addClass('hidden')
 	}
@@ -1176,7 +1200,6 @@ function FixTheoryView(){
 
 		return false	
 	}	
-
 };
 
 
@@ -1303,6 +1326,8 @@ var ksu_type_glyphicons = {
 
 
 var section_details = {
+	
+
 	'mission':{'title': "Today's Mission", 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},
 	'kas': {'title': 'Key Action Set', 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},  
 	'objectives': {'title': 'Milestones', 'new_ksu_type': 'Objective', 'holder':'TheoryHolder'}, 
@@ -1321,8 +1346,11 @@ var section_details = {
 	'settings': {'title': 'Settings', 'new_ksu_type': 'disabled', 'holder':'SettingsHolder'},
 	'money': {'title': 'Money Requirements', 'new_ksu_type': 'disabled', 'holder':'MoneyRequirementsHolder'},
 
-	'history':{'title': 'History', 'new_ksu_type': 'disabled', 'holder':'HistoryHolder'},
 	'search':{'title': 'Search Results', 'new_ksu_type': 'disabled', 'holder':'TheoryHolder'},
+	'history':{'title': 'History', 'new_ksu_type': 'disabled', 'holder':'HistoryHolder'},
+	'piggy_bank': {'title': 'Piggy Bank', 'new_ksu_type': 'disabled', 'holder':'PiggyBankHolder'},
+	'streak':{'title': 'Flame Log', 'new_ksu_type': 'disabled', 'holder':'StreakHolder'},
+	
 }
 
 

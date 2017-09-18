@@ -59,25 +59,20 @@
 					
 				</div>
 
-
 				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
-					<div style="margin-top: 16px; color: white;">
-						<span class="glyphicon glyphicon-piggy-bank"> </span><span id="piggy_bank">?</span>
-					</div>
+					<button type="button" class="btn SectionButton btn-default" value="piggy_bank" style="height: 25px; margin-top: 12px; padding-top: 2px; font-size: 16px; margin-left: -12px;"><span class="glyphicon glyphicon-piggy-bank" aria-hidden="true" style="margin-right: 5px;"></span></span><span id="piggy_bank">?</span></button>
 				</div>
 
 				<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left" style="padding-left:0px;">
-					<div style="margin-top: 16px; color: white;">
-						<span class="glyphicon glyphicon-fire"></span><span id="streak_day">?</span>   
-					</div>
+					<button type="button" class="btn SectionButton btn-default" value="streak" style="height: 25px; margin-top: 12px; padding-top: 2px; font-size: 16px;"><span class="glyphicon glyphicon-fire" aria-hidden="true" style="margin-right: 5px;"></span></span><span id="streak_day">?</span></button>
 				</div>
-				<!-- <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> KSU  -->
+				
 				<div class="hidden-xs col-sm-1 col-md-1 col-lg-1 text-left">						
 					<button  class="btn btn-success btn-xs" style="height: 25px; width: 70px; margin-top:12px; font-weight: bold; padding-top: 3px;" aria-label="Left Align" id="CreateNewKSU"  name="action_description" value="NewKSU"> New <img style="height: 15px; margin-top: -3px; margin-left: 3px;" class="img-circle" src="images/ic_extension_white_24dp_2x.png"></button>
 				</div>
 											
 				<div class="hidden-xs col-xs-2 col-sm-2 col-md-2 col-lg-2 text-right">
-					<div style="margin-top: 12px; color: white; white-space: pre;"><span style="color: white;">{{theory.first_name}}'s theory</span>   |  <a href="/LogOut" style="color: white;"> Log out</a> </div>
+					<div style="margin-top: 16px; color: white; white-space: pre;"><span style="color: white;">{{theory.first_name}}'s theory</span>   |  <a href="/LogOut" style="color: white;"> Log out</a> </div>
 				</div>
 				<div class="hidden col-xs-12 hidden-sm hidden-md hidden-lg text-right" id="MobileSearchBar">
 					<form class="form-horizontal" method="post">
@@ -187,6 +182,16 @@
 
 				<div class="row" name="DashboardHolder"  id="DashboardHolder">					
 					{% include "Dashboard.html" %}										
+				</div>
+
+				<div class="row" name="PiggyBankHolder"  id="PiggyBankHolder">					
+															
+				</div>
+
+				<div class="row" name="StreakRow">
+					<div id="StreakHolder" class="col-xs-12">
+						{% include "MasterGameLog.html" %}
+					</div>
 				</div>
 				
 				<div class="row" name="MoneyRequirementsHolder">
