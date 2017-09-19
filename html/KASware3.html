@@ -132,7 +132,7 @@
 
 				 	<button type="button" class="btn SectionButton btn-default" value="dashboard"><span class="glyphicon glyphicon-dashboard SetIcon" aria-hidden="true"></span>Dashboard</button>
 
-				 	<button type="button" class="btn SectionButton btn-default" value="money"><span class="glyphicon glyphicon-usd SetIcon" aria-hidden="true"></span>Money Req.</button>
+				 	<!-- <button type="button" class="btn SectionButton btn-default" value="money"><span class="glyphicon glyphicon-usd SetIcon" aria-hidden="true"></span>Money Req.</button> -->
 					
 				 	<button type="button" class="btn SectionButton btn-default" value="settings"><span class="glyphicon glyphicon-cog SetIcon" aria-hidden="true"></span>Settings</button>
 
@@ -185,7 +185,7 @@
 				</div>
 
 				<div class="row" name="PiggyBankHolder"  id="PiggyBankHolder">					
-															
+					{% include "PiggyBank.html" %}										
 				</div>
 
 				<div class="row" name="StreakRow">
@@ -194,10 +194,10 @@
 					</div>
 				</div>
 				
-				<div class="row" name="MoneyRequirementsHolder">
+				<!-- <div class="row" name="MoneyRequirementsHolder">
 					<div id="MoneyRequirementsHolder" class="col-xs-12">
 					</div>			
-				</div>
+				</div> -->
 
 				<div class="row" name="SettingsHolder">
 					<div id="SettingsHolder" class="col-xs-12">

@@ -24,25 +24,10 @@ class Theory(ndb.Model):
  	size = ndb.IntegerProperty(default=0)
 
  	#Game details
-	game = ndb.JsonProperty(default={
-		'daily_goal':100,
-		'critical_burn':10,
-		'mission_burn':5,
-		'last_log':None,
-		'goal_achieved':False,
-		'points_today':0,
-		'points_to_goal':100,
-		
-		'todays_goal':100,
-
-		'discipline_lvl':0,
-		'streak':0,
-		'piggy_bank':0,
-	
-		'best_points_today':0,
-		'best_discipline_lvl':0,
-		'best_streak':0,
-		'best_piggy_bank':0,
+	game = ndb.JsonProperty(default={	
+		'best_merits_earned':0,
+		'best_streak_day':0,
+		'best_piggy_bank_eod':0,
 		}) 
 	
 	game_log_key = ndb.KeyProperty()
@@ -82,6 +67,11 @@ class GameLog(ndb.Model):
 	merits_loss = ndb.IntegerProperty(default=0)
 	
 	slack_cut = ndb.FloatProperty(default=0) #If a slack cutter was used will be reflected here
+	streak_merits = ndb.IntegerProperty(default=0)
+	used_50_slack_cut = ndb.IntegerProperty(default=0)
+	used_100_slack_cut = ndb.IntegerProperty(default=0)
+	available_50_slack_cut = ndb.IntegerProperty(default=0)
+	available_100_slack_cut = ndb.IntegerProperty(default=0)
 
 
 class KSU3(ndb.Model):

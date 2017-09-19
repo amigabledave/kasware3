@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 6 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 30 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -82,7 +82,7 @@ class Handler(webapp2.RequestHandler):
 		game_log_user_date = game_log.user_date
 		today = (datetime.today()+timedelta(hours=self.theory.timezone)+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
 
-		if today > game_log_user_date: #XX Aqui nos quedamos, sigue hacer un experimento de darle una accion de 1000 merits y ver que aumente streak y disminuya el piggy bank lo correspondiente y que aumente piggy bank sod
+		if today > game_log_user_date: 
 
 			print 
 			print 'Todays date'
@@ -128,8 +128,11 @@ class Handler(webapp2.RequestHandler):
 
 		return
 
-	def create_new_game_log(self, old_game_log):
+	def create_new_game_log(self, old_game_log): #xx
 		theory = self.theory
+		metirs_for_50_slack_cut = 1000
+		metirs_for_100_slack_cut = 5000
+
 
 		old_game_log.piggy_bank_eod = int(old_game_log.piggy_bank_sod + old_game_log.merits_earned - old_game_log.merits_goal * (1 - old_game_log.slack_cut) - old_game_log.merits_loss)
 		old_game_log.put()
@@ -137,11 +140,23 @@ class Handler(webapp2.RequestHandler):
 		attempt = old_game_log.attempt
 		
 		if old_game_log.piggy_bank_eod >= 0:
-			streak_day = old_game_log.streak_day + 1
+			streak_day = old_game_log.streak_day + 1			
 			piggy_bank_sod = old_game_log.piggy_bank_eod
+			streak_merits = old_game_log.streak_merits + old_game_log.merits_earned
+			available_50_slack_cut = int(math.floor(streak_merits/metirs_for_50_slack_cut - old_game_log.used_50_slack_cut))
+			available_100_slack_cut = int(math.floor(streak_merits/metirs_for_100_slack_cut - old_game_log.used_100_slack_cut))
+			used_50_slack_cut = old_game_log.used_50_slack_cut
+			used_100_slack_cut = old_game_log.used_100_slack_cut
+		
 		else:
 			streak_day = 0
 			piggy_bank_sod = 0
+			streak_merits = 0
+			available_50_slack_cut = 0
+			available_100_slack_cut = 0
+			used_50_slack_cut = 0
+			used_100_slack_cut = 0
+
 			if old_game_log.streak_day > 0:
 				attempt = old_game_log.attempt + 1
 
@@ -149,13 +164,19 @@ class Handler(webapp2.RequestHandler):
 			theory_id=theory.key,
 			user_date=old_game_log.user_date + timedelta(days=1),
 			piggy_bank_sod=piggy_bank_sod,
-			merits_goal=define_merits_goal(streak_day),
+			merits_goal=self.define_merits_goal(streak_day),
 			streak_day=streak_day,
 			attempt=attempt,
-			)
+			streak_merits=streak_merits,
+			available_50_slack_cut=available_50_slack_cut,
+			available_100_slack_cut=available_100_slack_cut,
+			used_50_slack_cut=used_50_slack_cut,
+			used_100_slack_cut=used_100_slack_cut)
 
 		game_log.put()
 		theory.game_log_key = game_log.key
+
+		theory.game = self.check_for_new_best_score(theory.game, old_game_log)
 		theory.put()
 
 		return game_log
@@ -173,8 +194,103 @@ class Handler(webapp2.RequestHandler):
 		elif event_type == 'Stupidity':
 			game_log.merits_loss += score 
 
+		elif event_type == 'Activate50SlackCut':
+			game_log.slack_cut = 0.5
+			game_log.available_50_slack_cut -= 1
+			game_log.used_50_slack_cut += 1
+
+		elif event_type == 'Activate100SlackCut':
+			game_log.slack_cut = 1.0
+			game_log.available_100_slack_cut -= 1
+			game_log.used_100_slack_cut += 1
+
+		game_log.available_50_slack_cut = int(math.floor((game_log.streak_merits + game_log.merits_earned)/1000 - game_log.used_50_slack_cut))
+		game_log.available_100_slack_cut = int(math.floor((game_log.streak_merits + game_log.merits_earned)/5000 - game_log.used_100_slack_cut))
+
 		game_log.put()
 		return game_log
+
+	def check_for_new_best_score(self, game, game_log):
+
+		if game['best_merits_earned'] < game_log.merits_earned:
+			game['best_merits_earned'] = game_log.merits_earned
+		
+		if game['best_streak_day'] < game_log.streak_day:
+			game['best_streak_day'] = game_log.streak_day
+
+		if game['best_piggy_bank_eod'] < game_log.piggy_bank_eod:
+			game['best_piggy_bank_eod'] = game_log.piggy_bank_eod
+
+		return game
+
+	def make_template(self, template_name):
+		templates = {
+			'event_type_summary': {'score':{1:0, 2:0, 3:0, 4:0, 5:0, 'total':0}, 'events':{1:0, 2:0, 3:0, 4:0, 5:0, 'total':0}, 'days':[]},
+			'merits_summary': {'score':{'total':0, 'average':0}, 'events':{'total':0, 'average':0}},
+			'events_total': {'score':0, 'events':0, 'counter':0}
+		}
+		return templates[template_name]
+
+	def define_merits_goal(self, streak_day):
+
+		goal_range = [
+			[142, 160],
+			[87, 150],
+			[53, 140],
+			[32, 130],
+			[19, 120],
+			[11, 110],
+			[6, 100],
+			[3, 90],
+			[1, 80],
+			[0, 70],	
+		]
+
+		for level in goal_range:
+			if streak_day >= level[0]:
+				return level[1]
+		return
+
+	def game_log_to_dic(self, game_log):
+		
+		change_in_piggy_bank = game_log.merits_earned - game_log.merits_goal * (1 - game_log.slack_cut) - game_log.merits_loss
+		symbol = ' - '
+		if change_in_piggy_bank > 0:
+			symbol = ' + '
+		piggy_bank = str(game_log.piggy_bank_sod) + symbol + str(abs(int(change_in_piggy_bank)))
+
+		game_log_dic = {
+			# 'theory_id': game_log.theory_id,
+			# 'created': game_log.created,
+			# 'user_date': game_log.user_date.strftime('%I:%M %p. %a, %b %d, %Y'),
+			'user_date': game_log.user_date.strftime('%b %d, %Y'),
+
+			'attempt': game_log.attempt,
+			'streak_day': game_log.streak_day,
+			'streak_merits': game_log.streak_merits,
+			
+			'piggy_bank_sod': game_log.piggy_bank_sod,
+			'piggy_bank_eod': game_log.piggy_bank_eod,
+			'piggy_bank': piggy_bank,
+
+			'merits_goal': game_log.merits_goal,
+			'merits_earned': game_log.merits_earned,
+			'merits_loss': game_log.merits_loss,
+			
+			'slack_cut': str(int(game_log.slack_cut*100))+'%',
+
+			'available_50_slack_cut': game_log.available_50_slack_cut,
+			'available_100_slack_cut': game_log.available_100_slack_cut,
+
+			'merits_till_next_50_slack_cut': 1000 - game_log.streak_merits - game_log.merits_earned + (game_log.used_50_slack_cut + game_log.available_50_slack_cut)*1000,
+			'merits_till_next_100_slack_cut': 5000 - game_log.streak_merits - game_log.merits_earned + (game_log.used_100_slack_cut + game_log.available_100_slack_cut)*5000,  
+
+			'disable_50_slack_cut': game_log.slack_cut > 0 or game_log.available_50_slack_cut <= 0,
+			'disable_100_slack_cut': game_log.slack_cut > 0 or game_log.available_100_slack_cut <= 0,
+
+		}
+
+		return game_log_dic
 
 
 
@@ -205,7 +321,7 @@ class Home(Handler):
 			
 			self.response.out.write(json.dumps({
 				'mensaje': 'Evento guardado',
-				'game_log': game_log_to_dic(game_log),
+				'game_log': self.game_log_to_dic(game_log),
 				'event_dic':event_dic,
 				'in_graveyard': ksu.in_graveyard,
 				}))
@@ -263,13 +379,14 @@ class Home(Handler):
 			game_logs = GameLog.query(GameLog.theory_id == self.theory.key).order(-GameLog.user_date).fetch()
 			game_logs_output = []
 			for game_log in game_logs:
-				game_logs_output.append(game_log_to_dic(game_log))
+				game_logs_output.append(self.game_log_to_dic(game_log))
 				
 			self.response.out.write(json.dumps({
 				'mensaje':'Esta es la teoria del usuario:',
 				'ksu_set': ksu_output,
 				'history': event_output,
-				'game_log': game_log_to_dic(self.game_log),
+				'best_scores': self.theory.game,
+				'game_log': self.game_log_to_dic(self.game_log),
 				'game_logs': game_logs_output,
 				'reasons_index':reasons_index,
 				'ksu_type_attributes': KASware3.ksu_type_attributes,
@@ -326,7 +443,7 @@ class Home(Handler):
 			self.response.out.write(json.dumps({
 				'mensaje':'Evento Revertido',
 				'ksu': self.ksu_to_dic(ksu),
-				'game_log': game_log_to_dic(game_log),
+				'game_log': self.game_log_to_dic(game_log),
 				'render_ksu': render_ksu,
 				}))
 			return
@@ -376,6 +493,16 @@ class Home(Handler):
 					'dashboard_sections': dashboard_sections,
 					'mensaje':'Dashboard values calculated',
 					}))
+		
+		elif user_action in ['Activate50SlackCut', 'Activate100SlackCut']:
+					
+			game_log = self.update_game_log(Event3(event_type = user_action), self.game_log)
+						
+			self.response.out.write(json.dumps({
+				'mensaje': 'Salck cutter succesfully activated',
+				'game_log': self.game_log_to_dic(game_log),
+				}))
+
 		return
 
 	def update_ksu(self, ksu, user_action):
@@ -632,11 +759,11 @@ class Home(Handler):
 
 				for event_type in KASware3.event_types:
 					
-					dashboard_base[time_frame][ksu_type[0][0]][event_type] = make_template('events_total')
+					dashboard_base[time_frame][ksu_type[0][0]][event_type] = self.make_template('events_total')
 
 			for event_type in KASware3.event_types:
 
-				dashboard_base[time_frame][event_type] = make_template('events_total')
+				dashboard_base[time_frame][event_type] = self.make_template('events_total')
 
 		period_len = end_date.toordinal() - start_date.toordinal() + 1
 		previous_start_date = start_date - timedelta(days=period_len)
@@ -659,7 +786,7 @@ class Home(Handler):
 
 			superficial_scores[ksu_id] = {'ksu_type': ksu.ksu_type}
 			for ksu_event_type in ksu_event_types:				
-				superficial_scores[ksu_id][ksu_event_type] = { 'current': make_template('events_total'), 'previous': make_template('events_total')}
+				superficial_scores[ksu_id][ksu_event_type] = { 'current': self.make_template('events_total'), 'previous': self.make_template('events_total')}
 			
 			if ksu.monitor and not ksu.in_graveyard:
 				monitored_ksus_ids.append(ksu_id)
@@ -720,21 +847,37 @@ class Home(Handler):
 			'section_subtype':'Overall',
 			'sub_sections':[
 				
+				{'title': 'Joy Clusters', #Formerly Merits Reserves #xx
+				'score': 'X',
+				'contrast_title': 'End value in current cluster',
+				'contrast': '0 of 1,000'},
+
+
 				{'title': 'Endeavours',				
 				'score': 'X', #game['endevours'],
 				'contrast_title': 'Merits in current endevour:',
-				'contrast': '00 of 00'},
+				'contrast': '0 of 10,000'},
 
 				{'title': 'Discipline Lvl.',
-				'score': game['discipline_lvl'],
+				'score': 'X',
 				'contrast_title': 'Days in current level:',
 				'contrast': '00 of 00'},
-
-				{'title': 'Piggy Bank', #Formerly Merits Reserves
-				'score': game['piggy_bank'],
-				'contrast': game['best_piggy_bank']},
 			]},
-		
+
+
+			{'section_type':'ActionsSummary',
+			'section_subtype':'Summary',
+			'title': 'End Value Generated',
+			'sub_sections':[
+				{'title': 'Total',
+				'score':'xx',
+				'contrast':'xx'},
+
+				{'title': 'Average',
+				'score': dashboard_base['current']['WishRealized']['averages']['score'],
+				'contrast': dashboard_base['previous']['WishRealized']['averages']['score']},
+			]},
+
 			{'section_type':'ActionsSummary',
 			'section_subtype':'Summary',
 			'title': 'Effort Made',
@@ -776,20 +919,6 @@ class Home(Handler):
 				{'title': 'Average',
 				'score': dashboard_base['current']['Progress']['averages']['score'],
 				'contrast': dashboard_base['previous']['Progress']['averages']['score']},
-			]},		
-
-
-			{'section_type':'ActionsSummary',
-			'section_subtype':'Summary',
-			'title': 'Wishes Realized',
-			'sub_sections':[
-				{'title': 'Total',
-				'score': dashboard_base['current']['WishRealized']['score'],
-				'contrast':dashboard_base['previous']['WishRealized']['score']},
-
-				{'title': 'Average',
-				'score': dashboard_base['current']['WishRealized']['averages']['score'],
-				'contrast': dashboard_base['previous']['WishRealized']['averages']['score']},
 			]},
 		]
 
@@ -1026,7 +1155,7 @@ class SignUpLogIn(Handler):
 				game_log = GameLog(
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) +timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
-					merits_goal=define_merits_goal(0),
+					merits_goal=self.define_merits_goal(0),
 					attempt=1,
 					)
 
@@ -1291,7 +1420,7 @@ class PopulateRandomTheory(Handler):
 				game_log = GameLog(
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
-					merits_goal=define_merits_goal(0),
+					merits_goal=self.define_merits_goal(0),
 					attempt=1,
 					)
 
@@ -1432,184 +1561,6 @@ class PopulateRandomHistory(Handler):
 			comments = '')
 		event.put()
 
-
-
-#--- Essential Helper Functions ----------
-def get_post_details(self):
-	post_details = {}
-	arguments = self.request.arguments()
-	for argument in arguments:
-		post_details[str(argument)] = self.request.get(str(argument))
-	return adjust_post_details(post_details)
-
-def adjust_post_details(post_details): 
-	details = {}
-	for (attribute, value) in post_details.items():
-		if value and value!='' and value!='None':
-			details[attribute] = value
-	return details
-
-def determine_return_to(self):
-
-	return_to = self.request.get('return_to')
-	if not return_to:
-		return_to = self.request.path
-	
-	set_name = self.request.get('set_name')
-	if set_name:
-		return_to += '?set_name=' + set_name
-
-	time_frame = self.request.get('time_frame')
-	if time_frame:
-		return_to += '?time_frame=' + time_frame
-
-
-	return return_to
-
-def remplaza_acentos(palabra):
-	# -*- coding: utf-8 -*-
-	letras_a_remplazar =[
-		['Á','A'],
-		['á','a'],
-		['É','E'],
-		['é','e'],
-		['Í','I'],
-		['í','i'],
-		['Ó','O'],
-		['ó','o'],
-		['Ú','U'],
-		['ú','u'],
-		['Ñ','N'],
-		['ñ','n'],
-	]
-	palabra = palabra.encode('utf-8')
-	palabra = palabra.decode('utf-8')
-	for letra in letras_a_remplazar:
-		palabra = palabra.replace(letra[0].decode('utf-8'),letra[1])
-
-	return palabra
-
-def prepare_tags_for_saving(tags_string):
-
-	tags_string = remplaza_acentos(tags_string)
-	tags_string = tags_string.replace(', ',',')
-	valid_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',' ','&','!','_','-',',','.','1','2','3','4','5','6','7','8','9','0']
-	clean_tags_string = ''
-	for i in range(0,len(tags_string)):
-		character = tags_string[i]
-		if character in valid_characters:
-			clean_tags_string += character
-	tags = clean_tags_string.split(',')
-	final_tags_string = tags_string.replace(',',', ')
-	return final_tags_string, tags
-
-def prepare_new_tag_for_saving(new_tag):
-
-	tags_string = remplaza_acentos(new_tag)
-	tags_string = tags_string.replace(', ',',')
-	valid_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',' ','&','!','_','-','.','1','2','3','4','5','6','7','8','9','0']
-	clean_tags_string = ''
-	for i in range(0,len(tags_string)):
-		character = tags_string[i]
-		if character in valid_characters:
-			clean_tags_string += character
-	return clean_tags_string
-
-def replace_in_list(target_list, old_value, new_value):
-	new_list = []
-	for e in target_list:
-		if e == old_value: 
-			if new_value !='':
-				new_list.append(new_value)
-		else:
-			new_list.append(e)
-	return new_list
-
-def update_user_tags(theory, tags):
-
-	current_tags = theory.categories['tags']
-	for tag in tags:
-		if tag not in current_tags:
-			current_tags.append(tag)
-	return sorted(current_tags)
-	
-
-#KASWare3	
-def make_template(template_name):
-	templates = {
-		'event_type_summary': {'score':{1:0, 2:0, 3:0, 4:0, 5:0, 'total':0}, 'events':{1:0, 2:0, 3:0, 4:0, 5:0, 'total':0}, 'days':[]},
-		'merits_summary': {'score':{'total':0, 'average':0}, 'events':{'total':0, 'average':0}},
-		'events_total': {'score':0, 'events':0, 'counter':0}
-	}
-	return templates[template_name]
-
-def calculate_mission_reward(eod_merits, merits_goal):
-	
-	bracket_size = 20
-	reward_factor = 1
-	reward = 0
-
-	range_end = eod_merits - merits_goal
-
-	if range_end < 0:
-		reward_factor = -1
-		range_end = -range_end
-
-	for merit in range(0, range_end):
-		merit_reward = math.floor(merit/bracket_size) + 1
-		reward += merit_reward
-
-	return reward * reward_factor
-
-def define_merits_goal(streak_day):
-
-	goal_range = [
-		[142, 160],
-		[87, 150],
-		[53, 140],
-		[32, 130],
-		[19, 120],
-		[11, 110],
-		[6, 100],
-		[3, 90],
-		[1, 80],
-		[0, 70],	
-	]
-
-	for level in goal_range:
-		if streak_day >= level[0]:
-			return level[1]
-	return
-
-def game_log_to_dic(game_log):
-	
-	change_in_piggy_bank = game_log.merits_earned - game_log.merits_goal * (1 - game_log.slack_cut) - game_log.merits_loss
-	symbol = ' - '
-	if change_in_piggy_bank > 0:
-		symbol = ' + '
-	piggy_bank = str(game_log.piggy_bank_sod) + symbol + str(abs(int(change_in_piggy_bank)))
-
-	game_log_dic = {
-		# 'theory_id': game_log.theory_id,
-		# 'created': game_log.created,
-		# 'user_date': game_log.user_date.strftime('%I:%M %p. %a, %b %d, %Y'),
-		'user_date': game_log.user_date.strftime('%b %d, %Y'),
-
-		'attempt': game_log.attempt,
-		'streak_day': game_log.streak_day,
-		
-		'piggy_bank_sod': game_log.piggy_bank_sod,
-		'piggy_bank_eod': game_log.piggy_bank_eod,
-		'piggy_bank': piggy_bank,
-
-		'merits_goal': game_log.merits_goal,
-		'merits_earned': game_log.merits_earned,
-		'merits_loss': game_log.merits_loss,
-		
-		'slack_cut': str(int(game_log.slack_cut))+'%',
-	}
-
-	return game_log_dic
 
 
 #--- Validation and security functions ----------

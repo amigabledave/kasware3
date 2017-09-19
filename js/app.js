@@ -17,12 +17,10 @@ $(document).ready(function(){
 		// console.log(data)
 		ksu_type_attributes = data['ksu_type_attributes']
 		attributes_guide = data['attributes_guide']
-		reasons_guide = data['reasons_guide']
+		reasons_guide = data['reasons_guide']		
 		// console.log(reasons_guide)	
 		RenderReasonsIndex(data['reasons_index'])
 		
-		AdjustGame(data['game_log']);
-
 		var ksu_set = data['ksu_set']
 		for (var i = ksu_set.length - 1; i >= 0; i--) {
 			render_ksu(ksu_set[i])
@@ -37,6 +35,16 @@ $(document).ready(function(){
 		for (var k = game_logs.length - 1; k >= 0; k--) {
 			render_game_log(game_logs[k])
 		}
+
+		var game_log = data['game_log'];
+		AdjustGame(game_log);
+
+		var best_scores = data['best_scores'];
+		
+
+		$('#best_piggy_bank_eod').text(best_scores['best_piggy_bank_eod']);
+		
+
 
 		FixTheoryView()		
 	})
@@ -370,10 +378,53 @@ $(document).on('click', '.KsuActionButton', function(){
 });
 
 
+$(document).on('click', '.UserActionButton', function(){
+	var ksu = $(this).closest('#KSU');
+	var action = $(this).attr('value');
+	// console.log(action)
+	
+		
+	var actions_menu = {
+		'Activate50SlackCut': ActivateSlackCut,
+		'Activate100SlackCut': ActivateSlackCut,
+	}
+
+	actions_menu[action]();
+	
+
+	function ActivateSlackCut(){
+		console.log('Slack Cutter Activated...')
+		$(this).prop("disabled",true);
+		$.ajax({
+			type: "POST",
+			url: "/",
+			dataType: 'json',
+			data: JSON.stringify({				
+				'user_action': action,								
+			})
+		}).done(function(data){
+			console.log(data); 			
+			AdjustGame(data['game_log'])			
+		});
+	}	
+});
+
+
 function AdjustGame(game_log){
 	$('#merits_earned').text(' ' + game_log['merits_earned']);
 	$('#piggy_bank').text(' ' + game_log['piggy_bank']);
-	$('#streak_day').text(' ' + game_log['streak_day']);	
+	$('#streak_day').text(' ' + game_log['streak_day']);
+
+	$('#piggy_bank_sod').text(game_log['piggy_bank_sod']);
+	
+	$('#available_50_slack_cut').text(game_log['available_50_slack_cut']);
+	$('#merits_till_next_50_slack_cut').text(game_log['merits_till_next_50_slack_cut']);
+
+	$('#available_100_slack_cut').text(game_log['available_100_slack_cut']);
+	$('#merits_till_next_100_slack_cut').text(game_log['merits_till_next_100_slack_cut']);
+
+	$('#Activate50SlackCut').prop("disabled", game_log['disable_50_slack_cut'])
+	$('#Activate100SlackCut').prop("disabled", game_log['disable_100_slack_cut']) 
 };
 
 
@@ -1179,7 +1230,7 @@ function FixTheoryView(){
 		return true
 	}
 
-	function InMission(ksu){//xx Aqui nos quedamos, sigue hacer que funcione el push button y el send to mission y skip, osea que muestre y oculte como deberian
+	function InMission(ksu){
 		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
 		var target_date = get_ksu_attr_value(ksu, 'event_date');
 		var ksu_type = get_ksu_attr_value(ksu, 'ksu_type');
@@ -1311,6 +1362,7 @@ var ksu_type_attr_details = {
 	'Environment': [['description', 'placeholder', 'In what environment would you like to live in?']],
 }
 
+
 var ksu_type_glyphicons = {
 	'Action': 'glyphicon-tower', 
 	'Objective': 'glyphicon-road', 
@@ -1349,438 +1401,12 @@ var section_details = {
 	'search':{'title': 'Search Results', 'new_ksu_type': 'disabled', 'holder':'TheoryHolder'},
 	'history':{'title': 'History', 'new_ksu_type': 'disabled', 'holder':'HistoryHolder'},
 	'piggy_bank': {'title': 'Piggy Bank', 'new_ksu_type': 'disabled', 'holder':'PiggyBankHolder'},
-	'streak':{'title': 'Flame Log', 'new_ksu_type': 'disabled', 'holder':'StreakHolder'},
-	
+	'streak':{'title': 'Flame Log', 'new_ksu_type': 'disabled', 'holder':'StreakHolder'},	
 }
 
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-
-// $('.UserActionButton').on('click', function(){
-$(document).on('click', '.UserActionButton', function(){
-	console.log('Si esta detectando que se aprieta el boton');
-	var ksu = $(this).closest('#MissionKSU');
-	var ksu_id = ksu.attr("value");
-	var user_action = $(this).attr("value");
-	var kpts_value = ksu.find('#kpts_value').val();
-	var event_comments = ksu.find('#event_comments').val()
-	var event_secondary_comments = ksu.find('#event_secondary_comments').val()
-	var event_quality = ksu.find('#event_quality option:selected').val()
-
-	var is_mini_o = ksu.find('#is_mini_o').is(':checked');
-
-	var dissapear_before_done = ['MissionDone', 'MissionPush', 'MissionSkip' ,'MissionDelete', 'ViewerDelete','GraveyardDelete', 'GraveyardReanimate', 'MissionRecordValue']
-
-
-	if (!is_mini_o) {
-		if ($.inArray(user_action, dissapear_before_done)!= -1 && !is_mini_o ){
-			ksu.animate({
-				"opacity" : "0",
-				},{
-					"complete" : function() {
-					ksu.remove();
-					}
-				})
-			};
-	} else {
-		ksu.fadeOut("slow")
-		setTimeout(function(){
-			if (user_action == 'MissionDone'){
-				ksu.find('#secondary_description').val('');
-				ksu.find('#best_time').val('');
-				ksu.find('#kpts_value').val(1);
-			} else {
-				ksu.remove()
-			}
-			ksu.fadeIn("fast")
-		},500);
-		
-	};
-
-
-	if (user_action == 'ReactiveMissionDone'){
-		user_action = 'MissionDone'};
-
-
-	if (user_action == 'MissionRecordValue' || user_action == 'ViewerRecordValue'){
-		user_action = 'RecordValue'
-		kpts_value = ksu.find('#select_indicator_value option:selected').val()
-		
-		if(kpts_value == undefined){
-			kpts_value = ksu.find('#open_indicator_value').val()};	
-		};
-
-	if(kpts_value == undefined){
-		kpts_value = 0};
-
-	if(event_comments == undefined){
-		event_comments = ''};
-
-	if(event_secondary_comments == undefined){
-		event_secondary_comments = ''};		
-
-	$.ajax({
-		type: "POST",
-		url: "/EventHandler",
-		dataType: 'json',
-		data: JSON.stringify({
-			'ksu_id': ksu_id,
-			'user_action': user_action,
-			'kpts_value':kpts_value,
-			'event_comments':event_comments,
-			'event_secondary_comments':event_secondary_comments,
-			'event_quality': event_quality
-		})
-	})
-	.done(function(data){
-		console.log(data);
-		var EventScore = data['EventScore'];
-		var kpts_type = data['kpts_type'];
-		// var PointsToGoal = data['PointsToGoal']
-		var PointsToday = data['PointsToday']
-
-		// if ( PointsToGoal <= 0){
-		// 	PointsToGoal = 'Achieved!'
-		// }; 
-	
-		// $('#PointsToGoal').text(' ' + PointsToGoal);
-		$('#PointsToday').text(' ' + PointsToday);
-		$('#EffortReserve').text(' ' + data['EffortReserve']);
-		$('#Streak').text(' ' + data['Streak']);
-
-
-		if ($.inArray(user_action, dissapear_before_done)!= -1){
-			$('#MissionValue').text(parseFloat($('#MissionValue').text())-data['kpts_value']);
-		};
-
-		var ksu_subtype = data['ksu_subtype'];
-
-		if (user_action == 'SendToMission' || user_action == 'ViewerDone' || user_action == 'RecordValue'){
-			ksu.find('#pretty_next_event').text(data['pretty_next_event']);
-		};
-
-		if (user_action == 'ViewerOnOff'){
-			console.log(data['is_active'])
-			if (data['is_active']){
-				ksu.find('#is_active').css({'color': 'black'});
-				ksu.find('#ViewerOnOffButton').removeClass('btn-success');
-				ksu.find('#ViewerOnOffButton').addClass('btn-warning');
-			} else {
-				ksu.find('#is_active').css({'color': '#b1adad'});
-				ksu.find('#ViewerOnOffButton').removeClass('btn-warning');
-				ksu.find('#ViewerOnOffButton').addClass('btn-success');				
-			}
-
-		};
-		
-		var dissapear_after_done_subtypes = ['KAS2', 'Wish', 'BigO'];
-		var dissapear_after_done_actions = ['ViewerDone'];
-
-
-		if (is_mini_o) {
-			var target_timer = ksu.find('#ksu_timer');
-			    target_timer.attr("seconds", 0);
-			    target_timer.attr("minutes", 0);
-			    target_timer.attr("hours", 0);
-			    target_timer.text('00:00:00')
-		}
-
-		if (($.inArray(ksu_subtype, dissapear_after_done_subtypes)!= -1) && ($.inArray(user_action, dissapear_after_done_actions)!= -1)){
-			ksu.animate({
-				"opacity" : "0",
-				},{
-					"complete" : function() {
-					ksu.remove();
-					}
-				})
-			};
-
-	});
-});
-
-
-$('.SaveNewKSUButton').on('click', function(){
-	var ksu = $(this).closest('#NewKSU');
-	var ksu_type = ksu.attr("ksu_type");
-	var ksu_subtype = ksu.attr("ksusubtype");
-	var parent_id = ksu.find('#parent_id').val();
-	console.log('This is the first current parent id:')
-	console.log(parent_id)
-	if (parent_id == undefined){
-		parent_id = ksu.find('#parent_id option:selected').val();
-	};
-	console.log('This is the second current parent id:')
-	console.log(parent_id)
-
-	var is_jg = ksu.find('#is_jg').is(':checked');
-	var effort_denominator = 3;
-	console.log(ksu_type)
-	if (is_jg || ksu_type == 'EVPo'){
-		effort_denominator = ksu.find('input:radio[name=jg_size]:checked').val();
-	}
-	console.log(effort_denominator)
-	var wish_type = ksu.find('#wish_type option:selected').val();
-
-	var description = ksu.find('#description').val();
-	var secondary_description = ksu.find('#secondary_description').val();
-	var next_event = ksu.find('#next_event').val();
-	var best_time = ksu.find('#best_time').val();
-	var kpts_value = ksu.find('#kpts_value').val();
-
-	var mission_view = ksu.find('#mission_view').val()
-	var importance = ksu.find('#importance').val();
-
-	var tags = ksu.find('#tags_value').val();
-	var comments = ksu.find('#comments').val();
-
-	var frequency = ksu.find('#frequency').val();
-	var repeats = ksu.find('#repeats').val();		
-
-	var is_active = ksu.find('#is_active').is(':checked');
-	var is_critical = ksu.find('#is_critical').is(':checked');
-	var is_private = ksu.find('#is_private').is(':checked');
-	
-	var repeats_on_Mon = ksu.find('#repeats_on_Mon').is(':checked');
-	var repeats_on_Tue = ksu.find('#repeats_on_Tue').is(':checked'); 
-	var repeats_on_Wed = ksu.find('#repeats_on_Wed').is(':checked'); 
-	var repeats_on_Thu = ksu.find('#repeats_on_Thu').is(':checked');
-	var repeats_on_Fri = ksu.find('#repeats_on_Fri').is(':checked');
-	var repeats_on_Sat = ksu.find('#repeats_on_Sat').is(':checked');
-	var repeats_on_Sun = ksu.find('#repeats_on_Sun').is(':checked');
-
-	var money_cost = ksu.find('#money_cost').val();
-	var days_cost = ksu.find('#days_cost').val();
-	var hours_cost = ksu.find('#hours_cost').val();
-	var birthday = ksu.find('#birthday').val();
-
-	var is_mini_o = ksu.find('#is_mini_o').is(':checked');
-
-	
-	if (description == ''){
-		description = ksu.find('#description').text();
-		secondary_description = ksu.find('#secondary_description').text();
-	};
-
-	if ((ksu_type == 'BigO' || ksu_type == 'Wish' ) && kpts_value == '0.25'){
-		kpts_value = 1
-	}
-
-	ksu.fadeOut("slow")
-	
-	$.ajax({
-		type: "POST",
-		url: "/EventHandler",
-		dataType: 'json',
-		data: JSON.stringify({
-			'user_action': 'SaveNewKSU',
-			'ksu_type': ksu_type,
-			'ksu_subtype': ksu_subtype,
-			'parent_id': parent_id,
-
-			'effort_denominator':effort_denominator,
-			'wish_type': wish_type,
-
-			'description':description,
-			'secondary_description':secondary_description,
-			'next_event':next_event,
-			'best_time':best_time,
-			'kpts_value': kpts_value,
-			
-			'mission_view':mission_view,
-			'tags':tags,
-			'comments':comments, 
-		
-			'is_active':is_active,
-			'is_critical':is_critical, 
-			'is_private':is_private,
-
-			'frequency':frequency,
-			'repeats':repeats,
-	
-			'repeats_on_Mon':repeats_on_Mon,
-			'repeats_on_Tue':repeats_on_Tue,
-			'repeats_on_Wed':repeats_on_Wed,
-			'repeats_on_Thu':repeats_on_Thu,
-			'repeats_on_Fri':repeats_on_Fri,
-			'repeats_on_Sat':repeats_on_Sat,
-			'repeats_on_Sun':repeats_on_Sun,
-
-			'money_cost':money_cost,
-			'days_cost':days_cost,
-			'hours_cost':hours_cost,
-			'birthday':birthday,
-			'is_mini_o':is_mini_o,
-			'is_jg': is_jg
-
-		})
-	})
-	.done(function(data){
-		console.log(data);
-		ksu.find('#description').val('');
-		ksu.find('#comments').val('');
-		ksu.find('#is_critical').prop('checked', false);
-		ksu.find('#is_private').prop('checked', false);
-		ksu.find('#is_active').prop('checked', true);
-		ksu.find('#is_mini_o').prop('checked', false);
-		
-		ksu.find('#secondary_description').val('');
-		ksu.find('#BigO_secondary_description').val('');
-		ksu.find('#KAS3_secondary_description').val('');
-		ksu.find('#KAS4_secondary_description').val('');
-		ksu.find('#EVPo_secondary_description').val('');
-		ksu.find('#ImPe_secondary_description').val('');
-		ksu.find('#Idea_SecondaryDescription').val('');
-
-		ksu.find('#best_time').val('');
-		ksu.find('#ImIn_best_time').val('');
-		ksu.find('#Diary_best_time').val('');
-
-		// ksu.find('#next_event').val('');
-		ksu.find('#BigO_next_event').val('');
-		ksu.find('#EVPo_next_event').val('');
-		ksu.find('#ImPe_next_event').val('')
-		ksu.find('#ImIn_next_event').val('')
-		ksu.find('#Diary_next_event').val('')
-		
-		ksu.find('#tags_value').val('');
-		ksu.find('#Dummy_tags_value').val('');			
-		
-		ksu.find('#importance').val(3);
-
-		ksu.find('#kpts_value').val(1);
-		ksu.find('#KAS3_kpts_value').val(1);
-		ksu.find('#KAS4_kpts_value').val(1);
-		ksu.find('#BigO_kpts_value').val(1);
-		ksu.find('#Wish_kpts_value').val(1);
-		ksu.find('#EVPo_kpts_value').val(1);
-		ksu.find('#ImPe_kpts_value').val(1);
-
-		ksu.find('#frequency').val('');
-		ksu.find('#EVPo_frequency').val('');
-		ksu.find('#ImPe_frequency').val('');
-		ksu.find('#ImIn_frequency').val('');
-		ksu.find('#Diary_frequency').val('');
-
-		ksu.find('#money_cost').val('');
-		ksu.find('#days_cost').val('');
-		ksu.find('#hours_cost').val('');
-		ksu.find('#birthday').val('');
-
-		
-		if (ksu_subtype == ''){
-			ksu_subtype = ksu_type
-		};
-
-
-		var Templates = {
-			'KeyA': $('#NewKSUTemplate_KeyA').clone(),
-			'KAS1': $('#NewKSUTemplate_KAS1').clone(),
-			'KAS2': $('#NewKSUTemplate_KAS2').clone(),
-			'KAS3': $('#NewKSUTemplate_KAS3').clone(),
-			'KAS4': $('#NewKSUTemplate_KAS4').clone(),
-			
-			'BigO': $('#NewKSUTemplate_BigO').clone(),
-			'Wish': $('#NewKSUTemplate_Wish').clone(),
-			
-			'EVPo': $('#NewKSUTemplate_EVPo').clone(),
-			'ImPe': $('#NewKSUTemplate_ImPe').clone(),
-			'Idea': $('#NewKSUTemplate_Idea').clone(),
-			'RTBG': $('#NewKSUTemplate_RTBG').clone(),
-
-			'RealitySnapshot': $('#NewKSUTemplate_RealitySnapshot').clone(),
-			'BinaryPerception': $('#NewKSUTemplate_BinaryPerception').clone(),
-			'TernaryPerception': $('#NewKSUTemplate_TernaryPerception').clone(),
-			'FibonacciPerception': $('#NewKSUTemplate_FibonacciPerception').clone(),
-			'Diary': $('#NewKSUTemplate_Diary').clone()
-		}
-
- 
-		var new_ksu = Templates[ksu_subtype];
-
-		kpts_value = data['kpts_value'];
-
-		new_ksu.attr("id", "MissionKSU");
-		new_ksu.attr("value",data['ksu_id']);
-		new_ksu.find('#ksu_id').attr("value",data['ksu_id']);
-		new_ksu.find('#parent_id').val(parent_id);
-
-		new_ksu.find('#description').val(description);
-		new_ksu.find('#secondary_description').val(secondary_description);
-		new_ksu.find('#kpts_value').val(kpts_value);
-		new_ksu.find('#best_time').val(best_time);
-		new_ksu.find('#next_event').val(next_event);
-
-		new_ksu.find('#importance').val(data['importance']);
-		new_ksu.find('input:radio[name=effort_denominator][value='+ effort_denominator +']').prop("checked",true);
-		new_ksu.find('input:radio[name=jg_size][value='+ effort_denominator +']').prop("checked",true);
-
-		new_ksu.find('#tags').val(tags);
-		new_ksu.find('#ksu_subtype').text(ksu_subtype);
-
-		new_ksu.find('#is_critical').prop('checked', is_critical);
-		new_ksu.find('#is_active').prop('checked', is_active);
-		new_ksu.find('#is_private').prop('checked', is_private);
-
-		new_ksu.find('#money_cost').val(money_cost);
-		new_ksu.find('#hours_cost').val(hours_cost);
-		new_ksu.find('#days_cost').val(days_cost);
-		new_ksu.find('#birthday').val(birthday);
-		new_ksu.find('#is_mini_o').prop('checked', is_mini_o);
-		new_ksu.find('#is_jg').prop('checked', is_jg);
-
-		new_ksu.find('#frequency').val(frequency);
-		new_ksu.find('#comments').val(comments);
-
-		new_ksu.removeClass('hidden');
-		new_ksu.prependTo('#NewKSUsHolder');
-		new_ksu.fadeIn("slow");
-
-		if(is_critical && is_active){
-			new_ksu.find('#description').css('color', '#B22222');				
-		} else if (is_active){
-			new_ksu.find('#description').css('color', 'black');				
-		} else {
-			new_ksu.find('#description').css('color', '#b1adad');
-		};
-
-		if(is_mini_o){
-			new_ksu.find('#description').css('font-weight', 'bold');
-			new_ksu.find('#secondary_description').removeClass('hidden');
-			ksu.find('#description').css('font-weight', 'normal');
-			ksu.find('#description').css('font-style', 'normal');
-			ksu.find('#secondary_description').addClass('hidden');
-		};
-
-		if(is_jg){
-			new_ksu.find('#ExpectedImpactRow').toggleClass('hidden');
-			new_ksu.find('#JGSizeRow').toggleClass('hidden');
-			new_ksu.find('#ksu_timer').toggleClass('hidden');
-			new_ksu.find('#ksu_timer_button').toggleClass('hidden');
-		}
-
-		$('#TagsAndImportanceRow').addClass('hidden');	
-		$('#QuickKsuSecondaryDescription').addClass('hidden');
-		$('#QuickKsuSubtypeDetails').addClass('hidden');
-		ksu.fadeIn("slow");
-
-		
-		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
-		if(next_event > TodayDate){
-			new_ksu.animate({
-				"opacity" : "0",},{
-				"complete" : function(){
-					new_ksu.remove();
-				}
-			})
-			console.log('Evento en el futuro');
-		};
-
-
-
-	});
-});
 
 
 $('#NewDiaryEntryButton').on('click', function(){
