@@ -284,7 +284,7 @@
 				</select>			
 			</div>
 
-			<div class="col-xs-3 form-group TypeSpecific" target_type="Action" id="priotiy_col">	
+			<div class="col-xs-3 form-group TypeSpecific hidden" target_type="Action" id="priotiy_col">	
 				<label > Priority </label>
 				<select id="status" class="KsuAttr form-control SexySelect StatusSelect" name="status">	
 					<option value="Critical" > Critical </option>
@@ -432,6 +432,8 @@
 				
 				<label class="checkbox-inline TypeSpecific" target_type="Action"><input type="checkbox" id="anywhere" name="anywhere" class="KsuAttr"><b>Anywhere</b></label>
 				
+				<label class="checkbox-inline TypeSpecific" target_type="Action"><input type="checkbox" id="is_critical" name="critical" class="IsCriticalCheckbox"><b>Critical</b></label>
+
 			</div>
 			<div class="col-xs-4">
 				<input class="KsuAttr" style="color:purple; border:0; width:100%; text-align:left; margin-left:-10px; font-style: italic;" type="text" list="tags" name="tag" id="tag" value="" placeholder="Tag">		
@@ -451,7 +453,7 @@
 
 			<div class="col-xs-3 form-group" id="merits_goal_col">				
 				<label class="TypeSpecific SubtypeSpecific" target_type="Action" avoid_subtype="Proactive Reactive Reality Perception">Indulgence Limit</label>
-				<label class="SubtypeSpecific" avoid_subtype="Negative Reality Perception">Effort Minimum</label>
+				<label class="SubtypeSpecific" avoid_subtype="Negative Reality Perception">Merits Minimum</label>
 				<label class="TypeSpecific" target_type="Indicator">Value Average</label>
 				<input type="number" min="0" step="1" class="form-control KsuAttr SexyInput" id="goal_score" name="goal_score" placeholder="Goal">			
 			</div>

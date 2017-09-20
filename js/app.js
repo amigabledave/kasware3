@@ -40,8 +40,7 @@ $(document).ready(function(){
 		AdjustGame(game_log);
 
 		var best_scores = data['best_scores'];
-		console.log('Best scores: ')
-		console.log(best_scores)
+
 		$('#best_piggy_bank_eod').text(best_scores['best_piggy_bank_eod']);
 		$('#best_ev_piggy_bank_eod').text(best_scores['best_ev_piggy_bank_eod']);
 
@@ -413,9 +412,6 @@ $(document).on('click', '.UserActionButton', function(){
 
 
 function AdjustGame(game_log){
-	
-	console.log('Game log:')
-	console.log(game_log)
 
 	$('#merits_earned').text(' ' + game_log['merits_earned']);
 	$('#piggy_bank').text(' ' + game_log['piggy_bank']);
@@ -605,6 +601,40 @@ $(document).on('focusin', '.KsuAttr', function(){
 });
 
 
+$(document).on('focusin', '.TheoryAttr', function(){
+	
+	var theory = $(this).closest('#Theory');
+	if (theory.attr("value") == ''){return};
+
+	var initial_attr_value = get_ksu_attr_value(theory, $(this).attr("name"));
+	console.log('Se reconocio que se esta acutalizando un attributo')
+	console.log(initial_attr_value)
+	$(this).on('focusout', function(){
+		
+		var attr_value = get_ksu_attr_value(theory, $(this).attr("name"));
+		
+		if(initial_attr_value != attr_value){
+			// console.log('Se reconocio que el attributo cambio')
+			var theory_id = theory.attr("value");
+			var attr_key = $(this).attr("name");						
+			$.ajax({
+				type: "POST",
+				url: "/",
+				dataType: 'json',
+				data: JSON.stringify({
+					'theory_id': theory_id,					
+					'user_action': 'UpdateTheoryAttribute',
+					'attr_key':attr_key,
+					'attr_value':attr_value,
+				})
+			})
+			.done(function(data){console.log(data);})
+		};
+		$(this).off()
+	})
+});
+
+
 $(document).on('change', '#money_cost', function(){
 	var ksu = $(this).closest('#KSU');
 	HideShowCostFrequency(ksu)	
@@ -661,12 +691,30 @@ $(document).on('change','.ShowHideSelect', function(){
   ShowHideSelect(ksu, select, option);
 });
 
+
 $(document).on('change', '.MonitorCheckbox', function(){
 	var ksu_subtype = get_ksu_attr_value($(this).closest('#KSU'), 'ksu_subtype');
 	if(ksu_subtype != 'Reactive'){
 		$(this).closest('#KSU').find('#MonitorDetails').toggleClass('hidden')
 	}	
 });
+
+
+$(document).on('change', '.IsCriticalCheckbox', function(){
+	
+	var ksu = $(this).closest('#KSU');	
+	var new_status = 'Active'
+	var is_critical = ksu.find('#is_critical').prop("checked");
+
+	if(is_critical){
+		new_status = 'Critical'
+	}
+
+	set_ksu_attr_value(ksu, 'status', new_status)
+	if (ksu.attr("value") != ''){UpdateKsuAttribute(ksu.attr("value"), 'status', new_status)};
+	FormatBasedOnStatus(ksu, new_status)
+});
+
 
 
 $(document).on('change', '.pic_input', function(){
@@ -752,6 +800,7 @@ function render_ksu(ksu_dic){
 	if (ksu_type == 'Action'){
 		UpdateMerits(ksu)
 		ToggleJoyGenerator(ksu)
+		ksu.find('#is_critical').prop("checked", ksu_dic['status'] == 'Critical');
 	}
 
 	if(ksu_dic['monitor'] && ksu_dic['ksu_subtype'] != 'Reactive'){
@@ -914,7 +963,7 @@ function set_ksu_attr_value(ksu, attribute, attr_value){
 	} else if (attr_type == 'Radio'){
 		ksu.find('input:radio[name=' + attribute + '][value='+ attr_value +']').prop("checked",true);
 	
-	} else if (attr_type == 'Checkbox'){			
+	} else if (attr_type == 'Checkbox'){
 		ksu.find('#' + attribute).prop("checked", attr_value);
 	}
 }

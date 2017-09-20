@@ -158,6 +158,12 @@ attributes_guide = {
 	'memory_level':['Details', 'Select'],
 	'negative_alternative':['Details', 'Standard'],
 	'negative_size':['Details', 'Radio'],
+
+	'first_name': ['String', 'Standard'],
+	'last_name': ['String', 'Standard'],
+	'timezone': ['Integer', 'Select'],
+	'hide_private_ksus': ['Boolean', 'Checkbox'],
+
 }
 
 

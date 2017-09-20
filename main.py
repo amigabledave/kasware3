@@ -497,6 +497,14 @@ class Home(Handler):
 				}))
 			return
 		
+		elif user_action == 'UpdateTheoryAttribute':
+			theory = Theory.get_by_id(int(event_details['theory_id']))
+			theory = self.update_ksu_attribute(theory, event_details['attr_key'], event_details['attr_value'])[0]
+			theory.put()
+			self.theory = theory
+			self.response.out.write(json.dumps({'mensaje':'Attributo de la teoria actualizado'}))
+			return
+
 		elif user_action == 'RequestNewPicInputAction':
 			new_pic_input_action = "{0}".format(blobstore.create_upload_url('/upload_pic'))
 			self.response.out.write(json.dumps({
