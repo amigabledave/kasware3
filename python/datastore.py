@@ -26,8 +26,10 @@ class Theory(ndb.Model):
  	#Game details
 	game = ndb.JsonProperty(default={	
 		'best_merits_earned':0,
+		'best_ev_merits_earned':0,
 		'best_streak_day':0,
 		'best_piggy_bank_eod':0,
+		'best_ev_piggy_bank_eod':0,
 		}) 
 	
 	game_log_key = ndb.KeyProperty()
@@ -72,6 +74,11 @@ class GameLog(ndb.Model):
 	used_100_slack_cut = ndb.IntegerProperty(default=0)
 	available_50_slack_cut = ndb.IntegerProperty(default=0)
 	available_100_slack_cut = ndb.IntegerProperty(default=0)
+
+	ev_piggy_bank_sod = ndb.IntegerProperty(default=0)
+	ev_piggy_bank_eod = ndb.IntegerProperty(default=0)
+	ev_merits_goal = ndb.IntegerProperty(default=0) 
+	ev_merits_earned = ndb.IntegerProperty(default=0)
 
 
 class KSU3(ndb.Model):

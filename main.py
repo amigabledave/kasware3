@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 2 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -128,20 +128,21 @@ class Handler(webapp2.RequestHandler):
 
 		return
 
-	def create_new_game_log(self, old_game_log): #xx
+	def create_new_game_log(self, old_game_log):
 		theory = self.theory
 		metirs_for_50_slack_cut = 1000
 		metirs_for_100_slack_cut = 5000
 
-
 		old_game_log.piggy_bank_eod = int(old_game_log.piggy_bank_sod + old_game_log.merits_earned - old_game_log.merits_goal * (1 - old_game_log.slack_cut) - old_game_log.merits_loss)
+		old_game_log.ev_piggy_bank_eod = old_game_log.ev_piggy_bank_sod + old_game_log.ev_merits_earned - old_game_log.ev_merits_goal
 		old_game_log.put()
 
 		attempt = old_game_log.attempt
 		
-		if old_game_log.piggy_bank_eod >= 0:
+		if old_game_log.piggy_bank_eod >= 0 and old_game_log.ev_piggy_bank_eod >= 0:
 			streak_day = old_game_log.streak_day + 1			
 			piggy_bank_sod = old_game_log.piggy_bank_eod
+			ev_piggy_bank_sod = old_game_log.ev_piggy_bank_eod
 			streak_merits = old_game_log.streak_merits + old_game_log.merits_earned
 			available_50_slack_cut = int(math.floor(streak_merits/metirs_for_50_slack_cut - old_game_log.used_50_slack_cut))
 			available_100_slack_cut = int(math.floor(streak_merits/metirs_for_100_slack_cut - old_game_log.used_100_slack_cut))
@@ -151,6 +152,7 @@ class Handler(webapp2.RequestHandler):
 		else:
 			streak_day = 0
 			piggy_bank_sod = 0
+			ev_piggy_bank_sod = 0
 			streak_merits = 0
 			available_50_slack_cut = 0
 			available_100_slack_cut = 0
@@ -164,7 +166,9 @@ class Handler(webapp2.RequestHandler):
 			theory_id=theory.key,
 			user_date=old_game_log.user_date + timedelta(days=1),
 			piggy_bank_sod=piggy_bank_sod,
+			ev_piggy_bank_sod=ev_piggy_bank_sod,
 			merits_goal=self.define_merits_goal(streak_day),
+			ev_merits_goal=self.define_merits_goal(streak_day, end_value=True),
 			streak_day=streak_day,
 			attempt=attempt,
 			streak_merits=streak_merits,
@@ -175,7 +179,7 @@ class Handler(webapp2.RequestHandler):
 
 		game_log.put()
 		theory.game_log_key = game_log.key
-
+		
 		theory.game = self.check_for_new_best_score(theory.game, old_game_log)
 		theory.put()
 
@@ -193,6 +197,9 @@ class Handler(webapp2.RequestHandler):
 		
 		elif event_type == 'Stupidity':
 			game_log.merits_loss += score 
+
+		if event_type == 'EndValue':
+			game_log.ev_merits_earned += score
 
 		elif event_type == 'Activate50SlackCut':
 			game_log.slack_cut = 0.5
@@ -221,6 +228,12 @@ class Handler(webapp2.RequestHandler):
 		if game['best_piggy_bank_eod'] < game_log.piggy_bank_eod:
 			game['best_piggy_bank_eod'] = game_log.piggy_bank_eod
 
+		if game['best_ev_merits_earned'] < game_log.ev_merits_earned:
+			game['best_ev_merits_earned'] = game_log.ev_merits_earned
+
+		if game['best_ev_piggy_bank_eod'] < game_log.ev_piggy_bank_eod:
+			game['best_ev_piggy_bank_eod'] = game_log.ev_piggy_bank_eod
+
 		return game
 
 	def make_template(self, template_name):
@@ -231,38 +244,46 @@ class Handler(webapp2.RequestHandler):
 		}
 		return templates[template_name]
 
-	def define_merits_goal(self, streak_day):
+	def define_merits_goal(self, streak_day, end_value=False):
 
 		goal_range = [
-			[142, 160],
-			[87, 150],
-			[53, 140],
-			[32, 130],
-			[19, 120],
-			[11, 110],
-			[6, 100],
-			[3, 90],
-			[1, 80],
-			[0, 70],	
+			[142, 160, 6],
+			[87, 150, 5],
+			[53, 140, 5],
+			[32, 130, 5],
+			[19, 120, 4],
+			[11, 110, 4],
+			[6, 100, 4],
+			[3, 90, 3],
+			[1, 80, 3],
+			[0, 70, 3],	
 		]
 
 		for level in goal_range:
 			if streak_day >= level[0]:
-				return level[1]
+				if not end_value:
+					return level[1]
+				else:
+					return level[2]
 		return
 
-	def game_log_to_dic(self, game_log):
+	def game_log_to_dic(self, game_log): #xx Aqui nos quedamos para comenzar a enviar vectores de informacion de esfuerzo y end value
 		
 		change_in_piggy_bank = game_log.merits_earned - game_log.merits_goal * (1 - game_log.slack_cut) - game_log.merits_loss
-		symbol = ' - '
+
+		symbol = ''
 		if change_in_piggy_bank > 0:
-			symbol = ' + '
-		piggy_bank = str(game_log.piggy_bank_sod) + symbol + str(abs(int(change_in_piggy_bank)))
+			symbol = '+'
+
+		change_in_ev_piggy_bank = game_log.ev_merits_earned - game_log.ev_merits_goal
+
+		ev_symbol = ''
+		if change_in_ev_piggy_bank > 0:
+			ev_symbol = '+'
+
+		piggy_bank = symbol + str((int(change_in_piggy_bank))) + ' | ' + ev_symbol + str((int(change_in_ev_piggy_bank))) 
 
 		game_log_dic = {
-			# 'theory_id': game_log.theory_id,
-			# 'created': game_log.created,
-			# 'user_date': game_log.user_date.strftime('%I:%M %p. %a, %b %d, %Y'),
 			'user_date': game_log.user_date.strftime('%b %d, %Y'),
 
 			'attempt': game_log.attempt,
@@ -270,11 +291,14 @@ class Handler(webapp2.RequestHandler):
 			'streak_merits': game_log.streak_merits,
 			
 			'piggy_bank_sod': game_log.piggy_bank_sod,
-			'piggy_bank_eod': game_log.piggy_bank_eod,
+			'ev_piggy_bank_sod': game_log.piggy_bank_sod,
+
+			'piggy_bank_eod': str(game_log.piggy_bank_eod) + '  |  ' + str(game_log.ev_piggy_bank_eod),
 			'piggy_bank': piggy_bank,
 
-			'merits_goal': game_log.merits_goal,
-			'merits_earned': game_log.merits_earned,
+			'merits_goal': str(game_log.merits_goal) + '  |  ' + str(game_log.ev_merits_goal),
+			'ev_merits_goal': game_log.ev_merits_goal,
+			'merits_earned': str(game_log.merits_earned) + '  |  ' + str(game_log.ev_merits_earned),
 			'merits_loss': game_log.merits_loss,
 			
 			'slack_cut': str(int(game_log.slack_cut*100))+'%',
@@ -308,7 +332,7 @@ class Home(Handler):
 		event_details = json.loads(self.request.body);
 		user_action = event_details['user_action']	
 		
-		if user_action in ['Action_Done', 'Stupidity_Commited']:
+		if user_action in ['Action_Done', 'Stupidity_Commited', 'EndValue_Experienced']:
 			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
 			event = self.create_event(ksu, user_action, event_details)
 			event.put()
@@ -327,7 +351,7 @@ class Home(Handler):
 				}))
 			return
 
-		elif user_action in ['Milestone_Reached', 'EndValue_Experienced', 'Measurement_Recorded']:
+		elif user_action in ['Milestone_Reached', 'Measurement_Recorded']:
 			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
 			
 			event = self.create_event(ksu, user_action, event_details)
@@ -507,7 +531,7 @@ class Home(Handler):
 
 	def update_ksu(self, ksu, user_action):
 
-		if user_action == 'Action_Done':
+		if user_action in ['Action_Done', 'EndValue_Experienced']:
 			ksu = self.update_event_date(ksu, user_action)
 			if ksu.details['repeats'] == 'Never' and ksu.ksu_subtype != 'Reactive':
 				ksu.in_graveyard = True
@@ -848,7 +872,7 @@ class Home(Handler):
 			'sub_sections':[
 				
 				{'title': 'Joy Clusters', #Formerly Merits Reserves #xx
-				'score': 'X',
+				'score': '0',
 				'contrast_title': 'End value in current cluster',
 				'contrast': '0 of 1,000'},
 
@@ -870,8 +894,8 @@ class Home(Handler):
 			'title': 'End Value Generated',
 			'sub_sections':[
 				{'title': 'Total',
-				'score':'xx',
-				'contrast':'xx'},
+				'score':'00',
+				'contrast':'00'},
 
 				{'title': 'Average',
 				'score': dashboard_base['current']['WishRealized']['averages']['score'],
@@ -1156,6 +1180,7 @@ class SignUpLogIn(Handler):
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) +timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=self.define_merits_goal(0),
+					ev_merits_goal=self.define_merits_goal(0, end_value=True),
 					attempt=1,
 					)
 
@@ -1421,6 +1446,7 @@ class PopulateRandomTheory(Handler):
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=self.define_merits_goal(0),
+					ev_merits_goal=self.define_merits_goal(0, end_value=True),
 					attempt=1,
 					)
 

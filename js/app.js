@@ -40,11 +40,10 @@ $(document).ready(function(){
 		AdjustGame(game_log);
 
 		var best_scores = data['best_scores'];
-		
-
+		console.log('Best scores: ')
+		console.log(best_scores)
 		$('#best_piggy_bank_eod').text(best_scores['best_piggy_bank_eod']);
-		
-
+		$('#best_ev_piggy_bank_eod').text(best_scores['best_ev_piggy_bank_eod']);
 
 		FixTheoryView()		
 	})
@@ -308,17 +307,7 @@ $(document).on('click', '.KsuActionButton', function(){
 
 	function EndValueExperienced(ksu){
 		console.log('End value experienced...')
-		
-		if($('#chapter_duration').val() == ''){
-			$('#chapter_duration').val(1)
-		}
-		
-		var duration = parseInt($('#chapter_duration').val());
-		var size = parseInt(get_ksu_attr_value(ksu, 'experience_quality'));
-		var score =	duration * size;
-		
-		console.log(duration, size, score);
-		
+						
 		ksu.fadeOut('slow');
 		$.ajax({
 			type: "POST",
@@ -327,8 +316,8 @@ $(document).on('click', '.KsuActionButton', function(){
 			data: JSON.stringify({
 				'ksu_id': ksu.attr("value"),
 				'user_action': action,
-				'score': score,
-				'size': size,
+				'score': ksu.find('#EndValueMerits').text(),
+				'size': 0,
 				'counter': get_ksu_attr_value(ksu, 'counter'),
 			})
 		}).done(function(data){
@@ -340,6 +329,7 @@ $(document).on('click', '.KsuActionButton', function(){
 				ksu.remove()
 			}
 
+			AdjustGame(data['game_log'])
 			render_event(data['event_dic'])
 
 		});
@@ -383,7 +373,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		} else {	
 			set_ksu_attr_value(ksu, 'size', 2)}
 		size = get_ksu_attr_value(ksu, 'size');
-		UpdateKsuAttribute(ksu.attr("value"), 'size', size)		
+		if (ksu.attr("value") != ''){UpdateKsuAttribute(ksu.attr("value"), 'size', size)};
 		ToggleJoyGenerator(ksu)
 		UpdateMerits(ksu)
 	};
@@ -432,6 +422,7 @@ function AdjustGame(game_log){
 	$('#streak_day').text(' ' + game_log['streak_day']);
 
 	$('#piggy_bank_sod').text(game_log['piggy_bank_sod']);
+	$('#ev_piggy_bank_sod').text(game_log['ev_piggy_bank_sod']);
 	
 	$('#available_50_slack_cut').text(game_log['available_50_slack_cut']);
 	$('#merits_till_next_50_slack_cut').text(game_log['merits_till_next_50_slack_cut']);
@@ -531,10 +522,16 @@ $(document).on('click', '.PlayStopButton', function(){
 	
 	var starting_minutes =  parseInt(target_timer.val());
     
+	var target_button_id = '#EffortDoneButton'
+	if(get_ksu_attr_value(ksu, 'size') == 0){
+		target_button_id = '#EndValueExperiencedButton'
+	}
+
+
 	if (button_action == 'Play'){
 		
-		ksu.find('#EffortDoneButton').addClass('PlayPulse');
-		ksu.find('#EffortDoneButton').prop("disabled", true);
+		ksu.find(target_button_id).addClass('PlayPulse');
+		ksu.find(target_button_id).prop("disabled", true);
 
 		start_time = new Date();
 		$(this).attr("button_action", "Stop")
@@ -543,8 +540,8 @@ $(document).on('click', '.PlayStopButton', function(){
 						
 	} else {
 
-		ksu.find('#EffortDoneButton').removeClass('PlayPulse');
-		ksu.find('#EffortDoneButton').prop("disabled", false);
+		ksu.find(target_button_id).removeClass('PlayPulse');
+		ksu.find(target_button_id).prop("disabled", false);
 		$(this).attr("button_action", "Play");
 		UpdateKsuAttribute(ksu.attr('value'), 'counter', target_timer.val())
 	}
