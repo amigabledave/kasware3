@@ -671,8 +671,9 @@ $(document).on('change', '.ReasonSelect', function(){
 	// if (ksu.attr("value") == ''){return};
 	
 	var ksu_id = ksu.attr("value");
-	if (ksu.attr("value") == ''){return};
-	UpdateKsuAttribute(ksu_id, 'reason_id', attr_value)
+	HideShowLinkType(ksu)
+	
+	if (ksu.attr("value") != ''){UpdateKsuAttribute(ksu_id, 'reason_id', attr_value)};
 });
 
 
@@ -886,6 +887,17 @@ function HideShowCostFrequency(ksu){
 	}
 }
 
+function HideShowLinkType(ksu){
+	
+	var reason_id = ksu.find('#reason_holder').attr('reason_id')
+	if(reason_id != ''){
+		ksu.find('#link_type_col').removeClass('hidden')
+	} else {
+		ksu.find('#link_type_col').addClass('hidden')
+	}
+}
+
+
 
 function AddKsu_idToPicInput(ksu){
 	var new_pic_input_action = $('#new_pic_input_action').attr('action');
@@ -1027,7 +1039,7 @@ function HideUnhideKsuProperties(ksu, targets, action){
 function ShowHideSelect(ksu, select, option){
 	var select_toBeHidden = {
 		'repeats': ['#repeats_Xdays_col', '#repeats_day_col', '#repeats_month_col', '#repeats_week_col'],
-		'status': ['#memory_level_col'],
+		'status': ['#memory_level_col', '#feasibility_col'],
 	}
 
 
@@ -1042,7 +1054,8 @@ function ShowHideSelect(ksu, select, option){
 		},
 
 		'status':{
-			'Memory':['#memory_level_col']
+			'Memory':['#memory_level_col'],
+			'Wish':['#feasibility_col'],
 		},
 	}
 
@@ -1100,6 +1113,7 @@ function add_reason_select_to_ksu(ksu, reason_id){
 		selectize.setValue(reason_id, false);
 	}
 	ksu.find('.selectize-dropdown').removeClass('SexySelect');
+	HideShowLinkType(ksu)
 	return ksu
 }
 

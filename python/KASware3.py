@@ -12,19 +12,19 @@ ksu_types = [
 
 	[['Objective', 'Mile Stone'], [ #Group actions in a well define purpose
 		['BigObjective', 'Objective', True], #If the parent is another objective then its a milestone#'Milestone',
-		['MiniObjective', 'Mini Objective', ''], #If the parent is another objective then its a milestone#'Milestone',		
+		# ['MiniObjective', 'Mini Objective', ''], #If the parent is another objective then its a milestone#'Milestone',		
 	]],
 	
 	#Life Pieces
 	[['Experience', 'Experience'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
 		['Moment', 'Moment', True], # Whaterver < Nice < Very nice < Memorable < Epic < Legendary				
-		['Chapter', 'Chapter', ''], #Agrupa varios momentos, pero no es un momento en si por lo que no tiene importancia. El padre puede ser otro chapter .E.g. Estar jugando el juego de aventura en turno >> #E.g. Estar jugando Zelda breath of the wild		
+		# ['Chapter', 'Chapter', ''], #Agrupa varios momentos, pero no es un momento en si por lo que no tiene importancia. El padre puede ser otro chapter .E.g. Estar jugando el juego de aventura en turno >> #E.g. Estar jugando Zelda breath of the wild		
 		['JoyMine', 'Joy Mine', ''], #Algo concreto que genera momentos del mismo tipo... E.g. Estar jugando Zelda breath of the wild
 	]],
 
 	[['Contribution', 'Contribution'], [ #Whats the impact you want to have in others peoples life and the envieronment? Antes Meaning GreaterGood
-		['StarFish', 'Star Fish', True], # Cada Star Fish matters, son contribuciones targeteadas para mejorar la vida de una persona
-		['Calling', 'Calling', ''], # Aqui entran el trabajo que harias aunque no te pagaran	
+		['StarFish', 'Star Fish', True], # Cada Star Fish matters, son contribuciones targeteadas para mejorar la vida de una persona o grupo en especifico
+		# ['Calling', 'Calling', ''], # Aqui entran el trabajo que harias aunque no te pagaran	
 		['WorldChange', 'World Change', ' '] #Aqui entran cualquier aspiraciones de cambiar el status del mundo mas alla de la vida de algunos individuos en particular
 	]],
 	
@@ -33,26 +33,26 @@ ksu_types = [
 		['KnowledgeOrSkill', 'Skill or Knowledge', True], #MindSkill Knowledge and skills		
 		['BodyFeature', 'Body Feature', ''], #PhisicalAttribute, Health and vitality
 		['Achievement', 'Achievement', ''], #Personal achievement.
-		['Role', 'Role', ''], #Cambiar el nombre para que sea 'Perception por otros'  Dad, Friend, Lover, etc. 
+		['Role', 'Role', ''], #Role to Others  Dad, Friend, Lover, etc. 
 	]],
 
 	[['Person', 'Person'], [ #Who you want in your life 'Love', #Important People. Love & Friendship
 		['Individual', 'Individual', True], #Person #If the parent is another person, then the parent is a group of people #'Group',
 		['Group', 'Group', ''],
-		['Relationship', 'Relationship', ''], #E.g. Sexual Partner, Someone to Play Magic, Etc... El padre solo puede ser una persona y puede tener varios padres
+		# ['Relationship', 'Relationship', ''], #E.g. Sexual Partner, Someone to Play Magic, Etc... El padre solo puede ser una persona y puede tener varios padres
 	]],
 
 	[['Possesion', 'Possesion'], [ #What you want to have
 		['Thing', 'Thing', True], #For personal use 	
 		['Service', 'Service Access'], #For personal use
-		['Asset', 'Asset', ''], #Dinero o assets tangibles. MoneyOrAsset
-		['Job', 'Job', ''], #Aqui entran los trabajos que no harias si no te pagaran
+		['Asset', 'Asset', ''], #Dinero o assets tangibles. Tambien aqui entra un Paycheck que a final de cuentas es un activo.. 
+		# ['Job', 'Job', ''], #Aqui entran los trabajos que no harias si no te pagaran
 	]],	
 
 	[['Environment', 'Environment'], [ #Surrondings... Quiero de alguna forma indicar que se trata de los lugares donde pasas tiempo...
 		['Private', 'Private', True],
 		['Public', 'Public', ''], #Aqui entran los paises donde quieres vivir u otros lugares donde te gustaria pasar buena parte de tu tiempo
-		['Order', 'Order', ''], #Algun attributo particular del lugar en cuestion 		
+		# ['Order', 'Order', ''], #Algun attributo particular del lugar en cuestion #Ahora ya lo voy a ver como un upgrade de la cosa en cuestion
 		#Tambien entra orden aqui. e.g. "Tener un cuarto ordenado"
 	]],
 
@@ -102,6 +102,8 @@ attributes_guide = {
 	'ksu_type': ['String', 'Standard'],
 	'ksu_subtype': ['String', 'Select'],
 	'reason_id': ['Key', 'Standard'],
+	'link_type': ['Details', 'Select'],
+
 
 	'description': ['String', 'Standard'],	
 	'pic_key': ['BlobKey', 'Standard'],
@@ -159,6 +161,9 @@ attributes_guide = {
 	'negative_alternative':['Details', 'Standard'],
 	'negative_size':['Details', 'Radio'],
 
+	'feasibility':['Details', 'Select'],
+
+
 	'first_name': ['String', 'Standard'],
 	'last_name': ['String', 'Standard'],
 	'timezone': ['Integer', 'Select'],
@@ -172,6 +177,7 @@ ksu_type_attributes = {
 		'ksu_type', 
 		'ksu_subtype', 
 		'reason_id',
+		'link_type',
 		
 		'description', 
 		# 'pic_key',
@@ -225,7 +231,8 @@ ksu_type_attributes = {
 		'size',
 		'money_cost',
 		'cost_frequency',
-		'status',								
+		'status',
+		'feasibility'								
 	],
 
 	'Experience': [

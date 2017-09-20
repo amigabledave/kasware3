@@ -258,7 +258,7 @@
 		<div class="row" id="TypeSpecificDetailsRow">
 			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
 			
-			<div class="col-xs-3" name="subtype_col" id="subtype_col">
+			<div class="col-xs-3 SubtypeSpecific" name="subtype_col" id="subtype_col" avoid_subtype="BigObjective">
 				{% for ksu_type in constants['ksu_types'] %}
 				<div class="TypeSpecific form-group" target_type='{{ksu_type[0][0]}}' style="">	
 					<label  style=""> {{ksu_type[0][1]}} type </label>
@@ -271,16 +271,20 @@
 				{% endfor %}
 			</div>
 
-			<div class="col-xs-9 ReasonHolder" name="reason_id" id="reason_holder" reason_id="">	
-			</div>
-
-
 			<div class="col-xs-3 form-group TypeSpecific" target_type="Objective" id="objective_status_col">
 				<label> Status </label>						
 				<select id="status" class="KsuAttr form-control SexySelect StatusSelect" name="status">	
 					<option value="Pipeline" selected="selected"> In Pipeline </option>						
 					<option value="Pursuit" > In Pursuit </option>
 					<option value="Reached"> Reached </option>					
+				</select>			
+			</div>
+
+			<div class="col-xs-3 form-group TypeSpecific" target_type="Experience Contribution SelfAttribute Person Possesion Environment" id="feasibility_col">
+				<label> Feasibility </label>		
+				<select id="feasibility" class="KsuAttr form-control SexySelect" name="feasibility">	
+					<option value="WithinReach" selected="selected"> Within reach </option>						
+					<option value="OutOfReach"> Out of reach </option>					
 				</select>			
 			</div>
 
@@ -418,6 +422,19 @@
 			<div class="col-xs-12 form-group TypeSpecific" id="source_col" target_type='Wisdom'>
 				<label>Source</label>
 				<textarea class="KsuAttr form-control SexyInput" rows="1" data-min-rows='1' name="source" id="source" placeholder="Source. e.g. author name, book or movie title, url, etc" style="padding-left: 10px;"></textarea>	
+			</div>
+		
+
+			<div class="col-xs-9 ReasonHolder" name="reason_id" id="reason_holder" reason_id="">	
+			</div>
+
+			<div class="col-xs-3 form-group hidden" id="link_type_col">	
+				<label> Link Type </label>
+				<select id="link_type" class="KsuAttr form-control SexySelect" name="link_type">
+					<option value="For" selected="selected"> For </option>
+					<option value="UpgradeOf"> Upgrade of</option>
+					<option value="PartOf"> Part of </option>
+				</select>			
 			</div>
 		</div>
 		
