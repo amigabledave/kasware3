@@ -14,7 +14,6 @@
 		<div class="col-xs-1 TypeSpecific" target_type="Experience Contribution SelfAttribute Person Possesion Environment Wisdom Indicator" style="padding-right: 0px; max-height: 38px; text-align:center;">
 			<div id="img_holder">
 				<span id="glyphicon" class="glyphicon" style="font-size: 35px;"></span>
-			<!-- <img style="height: 38px; margin-top: -3px; margin-left: 3px;" class="img-circle" src="images/ic_extension_black_48dp_2x.png" id="blah"> -->
 			</div>
 			
 			<img src="#" id="ksu_pic" data-magnify-src="" class="zoom hidden" style="border-radius: 5px; height: 38px;">		
@@ -26,6 +25,12 @@
 
 
 		<div class="col-xs-1 TypeSpecific" target_type='Action'>
+
+			<button type="button" class="btn ksu-circle-btn EndValueButton KsuActionButton hidden" name="action_description" value='EndValue_Experienced' style="margin-left: 3px" id="EndValueExperiencedButton">
+			<span class="SubtypeSpecific" avoid_subtype="Reactive" id="EndValueMerits" style="font-weight: bold;">1</span>
+			</button>
+
+
 			<button type="button" class="btn btn-success ksu-circle-btn KsuActionButton SubtypeSpecific" avoid_subtype="Reactive" name="action_description" value='Action_Done' style="margin-left: 3px" id="EffortDoneButton">
 			<span class="SubtypeSpecific" avoid_subtype="Reactive" id="Proactive_Merits" style="font-weight: bold;">1</span>
 			</button>
@@ -78,10 +83,23 @@
 	<div class="row hidden" id="DetailDiv"><div class="col-xs-12" style=" padding-left: 20px; padding-right: 20px;">							
 		<div class="row TypeSpecific" name="ActionActionsRow" target_type='Action'>			
 			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
-			<div class="col-xs-6 form-group">							
+			
+			<div class="col-xs-2 SubtypeSpecific" avoid_subtype="Reactive">
+				<button type="button" class="btn btn-default BarButton KsuActionButton" name="action_description" value='ToggleJoyGenerator' style="margin-top: 3px;"><span class="glyphicon glyphicon-gift"></span></button>
+			</div>
+
+
+			<div class="col-xs-6 form-group">
+				<div id="ProactiveSizeRow">
 				<b class="SubtypeSpecific" avoid_subtype="Reactive Negative">Effort Intensity:</b>
 				<b class="SubtypeSpecific" avoid_subtype="Proactive Negative">Reaction Difficulty:</b>
 				<form id="size" name="size">
+					
+					<label class="radio-inline hidden">
+						<input type="radio" name="size" value="0" class="KsuAttr ScoreInput">
+						<span> Joy </span>						
+					</label>
+
 					<label class="radio-inline">
 						<input type="radio" name="size" value="1" class="KsuAttr ScoreInput">
 						<span class="SubtypeSpecific" avoid_subtype="Reactive"> Relaxed </span>
@@ -98,9 +116,9 @@
 						<input type="radio" name="size" value="3" class="KsuAttr ScoreInput">		
 						<span> Heroic </span>
 					</label>			
-				</form>	
+				</form>
+				</div>
 			</div>
-
 
 			<div class="col-xs-6 form-group SubtypeSpecific" avoid_subtype="Proactive">
 				<b>Stupidity Severity:</b>
@@ -111,7 +129,7 @@
 					</label>
 
 					<label class="radio-inline">
-						<input type="radio" name="negative_size" value="2" class="KsuAttr ScoreInput" checked="checked"	
+						<input type="radio" name="negative_size" value="2" class="KsuAttr ScoreInput" checked="checked">
 						<span> Unaceptable </span> 
 					</label>
 
@@ -122,7 +140,7 @@
 				</form>	
 			</div>
 
-			<div class="col-xs-6 TypeSpecific SubtypeSpecific" target_type='Action' avoid_subtype="Reactive">
+			<div class="col-xs-4 TypeSpecific SubtypeSpecific" target_type='Action' avoid_subtype="Reactive">				
 				<div class="btn-group pull-right form-group" role="group" aria-label="..." style="margin-top: 3px;">
 					
 					<button type="button" class="btn btn-default TimeBarButton BarButton" name="" value=''><img style="height: 15px;" class="img-circle" src="images/ic_watch_later_black_24dp_1x.png"></button>
@@ -240,7 +258,7 @@
 		<div class="row" id="TypeSpecificDetailsRow">
 			<div class="inKSUhrDiv"><hr class="inKSUhr" style=""></div>
 			
-			<div class="col-xs-3" name="subtype_col">
+			<div class="col-xs-3" name="subtype_col" id="subtype_col">
 				{% for ksu_type in constants['ksu_types'] %}
 				<div class="TypeSpecific form-group" target_type='{{ksu_type[0][0]}}' style="">	
 					<label  style=""> {{ksu_type[0][1]}} type </label>

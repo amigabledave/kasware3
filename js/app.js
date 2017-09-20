@@ -108,7 +108,6 @@ $('#CreateNewKSU').on('click',function(){
 		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
 		set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
 	}
-
 });
 
 
@@ -132,6 +131,8 @@ $(document).on('click', '.KsuActionButton', function(){
 		'Milestone_Reached': MilestoneReached,
 		'EndValue_Experienced': EndValueExperienced,
 		'Measurement_Recorded': MeasurementRecorded,
+
+		'ToggleJoyGenerator':ToggleKSUJoyGenerator,
 	}
 
 	actions_menu[action](ksu);
@@ -287,7 +288,6 @@ $(document).on('click', '.KsuActionButton', function(){
 		});
 	};
 
-
 	function MilestoneReached(ksu){
 		console.log('Milestone Reached...')
 		ksu.fadeOut('slow');
@@ -374,7 +374,19 @@ $(document).on('click', '.KsuActionButton', function(){
 		});
 		ShowDetail(ksu)
 		ksu.fadeIn('slow')
-	}
+	};
+
+	function ToggleKSUJoyGenerator(ksu){
+		var size = get_ksu_attr_value(ksu, 'size');		
+		if(size != 0){
+			set_ksu_attr_value(ksu, 'size', 0)
+		} else {	
+			set_ksu_attr_value(ksu, 'size', 2)}
+		size = get_ksu_attr_value(ksu, 'size');
+		UpdateKsuAttribute(ksu.attr("value"), 'size', size)		
+		ToggleJoyGenerator(ksu)
+		UpdateMerits(ksu)
+	};
 });
 
 
@@ -411,6 +423,10 @@ $(document).on('click', '.UserActionButton', function(){
 
 
 function AdjustGame(game_log){
+	
+	console.log('Game log:')
+	console.log(game_log)
+
 	$('#merits_earned').text(' ' + game_log['merits_earned']);
 	$('#piggy_bank').text(' ' + game_log['piggy_bank']);
 	$('#streak_day').text(' ' + game_log['streak_day']);
@@ -691,6 +707,7 @@ function inList(target_element, list){
 	return list.indexOf(target_element) >= 0
 }
 
+
 function render_ksu(ksu_dic){
 	var ksu = $('#KSUTemplate').clone();
 	ksu = FixTemplateBasedOnKsuType(ksu, ksu_dic['ksu_type']);
@@ -737,6 +754,7 @@ function render_ksu(ksu_dic){
 
 	if (ksu_type == 'Action'){
 		UpdateMerits(ksu)
+		ToggleJoyGenerator(ksu)
 	}
 
 	if(ksu_dic['monitor'] && ksu_dic['ksu_subtype'] != 'Reactive'){
@@ -749,8 +767,9 @@ function render_ksu(ksu_dic){
 
 	FormatBasedOnStatus(ksu, ksu_dic['status'])
 
-	AdjustTextAreaHeight(ksu.find('#description')) 
+	AdjustTextAreaHeight(ksu.find('#description'))
 }
+
 
 function render_event(event_dic){
 	var event = $('#EventTemplate').clone();
@@ -790,6 +809,7 @@ function render_event(event_dic){
 	event.prependTo('#HistoryHolder');
 	event.removeClass('hidden');
 }
+
 
 function render_game_log(game_log_dic){
 	var game_log = $('#GameLogTemplate').clone();
@@ -851,10 +871,10 @@ function UpdateMerits(ksu){
 		repetitions = ksu.find('#counter').val();
 	}
 
-	var timer_factor = {1:10, 2:20, 3:40};
+	var timer_factor = {0:2, 1:10, 2:20, 3:40};
 
 	var base = {
-		'Proactive': {1:1, 2:1, 3:5},
+		'Proactive': {0:1, 1:1, 2:1, 3:5},
 		'Reactive': {1:1, 2:3, 3:5},
 		'Negative': {1:5, 2:10, 3:20},
 	};
@@ -864,6 +884,11 @@ function UpdateMerits(ksu){
 	ksu.find('#' + ksu_subtype + '_Merits').text(merits)
 
 	ksu.find('#' + 'Negative' + '_Merits').text(base['Negative'][ksu.find('input:radio[name=negative_size]:checked').val()]*repetitions)
+
+	if(size == 0){
+		ksu.find('#EndValueMerits').text(merits)
+	}
+
 }
 
 
@@ -915,6 +940,24 @@ function ShowDetail(ksu){
 		add_reason_select_to_ksu(ksu, reason_id );
 	} else {
 		remove_reason_select_from_ksu(ksu)
+	}
+};
+
+
+function ToggleJoyGenerator(ksu){
+	var size = get_ksu_attr_value(ksu, 'size');
+	if(size == 0){		
+		ksu.find('#ProactiveSizeRow').addClass('hidden')
+		ksu.find('#EffortDoneButton').addClass('hidden')
+		ksu.find('#EndValueExperiencedButton').removeClass('hidden')
+		ksu.find('#KSUdisplaySection').addClass('IsRealized')
+		ksu.find('#subtype_col').addClass('hidden')		
+	} else {
+		ksu.find('#subtype_col').removeClass('hidden')
+		ksu.find('#ProactiveSizeRow').removeClass('hidden')
+		ksu.find('#EffortDoneButton').removeClass('hidden')
+		ksu.find('#EndValueExperiencedButton').addClass('hidden')
+		ksu.find('#KSUdisplaySection').removeClass('IsRealized')
 	}
 };
 
@@ -1278,6 +1321,13 @@ function FormatBasedOnStatus(ksu, status){
 	if (status in StatusFormat){
 		display_section.addClass(StatusFormat[status]);
 	}
+
+	if(get_ksu_attr_value(ksu, 'ksu_type') == 'Action'){
+		if(get_ksu_attr_value(ksu, 'size') == 0){
+			display_section.addClass('IsRealized');
+		}
+	}
+
 }
 
 

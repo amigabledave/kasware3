@@ -328,6 +328,19 @@ input::-webkit-inner-spin-button {
 }
 
 
+.EndValueButton{
+    border-color: #a58a2a;
+    color: #a58a2a;
+    background-color: #f5e5b3;
+}
+
+.EndValueButton:hover{
+    border-color: #f5e5b3;
+    color: #f5e5b3;
+    background-color: #a58a2a;
+}
+
+
 .IsHistory {
   border-color: #6b8ac1;
   color: #6b8ac1;

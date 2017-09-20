@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 30 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
