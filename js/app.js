@@ -787,7 +787,7 @@ function render_ksu(ksu_dic){
 		ksu.find('#TimeRuler').removeClass('hidden');
 		ksu.find('.KSUdisplaySection').removeClass('TopRoundBorders');
 	}
-	 
+	
 	if(ksu_dic['pic_url']){
 		SetKsuImage(ksu, ksu_dic['pic_url'])
 	} else {
@@ -946,7 +946,6 @@ function UpdateMerits(ksu){
 	if(size == 0){
 		ksu.find('#EndValueMerits').text(merits)
 	}
-
 }
 
 
@@ -1003,6 +1002,8 @@ function ShowDetail(ksu){
 
 
 function ToggleJoyGenerator(ksu){
+	if(get_ksu_attr_value(ksu, 'ksu_subtype') == 'Reactive'){return}
+	
 	var size = get_ksu_attr_value(ksu, 'size');
 	if(size == 0){		
 		ksu.find('#ProactiveSizeRow').addClass('hidden')
@@ -1010,6 +1011,7 @@ function ToggleJoyGenerator(ksu){
 		ksu.find('#EndValueExperiencedButton').removeClass('hidden')
 		ksu.find('#KSUdisplaySection').addClass('IsRealized')
 		ksu.find('#subtype_col').addClass('hidden')		
+	
 	} else {
 		ksu.find('#subtype_col').removeClass('hidden')
 		ksu.find('#ProactiveSizeRow').removeClass('hidden')
@@ -1454,6 +1456,10 @@ function RenderDashboardSubsection(sub_section_dic, sub_section_template){
 		sub_section_template.find('#glyphicon').addClass(sub_section_dic['glyphicon'])
 	}
 
+	if('goal' in sub_section_dic){
+		sub_section_template.find('#goal').removeClass('hidden')
+	}
+
 	return sub_section_template
 }
 
@@ -1496,9 +1502,9 @@ var section_details = {
 	'purpose':{'title': "Current Purpose", 'new_ksu_type': 'disabled', 'holder':'TheoryHolder'},
 
 	'contributions': {'title': 'Contributions', 'new_ksu_type': 'Contribution', 'holder':'TheoryHolder'}, 
-	'experiences': {'title': 'Joy Experiences', 'new_ksu_type': 'Experience', 'holder':'TheoryHolder'},  
+	'experiences': {'title': 'Joy Generators', 'new_ksu_type': 'Experience', 'holder':'TheoryHolder'},  
 	'mybestself': {'title': 'Mybestself', 'new_ksu_type': 'SelfAttribute', 'holder':'TheoryHolder'},  
-	'people': {'title': 'Love & Friendship', 'new_ksu_type': 'Person', 'holder':'TheoryHolder'},  
+	'people': {'title': 'Important People', 'new_ksu_type': 'Person', 'holder':'TheoryHolder'},  
 	'possesions': {'title': 'Possesions', 'new_ksu_type': 'Possesion', 'holder':'TheoryHolder'},  
 	'environment': {'title': 'Environment', 'new_ksu_type': 'Environment', 'holder':'TheoryHolder'},
 

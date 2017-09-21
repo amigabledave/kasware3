@@ -261,7 +261,7 @@
 			<div class="col-xs-3 SubtypeSpecific" name="subtype_col" id="subtype_col" avoid_subtype="BigObjective">
 				{% for ksu_type in constants['ksu_types'] %}
 				<div class="TypeSpecific form-group" target_type='{{ksu_type[0][0]}}' style="">	
-					<label  style=""> {{ksu_type[0][1]}} type </label>
+					<label  style=""> {{ksu_type[0][1]}} Type </label>
 					<select id="ksu_subtype" class="KsuAttr SexySelect SubtypeSelect form-control" name="ksu_subtype">
 						{% for ksu_subtype in ksu_type[1] %}
 						<option value="{{ksu_subtype[0]}}" {% if ksu_subtype[2] %} selected="selected" {% endif %}> {{ksu_subtype[1]}} </option>
@@ -477,7 +477,7 @@
 
 			<div class="col-xs-3 form-group SubtypeSpecific" id="count_goal_col" avoid_subtype="Reality Perception">
 				<label class="SubtypeSpecific" avoid_subtype="Negative Reactive">Time Minimum</label>	
-				<label class="SubtypeSpecific" avoid_subtype="Proactive Negative">Rep. Minimum</label>
+				<label class="SubtypeSpecific TypeSpecific" target_type="Action" avoid_subtype="Proactive Negative">Rep. Minimum</label>
 				<label class="TypeSpecific SubtypeSpecific" target_type="Action" avoid_subtype="Proactive Reactive">Rep. Limit</label>
 				<input type="number" min="0" step="1" class="form-control KsuAttr SexyInput" id="goal_counter" name="goal_counter" placeholder="Goal">			
 			</div>

@@ -16,7 +16,7 @@ ksu_types = [
 	]],
 	
 	#Life Pieces
-	[['Experience', 'Experience'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
+	[['Experience', 'Generator'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
 		['Moment', 'Moment', True], # Whaterver < Nice < Very nice < Memorable < Epic < Legendary				
 		# ['Chapter', 'Chapter', ''], #Agrupa varios momentos, pero no es un momento en si por lo que no tiene importancia. El padre puede ser otro chapter .E.g. Estar jugando el juego de aventura en turno >> #E.g. Estar jugando Zelda breath of the wild		
 		['JoyMine', 'Joy Mine', ''], #Algo concreto que genera momentos del mismo tipo... E.g. Estar jugando Zelda breath of the wild
@@ -80,7 +80,7 @@ def make_subtype_descriptions(ksu_types):
 
 
 event_types = [	
-	# 'EndValue', #Generado por momentos de Joy Generatos
+	'EndValue', #Generado por momentos de Joy Generatos
 
 	'Effort', #Generado por acciones al ser ejecutadas
 	'Stupidity', #Generado por acciones al ser ejecutadas

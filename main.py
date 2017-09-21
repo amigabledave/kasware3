@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 2 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 9 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -168,7 +168,7 @@ class Handler(webapp2.RequestHandler):
 			piggy_bank_sod=piggy_bank_sod,
 			ev_piggy_bank_sod=ev_piggy_bank_sod,
 			merits_goal=self.define_merits_goal(streak_day),
-			ev_merits_goal=self.define_merits_goal(streak_day, end_value=True),
+			ev_merits_goal=self.define_merits_goal(streak_day, details='EndValue'),
 			streak_day=streak_day,
 			attempt=attempt,
 			streak_merits=streak_merits,
@@ -244,30 +244,32 @@ class Handler(webapp2.RequestHandler):
 		}
 		return templates[template_name]
 
-	def define_merits_goal(self, streak_day, end_value=False):
+	def define_merits_goal(self, streak_day, details='Effort'):
 
 		goal_range = [
-			[142, 160, 6],
-			[87, 150, 5],
-			[53, 140, 5],
-			[32, 130, 5],
-			[19, 120, 4],
-			[11, 110, 4],
-			[6, 100, 4],
-			[3, 90, 3],
-			[1, 80, 3],
-			[0, 70, 3],	
+			[9, 142, 160, 6],
+			[8, 87, 150, 5],
+			[7, 53, 140, 5],
+			[6, 32, 130, 5],
+			[5, 19, 120, 4],
+			[4, 11, 110, 4],
+			[3, 6, 100, 4],
+			[2, 3, 90, 3],
+			[1, 1, 80, 3],
+			[0, 0, 70, 3],	
 		]
 
 		for level in goal_range:
-			if streak_day >= level[0]:
-				if not end_value:
-					return level[1]
-				else:
+			if streak_day >= level[1]:
+				if details == 'Effort':
 					return level[2]
+				elif details == 'EndValue':
+					return level[3]
+				elif details == 'Level':
+					return level[0]
 		return
 
-	def game_log_to_dic(self, game_log): #xx Aqui nos quedamos para comenzar a enviar vectores de informacion de esfuerzo y end value
+	def game_log_to_dic(self, game_log):
 		
 		change_in_piggy_bank = game_log.merits_earned - game_log.merits_goal * (1 - game_log.slack_cut) - game_log.merits_loss
 
@@ -291,7 +293,7 @@ class Handler(webapp2.RequestHandler):
 			'streak_merits': game_log.streak_merits,
 			
 			'piggy_bank_sod': game_log.piggy_bank_sod,
-			'ev_piggy_bank_sod': game_log.piggy_bank_sod,
+			'ev_piggy_bank_sod': game_log.ev_piggy_bank_sod,
 
 			'piggy_bank_eod': str(game_log.piggy_bank_eod) + '  |  ' + str(game_log.ev_piggy_bank_eod),
 			'piggy_bank': piggy_bank,
@@ -799,10 +801,11 @@ class Home(Handler):
 
 		period_len = end_date.toordinal() - start_date.toordinal() + 1
 		previous_start_date = start_date - timedelta(days=period_len)
+		previous_end_date = start_date - timedelta(days=1)
 		history = Event3.query(Event3.theory_id == self.theory.key).filter(Event3.event_date >= previous_start_date, Event3.event_date <= end_date).order(-Event3.event_date).fetch()
 	
 		ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).fetch()
-		
+				
 		monitored_ksus = []
 		monitored_ksus_ids = []
 		monitored_ksus_dic = {}
@@ -811,7 +814,7 @@ class Home(Handler):
 		for ksu in ksu_set:
 			ksu_id = ksu.key.id()
 			if ksu.ksu_type != 'Indicator':
-				ksu_event_types = ['Effort', 'Stupidity']
+				ksu_event_types = ['Effort', 'Stupidity', 'EndValue']
 			
 			else:
 				ksu_event_types = ['PerceptionSnapshot', 'RealitySnapshot']
@@ -867,47 +870,52 @@ class Home(Handler):
 				monitored_ksus_sections.append(section)
 
 		dashboard_base['monitored_ksus_sections'] = monitored_ksus_sections
+		game_log_query = GameLog.query(GameLog.theory_id == self.theory.key)
+
+		
+
+		for i in range(0,2): 
+			target_date = [end_date, previous_end_date][i]
+
+			time_frame = ['current', 'previous'][i]
+			query_result = game_log_query.filter(GameLog.user_date == target_date - timedelta(minutes=1439)).fetch()
+
+			if len(query_result)>0:
+				streak_day = query_result[0].streak_day
+			else:
+				streak_day = 0
+			
+			dashboard_base[time_frame +'_streak_day'] = streak_day
 
 		return dashboard_base	
 
 	def CreateDashboardSections(self, dashboard_base):
-
-		game = self.theory.game
+		
+		current_streak_day = dashboard_base['current_streak_day']
+		previous_streak_day = dashboard_base['previous_streak_day']
 		
 		dashboard_sections = [
-			{'section_type':'Overall',
+
+			{'section_type':'Consistency',			
 			'section_subtype':'Overall',
+			'title': 'Consistency', 
 			'sub_sections':[
 				
-				{'title': 'Joy Clusters', #Formerly Merits Reserves #xx
-				'score': '0',
-				'contrast_title': 'End value in current cluster',
-				'contrast': '0 of 1,000'},
+				{'title': 'Streak', #Formerly Merits Reserves #xx
+				'score': current_streak_day,				
+				'contrast': previous_streak_day},
 
+				{'title': 'Discipline Lvl.',				
+				'score': self.define_merits_goal(current_streak_day, details='Level'),				
+				'contrast':self.define_merits_goal(previous_streak_day, details='Level')},
 
-				{'title': 'Endeavours',				
-				'score': 'X', #game['endevours'],
-				'contrast_title': 'Merits in current endevour:',
-				'contrast': '0 of 10,000'},
+				{'title': 'Effort Goal',				
+				'score': self.define_merits_goal(current_streak_day, details='Effort'), 		
+				'contrast':self.define_merits_goal(previous_streak_day, details='Effort')},
 
-				{'title': 'Discipline Lvl.',
-				'score': 'X',
-				'contrast_title': 'Days in current level:',
-				'contrast': '00 of 00'},
-			]},
-
-
-			{'section_type':'ActionsSummary',
-			'section_subtype':'Summary',
-			'title': 'End Value Generated',
-			'sub_sections':[
-				{'title': 'Total',
-				'score':'00',
-				'contrast':'00'},
-
-				{'title': 'Average',
-				'score': dashboard_base['current']['WishRealized']['averages']['score'],
-				'contrast': dashboard_base['previous']['WishRealized']['averages']['score']},
+				{'title': 'Joy Goal',
+				'score': self.define_merits_goal(current_streak_day, details='EndValue'),				
+				'contrast':self.define_merits_goal(previous_streak_day, details='EndValue')},
 			]},
 
 			{'section_type':'ActionsSummary',
@@ -923,6 +931,21 @@ class Home(Handler):
 				'operator': 'average',
 				'score': dashboard_base['current']['Effort']['averages']['score'],
 				'contrast':dashboard_base['previous']['Effort']['averages']['score']},
+			]},
+
+			{'section_type':'ActionsSummary',
+			'section_subtype':'Summary',
+			'title': 'Joy Generated',
+			'sub_sections':[
+				{'title': 'Total',
+				'operator': 'total',
+				'score': dashboard_base['current']['EndValue']['score'],
+				'contrast':dashboard_base['previous']['EndValue']['score']},
+
+				{'title': 'Average',
+				'operator': 'average',
+				'score': dashboard_base['current']['EndValue']['averages']['score'],
+				'contrast':dashboard_base['previous']['EndValue']['averages']['score']},
 			]},
 
 			{'section_type':'ActionsSummary',
@@ -993,27 +1016,15 @@ class Home(Handler):
 		
 		goal_factor = (period_len * 1.0 /int(ksu.details['goal_time_frame']))
 		for goal in ['goal_score', 'goal_counter', 'goal_events']:
-			if ksu.details[goal] == '':
-				ksu.details[goal] = 0
+			if ksu.details[goal] == '' or ksu.details[goal] == '---' :
+				ksu.details[goal] = '---'
 			elif ksu.ksu_type != 'Indicator':
 				ksu.details[goal] = round(int(ksu.details[goal]) * goal_factor, 1)
 			else:
 				ksu.details[goal] = float(ksu.details[goal])
 
 		ksu_subtype = ksu.ksu_subtype
-		sub_sections_titles = {'score':'Merits Earned', 'events':'Total Actions', 'counter':'Total Minutes'}
-		
-		if ksu_subtype == 'Reactive':
-			sub_sections_titles['counter'] = 'Total Repetitions'
-		
-		elif ksu_subtype == 'Negative':
-			event_type = 'Stupidity'
-			sub_sections_titles['counter'] = 'Total Repetitions'
-			sub_sections_titles['score'] = 'Merits Loss'
-
-		print
-		print ksu_deep_score
-		print
+		sub_sections_titles = {'score':'Effort Made', 'events':'Actions Executed', 'counter':'Minutes Used'}
 
 		section = {
 			'section_type':'KsuSummary',	
@@ -1022,72 +1033,63 @@ class Home(Handler):
 			'section_subtype': 'MonitoredKSU',			
 			'sub_sections':[]}
 
+		if ksu.ksu_type != 'Indicator':
+			
+			if (ksu.ksu_subtype == 'Proactive' and ksu.size == 0) or ksu.ksu_subtype == 'JoyMine' :
+				sub_sections_titles['score'] = 'Joy Generated'
+				event_type = 'EndValue'
 
-		if ksu.ksu_subtype in ['Reactive', 'Negative']:
+			elif ksu.ksu_subtype in ['Reactive', 'Negative']:			
+				sub_sections_titles['counter'] = 'Total Repetitions'
+				if ksu_subtype == 'Negative':
+					event_type = 'Stupidity'
+					sub_sections_titles['score'] = 'Stupidity Commited'
+			
 			section['sub_sections'] = [
 				{'title':sub_sections_titles['score'],
 				'score':ksu_deep_score[event_type]['current']['score'],				
 				'contrast_title': 'PP: ',
-				'contrast':ksu_deep_score[event_type]['previous']['score']},
+				'contrast':ksu_deep_score[event_type]['previous']['score'],
+				'goal':ksu.details['goal_score']},
 
 				{'title': sub_sections_titles['counter'],
 				'score':ksu_deep_score[event_type]['current']['counter'],
 				'contrast_title': 'PP: ',
-				'contrast':ksu_deep_score[event_type]['previous']['counter']},
+				'contrast':ksu_deep_score[event_type]['previous']['counter'],
+				'goal':ksu.details['goal_counter']},
 
 				{'title':sub_sections_titles['events'],
 				'score':ksu_deep_score[event_type]['current']['events'],
 				'contrast_title': 'PP: ',
-				'contrast':ksu_deep_score[event_type]['previous']['counter']}
+				'contrast':ksu_deep_score[event_type]['previous']['events'],
+				'goal':ksu.details['goal_events']}
 			]
 
-
-		elif ksu.ksu_type != 'Indicator':
-			section['sub_sections'] = [
-				{'title':sub_sections_titles['score'],
-				'score':ksu_deep_score[event_type]['current']['score'],				
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_score']},
-
-				{'title': sub_sections_titles['counter'],
-				'score':ksu_deep_score[event_type]['current']['counter'],
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_counter']},
-
-				{'title':sub_sections_titles['events'],
-				'score':ksu_deep_score[event_type]['current']['events'],
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_events']}
-			]
-
-		elif ksu_subtype == 'Reality':
-			sub_sections_titles['events'] = 'Data Points'
-			event_type = 'RealitySnapshot'
-			section['sub_sections'] = [				
-				{'title':'Period Average',
-				'score':1.0*ksu_deep_score[event_type]['current']['score']/ksu_deep_score[event_type]['current']['events'],				
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_score']},
-
-				{'title':sub_sections_titles['events'],
-				'score':ksu_deep_score[event_type]['current']['events'],
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_events']}
-			]
-
-		elif ksu_subtype == 'Perception':
+		else: 
+			
 			sub_sections_titles['events'] = 'Data Points'
 			event_type = 'PerceptionSnapshot'
+			if ksu_subtype == 'Reality':
+				event_type = 'RealitySnapshot'
+			score = {'current': 'No data', 'previous': 'No data'}
+						
+			for time_frame in ['current', 'previous']:
+				if ksu_deep_score[event_type][time_frame]['events'] != 0:								
+					score[time_frame] = str(int(100.0*ksu_deep_score[event_type]['current']['score']/ksu_deep_score[event_type][time_frame]['events']))+'%'					
+					if ksu_subtype == 'Reality':
+						score[time_frame] = 1.0*ksu_deep_score[event_type]['current']['score']/ksu_deep_score[event_type][time_frame]['events']
+								
 			section['sub_sections'] = [				
 				{'title':'Period Average',
-				'score':str(int(100.0*ksu_deep_score[event_type]['current']['score']/ksu_deep_score[event_type]['current']['events']))+'%',				
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_score']},
+				'score':score['current'],				
+				'contrast_title': 'PP:',
+				'contrast':score['previous'],
+				'goal':ksu.details['goal_score']},
 
 				{'title':sub_sections_titles['events'],
 				'score':ksu_deep_score[event_type]['current']['events'],
-				'contrast_title': 'Goal',
-				'contrast':ksu.details['goal_events']}
+				'contrast_title': 'PP:',
+				'contrast':ksu_deep_score[event_type]['previous']['events']}
 			]
 
 		return section		
@@ -1131,7 +1133,7 @@ class Home(Handler):
 
 				for child in parent_childs[ksu]:
 					child_superficial_score = superficial_scores[child]
-					for event_type in ['Effort', 'Stupidity']:
+					for event_type in ['Effort', 'Stupidity', 'EndValue']:
 
 						if event_type in parent_deep_score and event_type in child_superficial_score:
 
@@ -1188,7 +1190,7 @@ class SignUpLogIn(Handler):
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) +timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=self.define_merits_goal(0),
-					ev_merits_goal=self.define_merits_goal(0, end_value=True),
+					ev_merits_goal=self.define_merits_goal(0, details='EndValue'),
 					attempt=1,
 					)
 
@@ -1454,7 +1456,7 @@ class PopulateRandomTheory(Handler):
 					theory_id=theory.key,
 					user_date=(datetime.today() + timedelta(hours=theory.timezone) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
 					merits_goal=self.define_merits_goal(0),
-					ev_merits_goal=self.define_merits_goal(0, end_value=True),
+					ev_merits_goal=self.define_merits_goal(0, details='EndValue'),
 					attempt=1,
 					)
 
