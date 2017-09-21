@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Rationale" rel="stylesheet">
+	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/bootstrap/css/jquery-ui.css">
+	<link type="text/css" rel="stylesheet" href="/bootstrap/css/selectize.bootstrap3.css">	
+	<link type="text/css" rel="stylesheet" href="/css/main.css">	
+	<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" charset="UTF-8">
+	<title> KASware </title>
+</head>
+
+<body class="BaseBackground">
+
+	<div class="TopBackground navbar-fixed-top"> 
+		<div class="container NoSideMarginOrPadding" style="padding-left: 45px; padding-right: 45px;">		
+			<div class="row NavigationTopBar">
+
+				<div class="col-xs-6 col-sm-9 col-md-7 col-lg-7" style="padding-left:0px;"> 
+					<div class="NavigationTopBarBlock">
+						<span class="NavigationKASwareTitleText" style="font-size: 50px; font-family: 'Rationale'"> KASware</span><span class="NagivationMiniTopTitle" style="font-size: 18px;">α</span>	
+					</div>
+				</div>
+
+				<div class="col-xs-12 col-sm-3 col-md-5 col-lg-5 text-right">
+					<form class="form-horizontal" method="post">
+						<div class="form-group" style="margin:10px; text-align: left;">
+							<div class="col-xs-5 col-sm-5" style="padding-left: 0px;">
+								<label style="color:white; font-weight:500; font-size:12px; margin-bottom: 0px">Email</label>
+									<input type="email" style="height: 25px; margin-bottom:0px;" name="email" id="login_email" class="form-control">									
+									<span class="hidden" style="color:red; font-size:12px;" id="InvalidEmailOrPasswordError">Invalid email or password.</span>									
+							</div>
+
+							<div class="col-xs-5 col-sm-5" style="padding-left: 0px;">
+								<label style="color:white; font-weight:500; font-size:12px; margin-bottom: 0px">Password</label>
+   								<input type="password" style="height: 25px; margin-bottom:0px;" name="password" id="login_password" class="form-control">
+   								<div style="text-align:center;">
+   									<a href="/Accounts?user_request=password_reset" style="font-size:12px;color:#E6E6FA;">Forgot your password?</a>
+   								</div>
+							</div>
+
+							<div class="col-xs-2" style="padding-left: 0px;">
+								<button type="button" class="btn btn-xs btn-success" style="margin-top: 20px" name="action_description" value="LogIn" id="LogInButton"> Log In </button>
+							</div>
+
+						</div>
+					</form>
+				</div>					
+			</div>
+
+
+
+
+		</div>
+	</div>
+
+	<div class="container NoSideMarginOrPadding" style="position: relative; margin-top: 125px;">
+		<div class="row" style="width: 100%; min-height: 600px;"><div class="col-xs-12">
+
+
+			<div class="row" id="question_ch"><div class="col-xs-12 GateQuestion"> 
+				你要做什么去体验你能活的最好的生活?
+			</div></div>
+
+
+			<div class="row" id="question_la"><div class="col-xs-12 GateQuestion"> 
+				Ut quid tu fac nobis factum est optimus vitae posses ducere?
+			</div></div>
+
+			<div class="row" id="question_es"><div class="col-xs-12 GateQuestion"> 
+				Qué es lo que tú tendrías que hacer para vivir la mejor vida que tú podrías vivir?
+			</div></div>
+
+			<div class="row" id="question_ge"><div class="col-xs-12 GateQuestion"> 								
+				Was würdest du tun müssen, um das beste Leben zu erleben, das du leben könntest?
+			</div></div>
+
+			<div class="row" id="question_en"><div class="col-xs-12 GateQuestion" style="font-size: 35px;"> 
+				What Would You Have To Do To Experience The Best Life You Could Live?
+			</div></div>
+
+			<div class="row" id="question_po"><div class="col-xs-12 GateQuestion"> 				
+				O que você precisaria fazer para experimentar a melhor vida que você poderia viver?
+			</div></div>
+
+			<div class="row" id="question_jp"><div class="col-xs-12 GateQuestion"> 				
+				あなたは生きていける最高の人生を経験するために何をしなければなりませんか？
+			</div></div>
+
+			<div class="row" id="question_fr"><div class="col-xs-12 GateQuestion"> 
+				Que devriez-vous faire pour vivre la meilleure vie que vous pourriez vivre?
+			</div></div>
+			
+			<div class="row" id="question_ar"><div class="col-xs-12 GateQuestion"> 				
+				ماذا سيكون عليك القيام به لتجربة أفضل الحياة التي يمكن أن تعيش؟
+			</div></div>
+
+
+			
+		</div></div>
+
+		<br><br>			
+		<div class="row">
+			<div class="col-xs-12 copywright-message"> Kasware Inc. © 2017 </div>
+		</div>
+		<br><br><br>
+
+
+	</div>	
+</body>
+
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/app.js"></script>
+
+</html>

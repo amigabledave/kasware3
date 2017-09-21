@@ -24,7 +24,7 @@ Event = datastore.Event
 Event3 = datastore.Event3
 GameLog = datastore.GameLog
 
-time_travel = 9 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
+time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
 
 #--- Decorator functions
@@ -34,7 +34,7 @@ def super_user_bouncer(funcion):
 		if theory:
 			return funcion(self)
 		else:
-			self.redirect('/SignUpLogIn')
+			self.redirect('/Gate')
 		# return funcion(self)
 	return user_bouncer
 
@@ -327,7 +327,7 @@ class Home(Handler):
 	def get(self):
 		constants['ksu_types'] = KASware3.ksu_types		
 		new_pic_input_action = "{0}".format(blobstore.create_upload_url('/upload_pic'))
-		self.print_html('KASware3.html', constants=constants, new_pic_input_action=new_pic_input_action)
+		self.print_html('Main.html', constants=constants, new_pic_input_action=new_pic_input_action)
 
 	@super_user_bouncer
 	def post(self):
@@ -1142,10 +1142,14 @@ class Home(Handler):
 
 		return deep_scores
 
+class Gate(Handler):
+	def get(self):
+		self.print_html('Gate.html')
+
 
 class SignUpLogIn(Handler):
 	def get(self):
-		self.print_html('SignUpLogIn.html', login_error = False)
+		self.print_html('KASwareGate.html', login_error = False)
 
 	def post(self):
  
@@ -1687,6 +1691,7 @@ app = webapp2.WSGIApplication([
 	('/KASware3', Home),
 	('/upload_pic', PicuteUploadHandler),
 
+	('/Gate', Gate),
 	('/SignUpLogIn', SignUpLogIn),
 	('/Accounts', Accounts),
 	('/LogOut', LogOut),
