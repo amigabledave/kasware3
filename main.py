@@ -17,6 +17,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 constants = constants.constants
 os_ksus = kasware_os.os_ksus
 
+VIPlist = datastore.VIPlist
 Theory = datastore.Theory
 KSU = datastore.KSU
 KSU3 = datastore.KSU3
@@ -80,16 +81,9 @@ class Handler(webapp2.RequestHandler):
 		game_log = GameLog.get_by_id(theory.game_log_key.id())
 		
 		game_log_user_date = game_log.user_date
-		today = (datetime.today()+timedelta(hours=self.theory.timezone)+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
+		today = (datetime.today()+timedelta(hours=int(self.theory.settings['timezone']))+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
 
 		if today > game_log_user_date: 
-
-			print 
-			print 'Todays date'
-			print today
-			print 'Game log user date'
-			print game_log_user_date
-			print
 
 			self.check_n_burn(game_log)			
 			days_gap = today.toordinal() - game_log_user_date.toordinal()
@@ -318,9 +312,34 @@ class Handler(webapp2.RequestHandler):
 
 		return game_log_dic
 
+	def sign_up_user(self, post_details):
+		
+		theory = Theory(
+			email=post_details['email'], 
+			password_hash=make_password_hash(post_details['email'], post_details['password']), 
+			nickname=post_details['nickname'])
+		theory.put()
 
+		game_log = GameLog(
+			theory_id=theory.key,
+			user_date=(datetime.today() + timedelta(hours=int(theory.settings['timezone'])) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
+			merits_goal=self.define_merits_goal(0),
+			ev_merits_goal=self.define_merits_goal(0, details='EndValue'),
+			attempt=1)
 
-# ---- KASware3 ----
+		game_log.put()
+		theory.game_log_key = game_log.key
+		theory.put()
+		self.login(theory)
+		return
+
+	def get_post_details(self):
+		post_details = {}
+		arguments = self.request.arguments()
+		for argument in arguments:
+			post_details[str(argument)] = self.request.get(str(argument))
+		return post_details
+
 class Home(Handler):
 
 	@super_user_bouncer
@@ -591,6 +610,13 @@ class Home(Handler):
 			fixed_value = None
 			#Queda pendiente decirle que hacer con el blobkey
 
+		elif attr_type == 'Settings':
+			fixed_key = 'settings'
+			details_dic = ksu.settings
+			details_dic[attr_key] = fixed_value
+			fixed_value = details_dic
+		
+
 		setattr(ksu, fixed_key, fixed_value)
 		return ksu, event
 	
@@ -642,7 +668,7 @@ class Home(Handler):
 		return attributes
 
 	def update_event_date(self, ksu, user_action):
-		today = (datetime.today()+timedelta(hours=self.theory.timezone)+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
+		today = (datetime.today()+timedelta(hours=int(self.theory.settings['timezone']))+timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0)
 		# today = datetime(2017,12,5)
 		tomorrow = today + timedelta(days=1)
 		ksu_details = ksu.details
@@ -735,7 +761,7 @@ class Home(Handler):
 			elif ksu_subtype == 'Reality':
 				event_type = 'RealitySnapshot'
 
-		event_date = (datetime.today() + timedelta(hours=self.theory.timezone) + timedelta(days=time_travel))
+		event_date = (datetime.today() + timedelta(hours=int(self.theory.settings['timezone'])) + timedelta(days=time_travel))
 		if ksu.event_date and ksu_subtype not in ['Action', 'Objective']:
 			event_date = ksu.event_date
 
@@ -1142,255 +1168,61 @@ class Home(Handler):
 
 		return deep_scores
 
+
+
+
 class Gate(Handler):
 	def get(self):
 		self.print_html('Gate.html')
 
-
-class SignUpLogIn(Handler):
-	def get(self):
-		self.print_html('KASwareGate.html', login_error = False)
-
-	def post(self):
- 
-		post_details = json.loads(self.request.body)
-		user_action = post_details['user_action']
-		next_step = 'No next step defined'
-
-		print
-		print 'Asi se ve el AJAX Request'
-		print post_details
+	def post(self):	
 		
-		if user_action == 'Random_SignUp':
-			post_details.update(randomUser.createRandomUser()) ## Creates a random user for testing Contributions
-		
-		if user_action == 'SignUp' or user_action == 'Random_SignUp':
-			input_error = user_input_error(post_details)
-			theory = Theory.get_by_email(post_details['email'])	
+		post_details = self.get_post_details()
+		email = post_details['email']
+		password = post_details['password']
+
+		theory = Theory.valid_login(email, password)
+		if theory:
+			self.login(theory)
 			
-			if input_error:
-				next_step = 'TryAgain'
-											
-			elif theory:
-				next_step = 'TryAgain'
-				input_error = 'That email is already register to another user!'
-				
-
-			else:
-				next_step = 'CheckYourEmail'
-				password_hash = make_password_hash(post_details['email'], post_details['password'])
-				
-				theory = Theory(
-					email=post_details['email'], 
-					password_hash=password_hash, 
-					first_name=post_details['first_name'], 
-					last_name=post_details['last_name'],
-					timezone=-6,
-					categories={'tags':[]})
-
-				theory.put()
-
-				game_log = GameLog(
-					theory_id=theory.key,
-					user_date=(datetime.today() + timedelta(hours=theory.timezone) +timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
-					merits_goal=self.define_merits_goal(0),
-					ev_merits_goal=self.define_merits_goal(0, details='EndValue'),
-					attempt=1,
-					)
-
-				game_log.put()
-
-				theory.game_log_key = game_log.key
-				theory.put()
-
-				#Loads OS Ksus
-				# for post_details in os_ksus:
-				# 	ksu = KSU(theory=theory.key)
-				# 	ksu = prepareInputForSaving(theory, ksu, post_details)
-				# 	ksu.put()
-				
-				# self.login(theory)				
-				email_receiver = str(theory.email)
-				# email_receiver = 'amigabledave@gmail.com'
-				email_body = '<a href="kasware.com/Accounts?user_id='+str(theory.key.id())+'&user_request=validate_email">Confirm my account</a>' + ", I'm ready to start using KASware!"    			
-				mail.send_mail(sender="KASware@kasware2000.appspotmail.com", to=email_receiver, subject="Please confirm your email address to start using KASware", body=email_body, html=email_body) #"<accounts@kasware.com>"
-				print
-				print email_body
-				# self.redirect('/Accounts?user_request=create_account')
-				# return
-				# self.redirect('/MissionViewer?time_frame=Today')
-
-			self.response.out.write(json.dumps({
-				'next_step':next_step,
-				'input_error':input_error
-				}))
-			return
-
-		if user_action == 'LogIn':
-			next_step = 'No next step defined'			
-			email = post_details['email']
-			password = post_details['password']
-			theory = Theory.valid_login(email, password)
-			if theory:
-				self.login(theory)
-				next_step = 'GoToYourTheory'
-			else:
-				next_step = 'TryAgain'
-			
-			self.response.out.write(json.dumps({
-				'next_step':next_step,
-				}))
-			return
-
-
-class Accounts(Handler):
-	def get(self):
-		
-		theory_id = self.request.get('user_id')
-		reset_code = self.request.get('reset_code')
-		user_request = self.request.get('user_request')
-
-
-		if theory_id:
-			theory = Theory.get_by_theory_id(int(theory_id))
-			
-			if user_request == 'validate_email':
-				if theory and not theory.valid_email:
-					theory.valid_email = True
-					theory.put()
-					self.login(theory)
-					self.redirect('/MissionViewer?time_frame=Today')
-				else:
-					self.redirect('/SignUpLogIn')
-
-			else:
-				self.print_html('Accounts.html', user_request=user_request, theory_id=theory_id, password_hash=reset_code)
-
 		else:
-			self.print_html('Accounts.html', user_request=user_request, theory_id=theory_id, password_hash=reset_code)
-
-
-	def post(self):
-		event_details = json.loads(self.request.body)
-		user_action = event_details['user_action']
-		next_step = 'No next step defined'
-
-		if user_action == 'LogIn':					
-			email = event_details['email']
-			password = event_details['password']
-			theory = Theory.valid_login(email, password)
-			if theory:
-				self.login(theory)
-				next_step = 'GoToYourTheory'
-			else:
-				next_step = 'TryAgain'
+			vip = VIPlist.get_by_email(email)
+			theory = Theory.get_by_email(email)
 			
-			self.response.out.write(json.dumps({
-				'next_step':next_step,
-				}))
-			return
+			if vip and not theory:
+				post_details['nickname'] = email[0:7]				
+				self.sign_up_user(post_details) 
+				vip.allow_new_password = False
+				vip.put()
 
-
-		if user_action == 'RequestPasswordReset':
-			theory = Theory.get_by_email(event_details['user_email'])	
-			if theory:
-				next_step = 'CheckYourEmail'
-
-				email_receiver = str(theory.email)
-				email_body = '<a href="kasware.com/Accounts?user_id='+str(theory.key.id())+'&user_request=set_new_password&reset_code='+str(theory.password_hash)+'">Reset my password</a>'
-				mail.send_mail(sender="KASware@kasware2000.appspotmail.com", to=email_receiver, subject="KASware password reset", body=email_body, html=email_body) #"<accounts@kasware.com>"
-				print
-				print email_body
-
-			else:
-				next_step = 'EnterValidEmail'
-
-			self.response.out.write(json.dumps({
-				'next_step':next_step,
-				}))
-			return
-
-
-		if user_action == 'SetNewPassword':
-		
-			theory_id = event_details['theory_id']
-			reset_code = event_details['password_hash']
-			print
-			print 'Theory id:' + theory_id
-			print 'Password hash: ' + reset_code
-
-			theory = Theory.get_by_theory_id(int(theory_id))
-			
-			if reset_code == theory.password_hash:
-				theory.password_hash = make_password_hash(theory.email, event_details['new_password'])
+			elif vip and vip.allow_new_password:
+				theory.password_hash = make_password_hash(email, password)
 				theory.put()
+				vip.allow_new_password = False
+				vip.put()
 				self.login(theory)
-				next_step = 'GoToYourTheory'
-			
-			else:
-				next_step = 'EnterValidPassword'
 
-			self.response.out.write(json.dumps({
-				'next_step':next_step,
-				}))
-			return
+		self.redirect('/')
+		
 
+class UpdateVIPlist(Handler):
+	def get(self):
+		email = self.request.get('new_vip')
+		old_vip = VIPlist.get_by_email(email)
+
+		if not old_vip:
+			vip = VIPlist(email=email) 
+			vip.put()
+
+		self.redirect('/')
+		return
+
+		
 
 class LogOut(Handler):
 	def get(self):
 		self.logout()
 		self.redirect('/')
-
-
-class Settings(Handler):
-
-	@super_user_bouncer
-	def get(self):
-		theory = self.theory
-		today = datetime.today()+timedelta(days=time_travel)
-
-		local_today = datetime.today()+timedelta(hours=theory.timezone)+timedelta(days=time_travel)
-
-		user_today = local_today
-
-		active_date = user_today.toordinal()
-		
-		tags = sorted(self.theory.categories['tags'])
-
-		self.print_html('Settings.html', today=today, local_today=local_today, user_today=user_today, constants=constants, tags=tags)
-
-
-	@super_user_bouncer
-	def post(self, user_action, post_details):
-		logging.info('These are the post details: ') #Asi es como se imprime algo en la consola de windows
-		logging.info(post_details)
-
-		if user_action == 'SaveChanges':
-			theory = self.theory
-			game = self.game
-
-			theory.first_name = post_details['first_name'].encode('utf-8') 
-			theory.last_name = post_details['last_name'].encode('utf-8')	
-	 	
-	 		theory.language = str(post_details['language'])
-	 		
-	 		if 'hide_private_ksus' in post_details:
-	 			theory.hide_private_ksus = True
-			else:
-				theory.hide_private_ksus = False
-
-		 	theory.timezone = int(post_details['timezone'])
- 			
-			game['mission_burn'] = int(post_details['mission_burn'])
-			game['critical_burn'] = int(post_details['critical_burn'])
-			game['daily_goal'] = int(post_details['minimum_daily_effort'])
- 			game['piggy_bank'] = int(post_details['piggy_bank'])
- 			game['streak'] = int(post_details['streak'])
- 			
- 			theory.game = game
-	 		theory.put()
-
- 		self.redirect('/MissionViewer?time_frame=Today')
 
 	
 class PicuteUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
@@ -1416,7 +1248,6 @@ class PicuteUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 			}))	
 		
 
-
 #--- Development handlers ----------
 class PopulateRandomTheory(Handler):
 	
@@ -1425,182 +1256,8 @@ class PopulateRandomTheory(Handler):
 		self.redirect('/')
 
 	def populateRandomTheory(self):
-
-		post_details = {'user_action':'Random_SignUp'}
-		user_action = 'Random_SignUp'
-
-		if user_action == 'Random_SignUp':
-			post_details.update(randomUser.createRandomUser()) ## Creates a random user for testing Contributions
-		
-		if user_action == 'SignUp' or user_action == 'Random_SignUp':
-			input_error = user_input_error(post_details)
-			theory = Theory.get_by_email(post_details['email'])	
-			
-			if input_error:
-				self.print_html('SignUpLogIn.html', post_details=post_details, input_error=input_error)
-			
-			elif theory:
-				self.print_html('SignUpLogIn.html', post_details=post_details, input_error = 'That email is already register to another user!')
-
-			else:
-				password_hash = make_password_hash(post_details['email'], post_details['password'])
-				
-
-				theory = Theory(
-					email=post_details['email'], 
-					password_hash=password_hash, 
-					first_name=post_details['first_name'], 
-					last_name=post_details['last_name'],
-					timezone=-6,
-					categories={'tags':[]})
-
-				theory.put()
-
-				game_log = GameLog(
-					theory_id=theory.key,
-					user_date=(datetime.today() + timedelta(hours=theory.timezone) + timedelta(days=time_travel)).replace(microsecond=0,second=0,minute=0,hour=0),
-					merits_goal=self.define_merits_goal(0),
-					ev_merits_goal=self.define_merits_goal(0, details='EndValue'),
-					attempt=1,
-					)
-
-				game_log.put()
-
-				theory.game_log_key = game_log.key
-				theory.put()
-
-				#Loads OS Ksus 
-				# for post_details in os_ksus:
-				# 	ksu = KSU(theory=theory.key)
-				# 	ksu = prepareInputForSaving(theory, ksu, post_details)
-				# 	ksu.put()
-
-				self.login(theory)
-				# self.redirect('/MissionViewer?time_frame=Today')
-
-
-		theory_key = theory.key
-		username = theory.first_name + ' ' + theory.last_name
-
-		today =(datetime.today()+timedelta(hours=theory.timezone)+timedelta(days=time_travel))
-		print
-		print 'Este es el today de PopulateTheory:'
-		print today
-
-		theory_parameters = [
-			[0, {'ksu_type':'BigO', 'ksu_subtype':'BigO'}],
-			[0, {'ksu_type':'Wish', 'ksu_subtype':'Wish'}],
-			[0, {'ksu_type':'EVPo', 'ksu_subtype':'EVPo', 'next_event':today, 'kpts_value':1, 'frequency':7}],
-			[0, {'ksu_type':'ImPe', 'ksu_subtype':'ImPe', 'next_event':today, 'kpts_value':0.25, 'frequency':30}],
-			[0, {'ksu_type':'Idea', 'ksu_subtype':'Idea'}],
-			[0, {'ksu_type':'RTBG', 'ksu_subtype':'RTBG'}],
-			[0, {'ksu_type':'Diary', 'ksu_subtype':'Diary', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'frequency':1}],
-			[0, {'ksu_type':'ImIn', 'ksu_subtype':'RealitySnapshot', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'frequency':1}],
-			[0, {'ksu_type':'ImIn', 'ksu_subtype':'BinaryPerception', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'frequency':1}],
-			[0, {'ksu_type':'ImIn', 'ksu_subtype':'TernaryPerception', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'frequency':1}],			
-			[0, {'ksu_type':'ImIn', 'ksu_subtype':'FibonacciPerception', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'frequency':1}],			
-			[0, {'ksu_type':'KeyA', 'ksu_subtype':'KAS3'}],
-			[0, {'ksu_type':'KeyA', 'ksu_subtype':'KAS4'}],
-			[0, {'ksu_type':'KeyA', 'ksu_subtype':'KAS1', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'kpts_value':2, 'frequency':1, 'repeats':'R001'}],
-			[0, {'ksu_type':'OTOA', 'ksu_subtype':'KAS2', 'next_event':today, 'pretty_next_event':today.strftime('%a, %b %d, %Y'), 'kpts_value':3}],
-
-		]
-
-		for e in theory_parameters:
-			set_size = e[0]
-			set_details = e[1]
-
-			ksu_subtype = constants['d_KsuSubtypes'][set_details['ksu_subtype']]
-
-			for i in range(1, set_size + 1):
-
-				description =  str(ksu_subtype + ' no. ' + str(i) + ' of ' + username).encode('utf-8')
-				secondary_description = str('Secondary description of ' + ksu_subtype + ' no. ' + str(i)).encode('utf-8')
-				new_ksu = KSU(
-					theory=theory_key,
-					description=description,
-					secondary_description=secondary_description)
-
-				for a_key in set_details:
-					a_val = set_details[a_key]
-					setattr(new_ksu, a_key, a_val)
-			
-				
-				next_event = new_ksu.next_event
-				ksu_subtype = new_ksu.ksu_subtype
-
-				if ksu_subtype in ['KAS1','KAS3','KAS4','ImPe'] and not next_event:
-					new_ksu.next_event = today
-
-				new_ksu.importance = (theory.size + 1) * 10000 
-				theory.size += 1
-				theory.put() 	
-
-				new_ksu.put()		
-		return
-
-
-class UpdateTheoryStructure(Handler):
-	
-	@super_user_bouncer
-	def get(self):
-		user_key = self.theory.key
-		ksu_set = KSU.query(KSU.theory == user_key ).filter(KSU.in_graveyard == False).order(-KSU.importance).fetch()	
-		
-		self.recalibrate_theory_importance(ksu_set, self.theory.size)
-		self.redirect('/MissionViewer?time_frame=Today')
-
-
-	def recalibrate_theory_importance(self, ordered_ksu_set, theory_size):		
-		theory = self.theory
-		theory_size = 0
-		next_importance = 10000 
-		for ksu in ordered_ksu_set:
-			ksu.importance = next_importance
-			next_importance += 10000
-			ksu.put()
-			theory_size += 1
-		theory.size = theory_size
-		theory.put()
-
-
-class PopulateRandomHistory(Handler):
-	
-	@super_user_bouncer
-	def get(self):
-		
-		valid_subtypes = ['Proactive', 'Rective', 'Negative']
-		n = 2
-
-		ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).fetch()
-		for ksu in ksu_set:
-			if ksu.ksu_subtype in valid_subtypes:
-				for i in range(0, n):
-					self.create_random_event(ksu)
-
-		self.redirect('/')
-
-	def create_random_event(self, ksu):
-		event_date = datetime.today() - timedelta(days=random.randrange(0,13) + timedelta(days=time_travel))
-		ksu_event_by_subtype = {
-			'Proactive':'Effort',
-			'Reactive': 'Effort',
-			'Negative':'Stupidity'
-		}
-
-		event = Event3(
-			theory_id = ksu.theory_id,
-			ksu_id = ksu.key,
-			description = ksu.description,
-			event_date = event_date, 
-
-			event_type = ksu_event_by_subtype[ksu.ksu_subtype],
-			score = random.randrange(0, 40),
-			counter = random.randrange(0, 120),
-			size = random.randrange(1, 5),
-			comments = '')
-		event.put()
-
+		post_details = randomUser.createRandomUser()				
+		self.sign_up_user(post_details)
 
 
 #--- Validation and security functions ----------
@@ -1627,79 +1284,17 @@ def validate_password(email, password, h):
 	salt = h.split('|')[1]
 	return h == make_password_hash(email, password, salt)
 
-def user_input_error(post_details):
-	for (attribute, value) in post_details.items():
-		user_error = input_error(attribute, value)
-		if user_error:
-			return user_error
-
-	if 'confirm_email' in post_details:
-		if post_details['email'] != post_details['confirm_email']:
-			return "Emails don't match"
-
-	return None
-
-def input_error(target_attribute, user_input):
-	
-	validation_attributes = ['first_name',
-							 'last_name', 
-							 'password',
-							 'email']
-
-
-	if target_attribute not in validation_attributes:
-		return None
-	
-	error_key = target_attribute + '_error' 
-		
-	if d_RE[target_attribute].match(user_input):
-		return None
-
-	else:
-		return d_RE[error_key]
-
-d_RE = {'first_name': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
-		'first_name_error': 'Invalid first name. Your first name most be at least 3 charachers long and cannot contain any special characters.',
-		
-		'last_name': re.compile(r"^[a-zA-Z0-9_-]{3,20}$"),
-		'last_name_error': 'Invalid last name. Your first name most be at least 3 charachers long and cannot contain any special characters.',
-
-		'password': re.compile(r"^.{8,20}$"),
-		'password_error': 'Invalid password. Your password most be at least 8 characters long.',
-		
-		'email': re.compile(r'^[\S]+@[\S]+\.[\S]+$'),
-		'email_error': 'Invalid email syntax.'}
-
-
-#--- Theory Structure Updates
-class UpdateTheories(Handler):
-	def get(self):
-		theories = Theory.query().fetch()
-		self.update_all_theories(theories)
-		self.redirect('/Settings')
-		return
-
-	def update_all_theories(self, theories):
-		for theory in theories:
-			theory['something'] = 0
-		return		
 
 
 #--- Request index
 app = webapp2.WSGIApplication([
-	('/', Home),
-	('/KASware3', Home),
-	('/upload_pic', PicuteUploadHandler),
-
 	('/Gate', Gate),
-	('/SignUpLogIn', SignUpLogIn),
-	('/Accounts', Accounts),
+	('/', Home),
+	('/UpdateVIPlist', UpdateVIPlist),
+	
+	('/upload_pic', PicuteUploadHandler),
 	('/LogOut', LogOut),
-	('/Settings', Settings),
 
 	('/PopulateRandomTheory',PopulateRandomTheory),
-	('/PopulateRandomHistory', PopulateRandomHistory),
-	('/UpdateTheoryStructure', UpdateTheoryStructure),
-	# ('/UpdateTheories', UpdateTheories)
 ], debug=True)
 

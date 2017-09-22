@@ -4,27 +4,18 @@ from google.appengine.ext import ndb
 
 class Theory(ndb.Model):
 
-	#login details
 	email = ndb.StringProperty(required=True)
-	valid_email = ndb.BooleanProperty(default=False)
+	nickname = ndb.StringProperty(required=True)
 	password_hash = ndb.StringProperty(required=True)
-
-	#user details	
-	first_name = ndb.StringProperty(required=True)
-	last_name = ndb.StringProperty(required=True)
-	owner = ndb.StringProperty() #ID of user that owns this theory. Esto lo voy usar cuando permita log-in con una cuenta de Google
 	
- 	#user settings
- 	language = ndb.StringProperty(choices=('Spanish', 'English'), default='English')
- 	hide_private_ksus = ndb.BooleanProperty(default=False)
- 	timezone = ndb.IntegerProperty(default=-6) #Deberia de ser forzoza, pero para evitar errores por ahora no la solicito asi
- 	
- 	# day_start_time = ndb.TimeProperty() - TBD
- 	categories = ndb.JsonProperty(required=True)
- 	size = ndb.IntegerProperty(default=0)
-
- 	#Game details
+ 	settings = ndb.JsonProperty(default={
+ 		'language':'English',
+ 		'timezone': -6,
+ 		'hide_private_ksus': False,
+ 		})
+  	
 	game = ndb.JsonProperty(default={	
+		'life_focus':'Effort',
 		'best_merits_earned':0,
 		'best_ev_merits_earned':0,
 		'best_streak_day':0,
@@ -51,6 +42,20 @@ class Theory(ndb.Model):
 		theory = cls.get_by_email(email)
 		if theory and validate_password(email, password, theory.password_hash):
 			return theory
+
+
+
+class VIPlist(ndb.Model):
+	email = ndb.StringProperty(required=True)
+	allow_new_password = ndb.BooleanProperty(default=True)
+
+	created = ndb.DateTimeProperty(auto_now_add=True)
+	last_modified = ndb.DateTimeProperty(auto_now=True)
+
+	@classmethod
+	def get_by_email(cls, email):
+		return VIPlist.query(VIPlist.email == email).get()
+
 
 
 class GameLog(ndb.Model):

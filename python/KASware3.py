@@ -63,7 +63,7 @@ ksu_types = [
 		['Learning', 'Learning', '']
 	]], 
 
-	[['Indicator', 'Indicator'], [#A concreate metrics you pick to measure success
+	[['Indicator', 'Indicator'], [#A concreate metric you pick to measure success
 		['Reality', 'Reality', ''],
 		['Perception', 'Perception', True],
 	]],
@@ -163,12 +163,9 @@ attributes_guide = {
 
 	'feasibility':['Details', 'Select'],
 
-
-	'first_name': ['String', 'Standard'],
-	'last_name': ['String', 'Standard'],
-	'timezone': ['Integer', 'Select'],
-	'hide_private_ksus': ['Boolean', 'Checkbox'],
-
+	'nickname': ['String', 'Standard'],
+	'timezone': ['Settings', 'Select'],
+	'hide_private_ksus': ['Settings', 'Checkbox'],
 }
 
 

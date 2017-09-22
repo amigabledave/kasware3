@@ -1318,9 +1318,10 @@ function FixTheoryView(){
 		var search_range = '';
 		var textareas = ksu.find('textarea');
 		
-		for (var i = textareas.length - 1; i >= 0; i--) {
-			search_range = search_range.concat($(textareas[i]).val())
+		for (var i = textareas.length - 1; i >= 0; i--) {			
+			search_range = search_range + ' ' + $(textareas[i]).val()
 		}
+		search_range = search_range + ' ' + ksu.find('#tag').val()
 		
 		get_ksu_attr_value(ksu, 'description');
 		
