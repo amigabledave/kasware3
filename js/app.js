@@ -9,7 +9,7 @@ $(document).ready(function(){
 			'user_action': 'RetrieveTheory'
 		})
 	})
-	.done(function(data){		
+	.done(function(data){
 		// console.log('Asi se ve la teoria')
 		// console.log(data)
 		ksu_type_attributes = data['ksu_type_attributes']
@@ -43,8 +43,14 @@ $(document).ready(function(){
 
 		FixTheoryView()
 
-		$( "#TheoryHolder" ).sortable();
-
+		$("#TheoryHolder").sortable();
+		add_reason_select_to_ksu($("#strategy_ksu"), '')
+		
+		$("#strategy_ksu").find('#reason_label').text('Show strategy for')
+		console.log($("#strategy_ksu").find('#reason_placeholder'))
+		$("#strategy_ksu").find("#reason_id-selectized").attr('placeholder', 'Choose a target')
+		
+		// xx
 	})
 
 	$('#center_column').css({'height': $(window).height()})
@@ -117,8 +123,6 @@ $('#CreateNewKSU').on('click',function(){
 		return new_ksu
 	}
 });
-
-
 
 
 $(document).on('click', '.KsuActionButton', function(){
@@ -505,27 +509,6 @@ $("#TheoryHolder").on('sortstart', function(ev, ui){
 });
 
 
-
-function AdjustGame(game_log){
-
-	$('#merits_earned').text(' ' + game_log['merits_earned']);
-	$('#piggy_bank').text(' ' + game_log['piggy_bank']);
-	$('#streak_day').text(' ' + game_log['streak_day']);
-
-	$('#piggy_bank_sod').text(game_log['piggy_bank_sod']);
-	$('#ev_piggy_bank_sod').text(game_log['ev_piggy_bank_sod']);
-	
-	$('#available_50_slack_cut').text(game_log['available_50_slack_cut']);
-	$('#merits_till_next_50_slack_cut').text(game_log['merits_till_next_50_slack_cut']);
-
-	$('#available_100_slack_cut').text(game_log['available_100_slack_cut']);
-	$('#merits_till_next_100_slack_cut').text(game_log['merits_till_next_100_slack_cut']);
-
-	$('#Activate50SlackCut').prop("disabled", game_log['disable_50_slack_cut'])
-	$('#Activate100SlackCut').prop("disabled", game_log['disable_100_slack_cut']) 
-};
-
-
 $(document).on('click', '.EventActionButton', function(){
 	var event = $(this).closest('#Event');
 	var action = $(this).attr('value');
@@ -640,35 +623,6 @@ $(document).on('click', '.PlayStopButton', function(){
 	GlaphiconDiv.toggleClass('glyphicon-play');
 	GlaphiconDiv.toggleClass('glyphicon-stop');	
 });
-
-
-function add(target_timer, starting_minutes) {	
-    
-	var minutes_passed = Math.floor((parseFloat(new Date().valueOf()) - parseFloat(start_time.valueOf()))/(1000*60)); //
-	// console.log('Minutes passed: ' + minutes_passed)
-	var minutes_timer = target_timer.val()
-	var total_minutes = starting_minutes + minutes_passed		
-    // console.log('Munutes Timer: ' + minutes_timer)
-    // console.log('Total Minutes:' + total_minutes)
-    // console.log('-----------------------------')
-    if (total_minutes > minutes_timer){
-    	var ksu = target_timer.closest('#KSU');
-    	UpdateMerits(ksu)
-		target_timer.val(total_minutes)    
-    	if(total_minutes % 5 == 0){
-    		UpdateKsuAttribute(ksu.attr('value'), 'timer', total_minutes)
-    	}
-    }
-
-    timer(target_timer, starting_minutes);
-}
-
-
-function timer(target_timer, starting_minutes) {	
-    t = setTimeout(function(){
-    	add(target_timer, starting_minutes)
-    }, 10000);//Para que cheque cada 10 segundos en lugar de cada segundo
-}
 
 
 $(document).on('focusin', '.KsuAttr', function(){
@@ -810,7 +764,6 @@ $(document).on('change', '.IsCriticalCheckbox', function(){
 	if (ksu.attr("value") != ''){UpdateKsuAttribute(ksu.attr("value"), 'status', new_status)};
 	FormatBasedOnStatus(ksu, new_status)
 });
-
 
 
 $(document).on('change', '.pic_input', function(){
@@ -1021,8 +974,6 @@ function HideShowLinkType(ksu){
 	}
 }
 
-
-
 function AddKsu_idToPicInput(ksu){
 	var new_pic_input_action = $('#new_pic_input_action').attr('action');
 	var pic_form = ksu.find('#pic_form');
@@ -1222,7 +1173,7 @@ function AddReasonToSelect(ksu_id, ksu_subtype, description){
 	$('#reasons_select').append($('<option>', {value:ksu_id, text:description, ksu_subtype:ksu_subtype}));
 };
 
-
+// xx
 function add_reason_select_to_ksu(ksu, reason_id){
 	// var selected_option = ksu.find('#reason').val()
 	ksu.find('#reason_holder').empty()
@@ -1515,8 +1466,55 @@ function FormatBasedOnStatus(ksu, status){
 			display_section.addClass('IsRealized');
 		}
 	}
-
 }
+
+function add(target_timer, starting_minutes) {	
+    
+	var minutes_passed = Math.floor((parseFloat(new Date().valueOf()) - parseFloat(start_time.valueOf()))/(1000*60)); //
+	// console.log('Minutes passed: ' + minutes_passed)
+	var minutes_timer = target_timer.val()
+	var total_minutes = starting_minutes + minutes_passed		
+    // console.log('Munutes Timer: ' + minutes_timer)
+    // console.log('Total Minutes:' + total_minutes)
+    // console.log('-----------------------------')
+    if (total_minutes > minutes_timer){
+    	var ksu = target_timer.closest('#KSU');
+    	UpdateMerits(ksu)
+		target_timer.val(total_minutes)    
+    	if(total_minutes % 5 == 0){
+    		UpdateKsuAttribute(ksu.attr('value'), 'timer', total_minutes)
+    	}
+    }
+
+    timer(target_timer, starting_minutes);
+}
+
+
+function timer(target_timer, starting_minutes) {	
+    t = setTimeout(function(){
+    	add(target_timer, starting_minutes)
+    }, 10000);//Para que cheque cada 10 segundos en lugar de cada segundo
+}
+
+
+function AdjustGame(game_log){
+
+	$('#merits_earned').text(' ' + game_log['merits_earned']);
+	$('#piggy_bank').text(' ' + game_log['piggy_bank']);
+	$('#streak_day').text(' ' + game_log['streak_day']);
+
+	$('#piggy_bank_sod').text(game_log['piggy_bank_sod']);
+	$('#ev_piggy_bank_sod').text(game_log['ev_piggy_bank_sod']);
+	
+	$('#available_50_slack_cut').text(game_log['available_50_slack_cut']);
+	$('#merits_till_next_50_slack_cut').text(game_log['merits_till_next_50_slack_cut']);
+
+	$('#available_100_slack_cut').text(game_log['available_100_slack_cut']);
+	$('#merits_till_next_100_slack_cut').text(game_log['merits_till_next_100_slack_cut']);
+
+	$('#Activate50SlackCut').prop("disabled", game_log['disable_50_slack_cut'])
+	$('#Activate100SlackCut').prop("disabled", game_log['disable_100_slack_cut']) 
+};
 
 
 function RenderDashboard(dashboard_sections){

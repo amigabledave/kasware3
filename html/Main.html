@@ -25,7 +25,7 @@
 		<div class="container NoSideMarginOrPadding" style="padding-left: 45px; padding-right: 45px;">		
 			<div class="row NavigationTopBar" style="height: 52px;">
 
-				<div class="col-xs-4 col-sm-2 col-md-1 col-lg-1" style="padding-left:0px; margin-top: 10px;"> 
+				<div class="col-xs-4 col-sm-2 col-md-1 col-lg-1" style="margin-top: 10px;"> 
 					<div class="NavigationTopBarBlock">
 						<span class="NavigationKASwareTitleText" style=" font-family: 'Rationale'"> KASware</span><span class="NagivationMiniTopTitle">α</span>	
 					</div>
@@ -45,10 +45,6 @@
 						</div>
 					</div>
 					
-				</div>
-
-				<div class="col-xs-2 hidden-sm hidden-md hidden-lg">						
-					<button type="button" class="btn btn-default" style="background-color:transparent;border:1px; padding-top:3px; padding-bottom:0px;margin-left:-40px; color:white; margin-top: 5px;" id="MobileTheorySearchButton"><span class="glyphicon glyphicon-search" style="font-size:20px;"></span></button>						
 				</div>
 
 				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1" style="padding-left:0px; padding-right: 0px; text-align: center;">					
@@ -89,8 +85,8 @@
 	</div>
 
 	<div class="container NoSideMarginOrPadding" style="position: relative; margin-top: 50px;">
-		<div class="row" style="width: 100%">
-			<div class="col-xs-3 SectionSelectionBar" id="SectionSelectionBar">						
+		<div class="row" style="width: 100%; margin: 0px;">
+			<div class="col-xs-3 SectionSelectionBar" id="SectionSelectionBar" style="width: 18%">						
 				<div class="btn-group-vertical" style="width: 100%;">
 				  <button type="button" class="btn SectionButton btn-default SelectedSection" value="mission"><span class="glyphicon glyphicon-flag SetIcon" aria-hidden="true"></span>Today's Mission</button>
 
@@ -141,7 +137,8 @@
 					</button>
 				</div>
 			</div>
-			<div class="col-xs-7" id="center_column" style="padding-left: 50px; padding-right: 50px; overflow-y: auto;">
+
+			<div class="col-xs-7" id="center_column" style="padding-left: 50px; padding-right: 50px; overflow-y: auto; width: 56%">
 				
 				<div class="row">
 					<div class="col-xs-12"> 
@@ -153,9 +150,9 @@
 			
 				<div class="row" id="ReasonsHolder">			
 					<div class="form-group hidden" style="" id="reasons_select_group">	
-					<label style="">Theory Link</label>
-					<select name="reason_id" id="reasons_select" class="ReasonSelect SexySelect" style="margin-bottom: -5px; height: 25px">
-						<option value="" selected="">What's the link to your theory?</option>				
+					<label id="reason_label">Theory Link</label>
+					<select name="reason_id" id="reasons_select" class="StrategySelect SexySelect" style="margin-bottom: -5px; height: 25px">
+						<option value="" selected="" id="reason_placeholder">What's the link to your theory?</option>				
 					</select>
 					</div>
 				</div>
@@ -212,7 +209,26 @@
 				<br><br><br>
 			</div>
 
-			<div class="col-xs-2" style="padding-top: 35px; margin-left: 25px">
+			<div class="col-xs-2" style="padding-top: 35px; width: 26%; padding-right: 60px;" >
+
+				<div class="row SideOption SideOptionsContainer" target_view="theory">
+				
+					<div class="col-xs-12 form-group" style="font-size: 14px; color: white;" id="strategy_ksu">
+						<div class="row">
+							<div class="col-xs-12 ReasonHolder" name="reason_id" id="reason_holder" reason_id="">	
+							</div>
+						</div>
+
+						<div class="row hidden">
+							<div class="col-xs-12 ">
+								<select id="ksu_subtype" class="KsuAttr SexySelect SubtypeSelect form-control" name="ksu_subtype">
+									<option value="Strategy" selected="selected"> </option>
+								</select>								
+							</div>
+						</div>
+					</div>
+					
+				</div>
 				
 				<div class="row SideOption hidden SideOptionsContainer" target_view="dashboard">
 				

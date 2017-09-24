@@ -335,6 +335,8 @@ life_piece_subtypes = [
 
 
 reasons_guide = {
+	'Strategy': ['MiniObjective', 'BigObjective'] + life_piece_subtypes,
+
 	'Proactive':['MiniObjective', 'BigObjective'] + life_piece_subtypes,
 	'Reactive':['MiniObjective', 'BigObjective'] + life_piece_subtypes,
 	'Negative':['MiniObjective', 'BigObjective'] + life_piece_subtypes,

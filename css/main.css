@@ -70,7 +70,7 @@ input::-webkit-inner-spin-button {
     padding-top: 20px;
     padding-right: 35px;
     /*min-height: 550px;*/
-    max-width: 250px;
+    /*max-width: 250px;*/
 }
 
 .SectionButton{
