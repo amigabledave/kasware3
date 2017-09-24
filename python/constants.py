@@ -1,13 +1,12 @@
-import operator
+d_repeats = {
+	'R000':'Never',
+	'R001':'Always',
+	'R002':'X days',
+	'R007':'Week',
+	'R030':'Month',
+	'R365':'Year'
+}
 
-### Validated for KASware3
-
-d_repeats = {'R000':'Never',
-			 'R001':'Always',
-			 'R002':'X days',
-			 'R007':'Week',
-			 'R030':'Month',
-			 'R365':'Year'}
 
 l_months = [ 
 	[1, 'January'], 
@@ -24,13 +23,6 @@ l_months = [
 	[12, 'December']
 ]
 
-d_KASware3 = {
-	'Actions':[
-		['Proactive', 'Proactive action'], 
-		['Reactive', 'Reactive action'], 
-		['Negative', 'Negative action']
-	]
-}
 
 l_weekdays = [
 	['mon', 'Mon'], 
@@ -42,1124 +34,362 @@ l_weekdays = [
 	['sun', 'Sun'],
 ]
 
+
 l_repeatdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 
+ksu_types = [
 
+	#Actions	
+	[['Action', 'Action'], [
+		['Proactive', 'Proactive', True],
+		['Reactive', 'Reactive', ''],
+		# ['Negative', 'Negative', '']
+	]],	
 
-#########
-def removeNumbers(tupleList, start):
-	result = []
-	for e in tupleList:
-		result.append((e[0],e[1][start:]))		
-	return result
-
-def makeDictionaryFromTupleList(tupleList):
-	result = {}
-	for e in tupleList:
-		result[e[0]] = e[1]		
-	return result
-
-
-l_Fibonacci = [0.25,1,2,3,5,8,13]
-l_Fibonacci_1_8 = [1,2,3,5,8]
-d_attributeType = {
-
-	'description':'string',
-	'secondary_description':'string',
-
-	'comments':'string',
-	'ksu_type':'string',
-	'ksu_subtype':'string',
-	'parent_id':'ndb_key',
-	'effort_denominator':'integer',
-	'wish_type': 'string',
-
-
-	'importance':'integer',
-	'mission_importance':'integer',
-	'tags':'user_tags',
-	'parent_id':'parent_id', 	
-
-	'kpts_value':'float',
-	'is_special':'checkbox',
-
-	'is_active': 'checkbox',
-	'is_critical': 'checkbox',
-	'is_private': 'checkbox',
-
-	'next_event':'date',
-	'frequency':'integer',
-
-	'repeats':'string',		
-	'repeats_on_Mon':'checkbox_repeats_on',
-	'repeats_on_Tue':'checkbox_repeats_on', 
-	'repeats_on_Wed':'checkbox_repeats_on',
-	'repeats_on_Thu':'checkbox_repeats_on',
-	'repeats_on_Fri':'checkbox_repeats_on',
-	'repeats_on_Sat':'checkbox_repeats_on',
-	'repeats_on_Sun':'checkbox_repeats_on',
-	'best_time':'time',
-
-	# 'target':'tbd', # its a json For ksus that generate kpts and indicators target min, target max, reverse target etc
-	'mission_view':'string',
-	'birthday': 'date',
-	'money_cost': 'dict_cost',
-	'days_cost': 'dict_cost',
-	'hours_cost': 'dict_cost',
-	'is_mini_o': 'checkbox',
-	'is_jg': 'checkbox'
-	}
-
-default_ksu = {}
-d_SetTitles = {
-	'':'My Theory',
-	'Today':"Today's Mission",
-	'Upcoming':'Upcoming',
-	'Graveyard':'Graveyard',
-	'BigOPlan': 'BigO Plan',
-	'TheoryQuery': 'Theory Query',
-	'Dashboard': 'Dashboard',
-
-	'SomedayMaybe': 'Someday Maybe', 
-	'Gene': 'In-Basket',
-	'KeyA': 'Core Actions',
-	'BOKA': 'Objective Plan',
-	'BigO': 'Objectives',
-	'Wish': 'Dreams & Wishes',
-	'EVPo': 'Joy Generators',
-	'ImPe': 'Important People',
-	'Idea': 'Principles',
-	'RTBG': 'Reasons To Be Grateful',
-	'ImIn': 'Indicators',
-	'Diary':'Diary'}
-
-d_KsuTypes = {
-	'Gene': '00. Unassigned',
-	'OTOA': '01. One Time Only Action',
-	'KeyA': '02. Key Action', 
-	'BigO': '03. Objective',
-	'Wish': '04. Wish',
-	'Idea': '05. Principle',
-	'EVPo': '06. Joy Generator',
-	'ImPe': '07. Important Person',
+	[['Objective', 'Mile Stone'], [ #Group actions in a well define purpose
+		['BigObjective', 'Objective', True], #If the parent is another objective then its a milestone#'Milestone',
+		# ['MiniObjective', 'Mini Objective', ''], #If the parent is another objective then its a milestone#'Milestone',		
+	]],
 	
-	'RTBG': '08. Reason To Be Grateful',
-	'Diary':'09. Diary Entry',
-	'ImIn': '10. Indicator'}
-l_KsuTypes = sorted(d_KsuTypes.items(), key=operator.itemgetter(1))
-l_KsuTypes = removeNumbers(l_KsuTypes, 4)
-d_KsuTypes = makeDictionaryFromTupleList(l_KsuTypes)
-d_KsuSubtypes = {
-	'Gene':'Unassigned',
-	'KeyA':'Key Action',
-	'KAS1':'Key Proactive Action',
-	'KAS2':'One Time Only Action',
-	'KAS3':'Key Reaction',
-	'KAS4':'Key Action To Avoid',
+	#Life Pieces
+	[['Experience', 'Generator'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
+		['Moment', 'Moment', True], # Whaterver < Nice < Very nice < Memorable < Epic < Legendary				
+		# ['Chapter', 'Chapter', ''], #Agrupa varios momentos, pero no es un momento en si por lo que no tiene importancia. El padre puede ser otro chapter .E.g. Estar jugando el juego de aventura en turno >> #E.g. Estar jugando Zelda breath of the wild		
+		['JoyMine', 'Joy Mine', ''], #Algo concreto que genera momentos del mismo tipo... E.g. Estar jugando Zelda breath of the wild
+	]],
 
-	'BigO': 'Big Objective',
-	'MiniO': 'Mini Objective',
+	[['Contribution', 'Contribution'], [ #Whats the impact you want to have in others peoples life and the envieronment? Antes Meaning GreaterGood
+		['StarFish', 'Star Fish', True], # Cada Star Fish matters, son contribuciones targeteadas para mejorar la vida de una persona o grupo en especifico
+		# ['Calling', 'Calling', ''], # Aqui entran el trabajo que harias aunque no te pagaran	
+		['WorldChange', 'World Change', ' '] #Aqui entran cualquier aspiraciones de cambiar el status del mundo mas alla de la vida de algunos individuos en particular
+	]],
+	
+	[['SelfAttribute', 'Attribute'], [# Antes Self. #Who is the best person you could be? 'Antes tenia Achievemnt pero ahora queda en meaning',
+		['Attitude', 'Attitude', ''], #'SoulSkill', #Connciousness and inner peace
+		['KnowledgeOrSkill', 'Skill or Knowledge', True], #MindSkill Knowledge and skills		
+		['BodyFeature', 'Body Feature', ''], #PhisicalAttribute, Health and vitality
+		['Achievement', 'Achievement', ''], #Personal achievement.
+		['Role', 'Role', ''], #Role to Others  Dad, Friend, Lover, etc. 
+	]],
 
-	'Wish': 'Wish',
-	'EVPo': 'Joy Generator',
-	'ImPe': 'Important Person',
-	'Idea': 'Principle',
-	'RTBG': 'Reason To Be Grateful',
+	[['Person', 'Person'], [ #Who you want in your life 'Love', #Important People. Love & Friendship
+		['Individual', 'Individual', True], #Person #If the parent is another person, then the parent is a group of people #'Group',
+		['Group', 'Group', ''],
+		# ['Relationship', 'Relationship', ''], #E.g. Sexual Partner, Someone to Play Magic, Etc... El padre solo puede ser una persona y puede tener varios padres
+	]],
 
-	'Diary': 'Diary Entry',
-	'ImIn': 'Indicator',
-	'RealitySnapshot':'Reality Indicator',
-	'BinaryPerception': 'Binary Perception Indicator',
-	'TernaryPerception': 'Ternary Perception Indicator',
-	'FibonacciPerception': 'Fibonacci Perception Indicator'} 
+	[['Possesion', 'Possesion'], [ #What you want to have
+		['Thing', 'Thing', True], #For personal use 	
+		['Service', 'Service Access'], #For personal use
+		['Asset', 'Asset', ''], #Dinero o assets tangibles. Tambien aqui entra un Paycheck que a final de cuentas es un activo.. 
+		# ['Job', 'Job', ''], #Aqui entran los trabajos que no harias si no te pagaran
+	]],	
 
+	[['Environment', 'Environment'], [ #Surrondings... Quiero de alguna forma indicar que se trata de los lugares donde pasas tiempo...
+		['Private', 'Private', True],
+		['Public', 'Public', ''], #Aqui entran los paises donde quieres vivir u otros lugares donde te gustaria pasar buena parte de tu tiempo
+		# ['Order', 'Order', ''], #Algun attributo particular del lugar en cuestion #Ahora ya lo voy a ver como un upgrade de la cosa en cuestion
+		#Tambien entra orden aqui. e.g. "Tener un cuarto ordenado"
+	]],
 
+	#Other	
+	[['Wisdom', 'Wisdom'], [#Idea #Your personal constitution. Non actionable knowledge that you believe should guide your behaviour.
+		['Principle', 'Principle', ''], #Sirve para organizar y auditar
+		['Idea', 'Idea', True], #If the idea has a parent then is not a principle. BRILIANT!		
+		['Learning', 'Learning', '']
+	]], 
 
-
-
-
-l_repeats = sorted(d_repeats.items())
-
-d_Days = {'None':'None',
-		  '1':'1. Sunday',
-		  '2':'2. Monday',
-		  '3':'3. Tuesday',
-		  '4':'4. Wednesday',
-		  '5':'5. Thursday',
-		  '6':'6. Friday',
-		  '7':'7. Saturday'}
-l_Days = sorted(d_Days.items())
-d_repeats_legend = {
-	'R000':'',
-	'R001':'Days',
-	'R007':'Weeks',
-	'R030':'Months',
-	'R365':'Years'}
-
-d_MissionViews = {
-	'KickOff':'Kick Off',
-	'Principal':'Principal',
-	'WrapUp':'Wrap Up'
-}
-
-l_MissionViews = [
-	'Principal',
-	'Kick Off',
-	'Wrap Up'
+	[['Indicator', 'Indicator'], [#A concreate metric you pick to measure success
+		['Reality', 'Reality', ''],
+		['Perception', 'Perception', True],
+	]],
 ]
 
 
-d_SetViewerDetails = {
+event_types = [	
+	'EndValue', #Generado por momentos de Joy Generatos
+
+	'Effort', #Generado por acciones al ser ejecutadas
+	'Stupidity', #Generado por acciones al ser ejecutadas
 	
-	'Gene':{'buttons_col':0},
-
-	'KeyA':{
-		'QuickAdd':{'description':'Describe your new Key Action'},
-		'buttons_col':2},
-
-	'KAS1':{
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Next Event'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'Effort Reward',
-		'buttons_col':3,
-		'buttons':['Done', 'SendToMission'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
+	'PursuitStarted', #Generado por Life Pieces y Milestones al cambiar de status
+	'Progress', #Generado por objetivos
 	
-	'KAS2':{		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Scheduled for'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'Effort Reward',
-		'buttons_col':2,
-		'buttons':['Done', 'SendToMission'],
+	'WishRealized', #Generado por Life Pieces al cambiar de status
+	'LifePieceGone', #Generado por Life Pieces al cambiar de status
 
-		#Master template parameters
-		'Mission':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': '',
-			'heading_content': '',
+	'PerceptionSnapshot', #Generaddo por indicadores de percepcion
+	'RealitySnapshot',
+]
 
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
 
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
+attributes_guide = {
+	'theory_id': ['Key', ''], 	
+	'created': ['DateTime', ''], 
+	'ksu_type': ['String', 'Standard'],
+	'ksu_subtype': ['String', 'Select'],
+	'reason_id': ['Key', 'Standard'],
+	'link_type': ['Details', 'Select'],
 
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'What is the next step?'},
 
-		'Set':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'What is the next step?'}},
+	'description': ['String', 'Standard'],	
+	'pic_key': ['BlobKey', 'Standard'],
+	'pic_url': ['String', 'Standard'],
 	
-	'BOKA':{
-		'QuickAdd':{'description':'What do you need to do to achieve your Objective?'},		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Scheduled for'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'Effort Reward',
-		'buttons_col':2,
-		'buttons':['Done', 'SendToMission']},
-
-	'KAS3':{
-		'attributes': ['kpts_value'],
-		'fields': {'kpts_value':'Reward (Kpts.)'},
-		'columns': {'kpts_value':6},
-		'buttons_col':2,
-		'detailsLabel':'Effort Reward',
-		'buttons': ['Done'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color:#32CD32; font-weight:bold; font-size:12px;',
-			'heading_content': 'Target Reaction:',
-
-			'top_sec_desc_exists': True,
-			'top_sec_desc_visible': True,
-			'top_sec_desc_style': 'ont-weight:normal; font-style:italic;',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color:#32CD32; font-weight:bold; font-size:12px;',
-			'heading_content': 'Target Reaction:',
-
-			'top_sec_desc_exists': True,
-			'top_sec_desc_visible': True,
-			'top_sec_desc_style': 'ont-weight:normal; font-style:italic;',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
-
-	'KAS4':{
-		'attributes': ['kpts_value'],
-		'fields': {'kpts_value':'Punishment (Kpts.)'},
-		'columns':{'kpts_value':6},
-		'detailsLabel':'Stupidity Punishment',
-		'buttons_col':2,
-		'buttons':['Done'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color:red; font-weight:bold; font-size:12px;',
-			'heading_content': 'Must avoid: ',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color:red; font-weight:bold; font-size:12px;',
-			'heading_content': 'Must avoid: ',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},					
-
-	'BigO':{
-		'QuickAdd':{
-			'description':'What do you want to achieve?',
-			'secondary_description':'Define success (e.g. $1,000,000 in my bank acount)'},				
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Target Date'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'',
-		'buttons_col':2,
-		'buttons':['Done'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color:grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},		
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color:grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'Success definition'}},	
-
-	'Wish':{
-		'QuickAdd':{'description':'What do you wish for?'}, 		
-		'attributes': ['money_cost'],
-		'fields': {'money_cost':'Money required ($)'},
-		'columns':{'money_cost':6},
-		'detailsLabel':'',
-		'buttons_col':1,
-		'buttons':['Done'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color: purple; font-weight: bold;',
-			'heading_content': 'Dream: ',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},		
-
-		'Set':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color: purple; font-weight: bold;',
-			'heading_content': 'Dream: ',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},	
-
-	'EVPo': { 
-		'QuickAdd':{
-			'description':'Describe your new Joy Generator',
-			'secondary_description':'Trigger action description (e.g. buy movie tickets")'
-			},		
-		'attributes': ['frequency'],
-		'fields': {'frequency':'Charging time (days)'},
-		'columns':{'frequency':6},
-		'detailsLabel':'Trigger Effort Reward',
-		'buttons_col':3,
-		'buttons':['Done', 'SendToMission'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': True,
-			'heading_visible': True,
-			'heading_style': 'color:purple; font-weight:bold;',
-			'heading_content': 'Just for joy:',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
-
-	'ImPe': { 
-		'QuickAdd':{
-			'description':'Who is your new Important Person?'},		
-		'attributes': ['frequency'], 
-		'fields': {'frequency':'Contact Frequency (days)'},
-		'columns':{'frequency':6},
-		'detailsLabel':'Contract Effort Reward',
-		'buttons_col':3,
-		'buttons':['Done', 'SendToMission'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
-
-	'Idea': {
-		'QuickAdd':{'description':'What are your Principles?'}, 		
-		'attributes': ['source'],
-		'fields': {'source':'Source'},
-		'columns':{'source':6},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':[],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},	
-
-	'RTBG': { 
-		'QuickAdd':{'description':'What are you greateful for?'},		
-		'attributes': [],
-		'fields': {},
-		'columns':{},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':[],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},			
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': False,
-			'bot_sec_desc_visible': False,
-			'bot_sec_desc_style': '',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
-
-	'ImIn': { 
-		'QuickAdd':{
-			'description':'What is your new Indicator?',
-			'secondary_description': 'Data generating question (e.g. Whats my weight?'},		
-		'attributes': [], 
-		'fields': {},
-		'columns':{},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':[]},
-
-	'BinaryPerception': { 		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Next Question'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':['Record'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'font-weight: bold;margin-bottom: 10px;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color: grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},
-
-	'TernaryPerception': { 		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Next Question'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':['Record'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'font-weight: bold;margin-bottom: 10px;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color: grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},	
-
-	'FibonacciPerception': { 		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Next Question'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':['Record'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'font-weight: bold;margin-bottom: 10px;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color: grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},	
-
-	'RealitySnapshot': { 		
-		'attributes': ['pretty_next_event'],
-		'fields': {'pretty_next_event':'Next Question'},
-		'columns':{'pretty_next_event':6},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':['Record'],
-
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'font-weight: bold;margin-bottom: 10px;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color: grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}},	
-
-	'Diary': { 
-		'QuickAdd':
-			{'description':'What is your new Diary section?',
-			'secondary_description':'Entry question (e.g. What was the best part of my day today?)'},		
-		'attributes': [], 
-		'fields': {},
-		'columns':{},
-		'detailsLabel':'',
-		'buttons_col':0,
-		'buttons':['Record'],
+	'size': ['Integer', 'Radio'],
+	'counter': ['Integer', 'Standard'],
+	'importance': ['Integer', 'Standard'],
+	'event_date': ['DateTime', 'Standard'],
+
+	'status': ['String', 'Select'],
+
+	'needs_mtnc': ['Boolean', 'Checkbox'],
+	'is_private': ['Boolean', 'Checkbox'],
+	'anywhere': ['Boolean', 'Checkbox'], 
+	'is_optional': ['Boolean', 'Checkbox'],
+
+	'comments': ['Text', 'Standard'],
+	'tag': ['String', 'Standard'],
+	
+	'details': ['Json', ''] ,
+	
+	'best_time': ['Details', 'Standard'],
+	'trigger': ['Details', 'Standard'], 
+	'exceptions': ['Details', 'Standard'],
+	
+	'repeats': ['Details', 'Select'], 
+	'every_x_days': ['Details', 'Standard'],
+	'on_the_day': ['Details', 'Select'], 
+	'of_month': ['Details', 'Select'],
+
+	'every_mon': ['Details', 'Checkbox'],
+	'every_tue': ['Details', 'Checkbox'], 
+	'every_wed': ['Details', 'Checkbox'], 
+	'every_thu': ['Details', 'Checkbox'], 
+	'every_fri': ['Details', 'Checkbox'], 
+	'every_sat': ['Details', 'Checkbox'], 
+	'every_sun': ['Details', 'Checkbox'],
+
+	'money_cost': ['Integer', 'Standard'],
+	'cost_frequency': ['Details', 'Select'],
+	'frequency': ['Details', 'Select'],
+	'birthday': ['Details', 'Standard'],
+	'source': ['Details', 'Standard'],
+	'question': ['Details', 'Standard'],
+	'chapter_duration': ['Details', 'Standard'],
+
+	'monitor': ['Boolean', 'Checkbox'],
+	'goal_score': ['Details', 'Standard'],
+	'goal_type': ['Details', 'Select'],
+	'goal_events': ['Details', 'Standard'],
+	'goal_counter': ['Details', 'Standard'],
+	'goal_time_frame': ['Details', 'Select'],
+
+	'memory_level':['Details', 'Select'],
+	'negative_alternative':['Details', 'Standard'],
+	'negative_size':['Details', 'Radio'],
+
+	'feasibility':['Details', 'Select'],
+
+	'nickname': ['String', 'Standard'],
+	'timezone': ['Settings', 'Select'],
+	'hide_private_ksus': ['Settings', 'Checkbox'],
+}
+
+
+ksu_type_attributes = {
+	'Base': [
+		'ksu_type', 
+		'ksu_subtype', 
+		'reason_id',
+		'link_type',
+		'importance',
+
+		'description', 
+		# 'pic_key',
+		'pic_url',
+
+		'is_private',
+		'comments',
+		'tag',
+
+		'monitor',				
+		'goal_score',
+		'goal_events',
+		'goal_counter',
+		'goal_time_frame'
+	],
+
+	'Action': [
+		'best_time', 
+		'trigger',
+		'exceptions',
 		
-		#Master template parameters
-		'Mission':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
+		'size',
+		'counter',
+		'event_date',
 
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
+		'repeats',
+		'every_x_days',
+		'on_the_day', 
+		'of_month',
 
-			'description_exists': False,
-			'description_visible': False,
-			'description_style': '',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'font-weight: bold;margin-bottom: 10px;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'},
-
-		'Set':{
-			'heading_exists': False,
-			'heading_visible': False,
-			'heading_style': '',
-			'heading_content': '',
-
-			'top_sec_desc_exists': False,
-			'top_sec_desc_visible': False,
-			'top_sec_desc_style': '',
-			'top_sec_desc_placeholder': 'This is a placeholder',	
-
-			'description_exists': True,
-			'description_visible': True,
-			'description_style': 'font-weight:bold;',
-			'description_placeholder': 'This is a placeholder',
-
-			'bot_sec_desc_exists': True,
-			'bot_sec_desc_visible': True,
-			'bot_sec_desc_style': 'color: grey; font-style:italic;',
-			'bot_sec_desc_placeholder': 'This is a placeholder'}}
-}
-
-d_HistoryViewer = {
-	# 'Undefined':'What the fuck?',		
-	'KAS1':'Proactive effort',
-	'KAS2':'Proactive effort',
-	'KAS3':'Reactive effort',
-	'KAS4':'Stupidity commited',
-
-	'BigO': 'Objective Achieved',
-	'Wish': 'Wish granted',
-	'EVPo': 'Joy effort',
-	'ImPe': 'Relationship effort',
-	'Idea': '',
-	'RTBG': '',
-
-	'Diary': 'Diary Entry',
-	'RealitySnapshot':'Reality Indicator Measurement',
-	'BinaryPerception': 'Binary Perception Indicator Measurement',
-	'TernaryPerception': 'Ternary Perception Indicator Measurement',
-	'FibonacciPerception': 'Fibonacci Perception Indicator Measurement'
-}
-
-
-ksu_for_template = {
-
-	'theory': None,
-	'created': None,
-	'last_modified': None,
-
-	'description': '',
-	'secondary_description': '',
-
-	'comments': '',
-	'ksu_type': '',
-	'ksu_subtype': '',
-	'kpts_value': 0,
-
-	'importance': 3,
-	'mission_importance': 3,
-	'tags': None,
-	'parent_id': None,
-		
-	'is_active': True,
-	'is_critical': False,
-	'is_private': False,
-
-	'is_visible': True,
-	'in_graveyard': False,
-	'is_deleted': False,
-
-	'next_event': None,
-	'pretty_next_event': '',
-	'frequency': 1, 
-	'repeats': '',
-	'repeats_on': {},
+		'every_mon',
+		'every_tue', 
+		'every_wed', 
+		'every_thu', 
+		'every_fri', 
+		'every_sat', 
+		'every_sun',
 	
-	'mission_view': 'Principal',
-	'best_time': None,
-	'pretty_best_time': '',
+		'anywhere',
+		'status',
+		'negative_alternative',
+		'negative_size',
+	],
 
-	'is_mini_o': False,
-	'target': {},
-	'birthday': None,
-	'money_cost': 0,
+	'Objective': [
+		'event_date',
+		'status',
+	],
 
-	'cost':{'money_cost': 0, 'days_cost': 0, 'hours_cost': 0},
-	'timer':{},
-	'ImIn_details':{'positive_label':'Delighted', 'neutral_label':'Satisfied', 'negative_label':'Dissapointed', 'units': 'Units'},
+	'LifePiece':[
+		'size',
+		'money_cost',
+		'cost_frequency',
+		'status',
+		'feasibility'								
+	],
 
-	'picture': None,
-	'times_reviewed': 0,
-	'description_rows':1,
-	'secondary_description_rows':1,
-	'timer':{'hours':0, 'minutes':0, 'seconds':0, 'value':'00:00:00'}
+	'Experience': [
+		'frequency',
+		'event_date',
+		'chapter_duration',
+		'memory_level',
+	], 
+
+	'Contribution': ['needs_mtnc'], 
+
+	'SelfAttribute': ['needs_mtnc'], 
+
+	'Person': [
+		'frequency',
+		'birthday',
+		'needs_mtnc',
+	],
+
+	'Environment':['needs_mtnc'],
+
+	'Possesion': ['needs_mtnc'], 
+
+	'Wisdom': ['source'], #Meter attributo para indicar si es self knowledge o general knowledge
+
+	'Indicator': [
+		'question',
+		'frequency',
+		'event_date',
+		'goal_type',
+	]
 }
 
 
-type_to_subtypes = {
-	'Graveyard':[],
-	'TheoryQuery':[],
-	'KeyA':['KAS1', 'KAS2', 'KAS3', 'KAS4'], 
-	'OTOA':['KAS2'],
-	'BigO':['BigO'],
-	'BOKA':['KAS2'],
-	'Wish':['Wish'],
-	'Idea':['Idea'],
-	'RTBG':['RTBG'],
-	'ImPe':['ImPe'],
-	'EVPo':['EVPo'],
-	'Diary':['Diary'],
-	'ImIn':['FibonacciPerception', 'BinaryPerception' , 'RealitySnapshot', 'TernaryPerception']	
+life_pieces = [
+	['Experience', 'glyphicon-gift'],
+	['SelfAttribute', 'glyphicon-user'],
+	['Person', 'glyphicon-heart'],
+	['Possesion', 'glyphicon-usd'],
+	['Environment', 'glyphicon-home'],
+	['Contribution', 'glyphicon-globe'],
+]
+
+
+life_piece_subtypes = [
+	'Moment',
+	'JoyMine',
+	'Chapter',
+	
+	'StarFish',
+	'Calling',
+	'WorldChange',
+	
+	'Attitude',
+	'KnowledgeOrSkill',
+	'BodyFeature',
+	'Achievement',
+	'Role',
+
+	'Individual',
+	'Relationship',
+	'Group',
+
+	'Thing',
+	'Service',
+	'Asset',
+	'Job',
+	
+	'Private',
+	'Public',
+	'Order',
+]
+
+
+reasons_guide = {
+	'Proactive':['MiniObjective', 'BigObjective'] + life_piece_subtypes,
+	'Reactive':['MiniObjective', 'BigObjective'] + life_piece_subtypes,
+	'Negative':['MiniObjective', 'BigObjective'] + life_piece_subtypes,
+	
+	'MiniObjective':['BigObjective'],
+	'BigObjective':[] + life_piece_subtypes,
+	
+	'Moment':['Chapter'],
+	'JoyMine':['JoyMine'],
+	'Chapter':['Chapter'],
+	
+	'StarFish':['Individual', 'WorldChange'],
+	'Calling':['WorldChange'],
+	'WorldChange':['WorldChange'],
+	
+	'Attitude':['Attitude'],
+	'KnowledgeOrSkill':['KnowledgeOrSkill'],
+	'BodyFeature':['BodyFeature'],
+	'Achievement':['Achievement'],
+	'Role':['Individual', 'Group', 'Relationship'],
+	
+	'Individual':['Group', 'Relationship'],
+	'Group':['Moment', 'JoyMine', 'Chapter'],
+	'Relationship':['Moment', 'JoyMine', 'Chapter'],
+	
+	'Thing':['Thing', 'Moment', 'JoyMine', 'Chapter'],
+	'Service':['Moment', 'JoyMine', 'Chapter'],
+	'Asset':['Asset', 'Moment', 'JoyMine', 'Chapter'],
+	'Job':['Thing', 'Service' ,'Asset', 'Moment', 'JoyMine', 'Chapter'],
+	
+	'Private':[],
+	'Public':[],
+	'Order':['Private','Public'],
+	
+	'Principle':[],
+	'Idea':['Principle'],
+	'Learning':['Principle'],
+	
+	'Reality':[] + life_piece_subtypes,
+	'Perception':[] + life_piece_subtypes,
 }
 
-# subtype_to_type = {
-# 	'KAS1':'KeyA', 
-# 	'KAS2':, 
-# 	'KAS3':, 
-# 	'KAS4':, 
-# 	'BigO':,
-# 	'Wish':,
-# 	'Idea':,
-# 	'RTBG':,
-# 	'ImPe':,
-# 	'EVPo':,
-# 	'Diary':,
-# 	'FibonacciPerception':,
-# 	'BinaryPerception':, 
-# 	'RealitySnapshot':]	
-# }
 
-
-d_displayValues = {}
-d_displayValues.update(d_repeats)
-
-constants = {'l_Fibonacci':l_Fibonacci,
-			 'l_Fibonacci_1_8':l_Fibonacci_1_8,
-			 'd_attributeType':d_attributeType,
-			 'default_ksu':default_ksu,
-			 'd_SetTitles':d_SetTitles,
-
-			 'd_KsuTypes':d_KsuTypes,
-			 'l_KsuTypes':l_KsuTypes,
-			 'd_KsuSubtypes':d_KsuSubtypes, 
-
-			 'd_repeats': d_repeats,
-			 'l_repeats':l_repeats,
-			 'l_months':l_months,
-
-			 'l_repeatdays': l_repeatdays,
-			 'l_weekdays': l_weekdays,
-			 'l_Days':l_Days,
-			 'd_repeats_legend':d_repeats_legend,
-			 
-			 'd_SetViewerDetails':d_SetViewerDetails,
-			 'd_displayValues':d_displayValues,
-			 'd_HistoryViewer':d_HistoryViewer,
-
-			 'ksu_for_template': ksu_for_template,
-			 'type_to_subtypes':type_to_subtypes,
-			 'd_KASware3': d_KASware3}
+constants = {
+	'd_repeats': d_repeats,
+	'l_months': l_months,
+	'l_weekdays': l_weekdays,
+	'ksu_types': ksu_types,
+	'event_types': event_types,
+	'attributes_guide': attributes_guide,
+	'ksu_type_attributes': ksu_type_attributes,
+	'life_pieces': life_pieces,
+	'life_piece_subtypes': life_piece_subtypes,
+	'reasons_guide': reasons_guide,
+}
 
 
 
-
-			 

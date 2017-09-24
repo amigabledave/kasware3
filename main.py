@@ -1,11 +1,11 @@
-#KASware V2.0.0 | Copyright 2016 Kasware Inc.
+#KASware V3.0 | Copyright 2017 Kasware Inc.
 # -*- coding: utf-8 -*-
 import webapp2, jinja2, os, re, random, string, hashlib, json, logging, math 
 
 from datetime import datetime, timedelta, time, date
 from google.appengine.ext import ndb
 from google.appengine.api import mail
-from python import datastore, randomUser, constants, kasware_os, KASware3
+from python import datastore, randomUser, constants
 
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
@@ -14,16 +14,12 @@ from google.appengine.api import images
 template_dir = os.path.join(os.path.dirname(__file__), 'html')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-constants = constants.constants
-os_ksus = kasware_os.os_ksus
-
 VIPlist = datastore.VIPlist
 Theory = datastore.Theory
 KSU = datastore.KSU
-KSU3 = datastore.KSU3
 Event = datastore.Event
-Event3 = datastore.Event3
 GameLog = datastore.GameLog
+
 
 time_travel = 0 #TT Aqui le puedo hacer creer a la aplicacion que estamos en otro dia para ver como responde 
 
@@ -57,12 +53,12 @@ class Handler(webapp2.RequestHandler):
 		self.write(self.render_html(template, **kw))
 
 	def set_secure_cookie(self, cookie_name, cookie_value):
-		cookie_secure_value = make_secure_val(cookie_value)
+		cookie_secure_value = self.make_secure_val(cookie_value)
 		self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (cookie_name, cookie_secure_value))
 
 	def read_secure_cookie(self, cookie_name):
 		cookie_secure_val = self.request.cookies.get(cookie_name)
-		return cookie_secure_val and check_secure_val(cookie_secure_val)
+		return cookie_secure_val and self.check_secure_val(cookie_secure_val)
 
 	def login(self, theory):
 		self.set_secure_cookie('theory_id', str(theory.key.id()))
@@ -98,17 +94,17 @@ class Handler(webapp2.RequestHandler):
 		theory = self.theory
 		critical_burn = 10
 		game_log_user_date = game_log.user_date
-		ksu_set = KSU3.query(KSU3.theory_id == theory.key).filter(KSU3.status == 'Critical').filter(KSU3.event_date != None).filter(KSU3.event_date <= game_log_user_date).fetch()
+		ksu_set = KSU.query(KSU.theory_id == theory.key).filter(KSU.status == 'Critical').filter(KSU.event_date != None).filter(KSU.event_date <= game_log_user_date).fetch()
 		
 		for ksu in ksu_set:
 			print ksu.description
 			
 			reason_status = 'NoReason'
 			if ksu.reason_id:
-				reason_ksu = KSU3.get_by_id(ksu.reason_id.id())
+				reason_ksu = KSU.get_by_id(ksu.reason_id.id())
 				reason_status = reason_ksu.status
 
-			event = Event3(
+			event = Event(
 				theory_id = ksu.theory_id,
 				ksu_id = ksu.key,
 				description = 'Critical burn for not: ' + ksu.description,
@@ -316,7 +312,7 @@ class Handler(webapp2.RequestHandler):
 		
 		theory = Theory(
 			email=post_details['email'], 
-			password_hash=make_password_hash(post_details['email'], post_details['password']), 
+			password_hash=self.make_password_hash(post_details['email'], post_details['password']), 
 			nickname=post_details['nickname'])
 		theory.put()
 
@@ -340,13 +336,38 @@ class Handler(webapp2.RequestHandler):
 			post_details[str(argument)] = self.request.get(str(argument))
 		return post_details
 
+	def make_secure_val(self, val):
+		return '%s|%s' % (val, hashlib.sha256('elzecreto' + val).hexdigest())
+
+	def check_secure_val(self, secure_val):
+		val = secure_val.split('|')[0]
+		if secure_val == self.make_secure_val(val):
+			return val
+
+	def make_salt(self, lenght = 5):
+	    return ''.join(random.choice(string.letters) for x in range(lenght))
+
+	def make_password_hash(self, email, password, salt = None):
+		if not salt:
+			salt = self.make_salt()
+		h = hashlib.sha256(email + password + salt).hexdigest()
+		return '%s|%s' % (h, salt)
+
+	def validate_password(self, email, password, h):
+		salt = h.split('|')[1]
+		return h == self.make_password_hash(email, password, salt)
+
+	def valid_login(self, email, password):
+		theory = Theory.get_by_email(email)
+		if theory and self.validate_password(email, password, theory.password_hash):
+			return theory
+
 class Home(Handler):
 
 	@super_user_bouncer
 	def get(self):
-		constants['ksu_types'] = KASware3.ksu_types		
 		new_pic_input_action = "{0}".format(blobstore.create_upload_url('/upload_pic'))
-		self.print_html('Main.html', constants=constants, new_pic_input_action=new_pic_input_action)
+		self.print_html('Main.html', constants=constants.constants, new_pic_input_action=new_pic_input_action)
 
 	@super_user_bouncer
 	def post(self):
@@ -354,7 +375,7 @@ class Home(Handler):
 		user_action = event_details['user_action']	
 		
 		if user_action in ['Action_Done', 'Stupidity_Commited', 'EndValue_Experienced']:
-			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
+			ksu = KSU.get_by_id(int(event_details['ksu_id']))
 			event = self.create_event(ksu, user_action, event_details)
 			event.put()
 			
@@ -373,7 +394,7 @@ class Home(Handler):
 			return
 
 		elif user_action in ['Milestone_Reached', 'Measurement_Recorded']:
-			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
+			ksu = KSU.get_by_id(int(event_details['ksu_id']))
 			
 			event = self.create_event(ksu, user_action, event_details)
 			event.put()
@@ -391,7 +412,7 @@ class Home(Handler):
 			return
 
 		elif user_action in ['Action_Skipped', 'Action_Pushed', 'SendToMission']: 
-			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
+			ksu = KSU.get_by_id(int(event_details['ksu_id']))
 			ksu = self.update_event_date(ksu, user_action)
 			ksu.put()
 
@@ -408,7 +429,7 @@ class Home(Handler):
 			return	
 
 		elif user_action == 'RetrieveTheory':
-			ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).filter(KSU3.in_graveyard == False).order(-KSU3.importance).fetch()
+			ksu_set = KSU.query(KSU.theory_id == self.theory.key).filter(KSU.in_graveyard == False).order(-KSU.importance).fetch()
 			ksu_output = []			
 			reasons_index = []
 			
@@ -416,7 +437,7 @@ class Home(Handler):
 				ksu_output.append(self.ksu_to_dic(ksu))
 				reasons_index.append([ksu.key.id(), ksu.ksu_subtype, ksu.description])
 			
-			history = Event3.query(Event3.theory_id == self.theory.key).order(-Event3.event_date).fetch()
+			history = Event.query(Event.theory_id == self.theory.key).order(-Event.event_date).fetch()
 			event_output = []
 			for event in history:
 				event_output.append(self.event_to_dic(event))
@@ -434,14 +455,14 @@ class Home(Handler):
 				'game_log': self.game_log_to_dic(self.game_log),
 				'game_logs': game_logs_output,
 				'reasons_index':reasons_index,
-				'ksu_type_attributes': KASware3.ksu_type_attributes,
-				'attributes_guide': KASware3.attributes_guide,
-				'reasons_guide': KASware3.reasons_guide,
+				'ksu_type_attributes': constants.ksu_type_attributes,
+				'attributes_guide': constants.attributes_guide,
+				'reasons_guide': constants.reasons_guide,
 				}))
 			return
 
 		elif user_action == 'SaveNewKSU':
-			ksu = KSU3(theory_id=self.theory.key)
+			ksu = KSU(theory_id=self.theory.key)
 			ksu_type = event_details['ksu_type']
 			attributes = self.get_ksu_type_attributes(ksu_type)
 
@@ -451,19 +472,19 @@ class Home(Handler):
 			ksu.put()
 
 			ksu_dic = self.ksu_to_dic(ksu)
-			ksu_dic['mensaje'] = 'KSU3 creado y guardado desde el viewer!'
+			ksu_dic['mensaje'] = 'KSU creado y guardado desde el viewer!'
 			self.response.out.write(json.dumps(ksu_dic))
 			return
 
 		elif user_action == 'DeleteKSU':
-			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
+			ksu = KSU.get_by_id(int(event_details['ksu_id']))
 
-			child_ksus = KSU3.query(KSU3.reason_id == ksu.key).fetch()
+			child_ksus = KSU.query(KSU.reason_id == ksu.key).fetch()
 			for child in child_ksus:
 				child.reason_id = None
 				child.put()
 
-			ksu_events = Event3.query(Event3.ksu_id == ksu.key).fetch()
+			ksu_events = Event.query(Event.ksu_id == ksu.key).fetch()
 			for event in ksu_events:
 				event.key.delete()
 
@@ -477,9 +498,9 @@ class Home(Handler):
 			return
 
 		elif user_action == 'DeleteEvent':
-			event = Event3.get_by_id(int(event_details['event_id']))
+			event = Event.get_by_id(int(event_details['event_id']))
 			game_log = self.update_game_log(event, self.game_log, delete_event=True)
-			ksu = KSU3.get_by_id(event.ksu_id.id())
+			ksu = KSU.get_by_id(event.ksu_id.id())
 			render_ksu = ksu.in_graveyard
 			ksu.in_graveyard = False
 			ksu.put()
@@ -495,7 +516,7 @@ class Home(Handler):
 
 		elif user_action == 'UpdateKsuAttribute':
 
-			ksu = KSU3.get_by_id(int(event_details['ksu_id']))
+			ksu = KSU.get_by_id(int(event_details['ksu_id']))
 			self.update_ksu_attribute(ksu, event_details['attr_key'], event_details['attr_value'])
 
 			event_dic = None
@@ -506,7 +527,7 @@ class Home(Handler):
 					event = self.create_event(ksu, user_action, {})
 					event.put()	
 					if user_action in ksu.details:
-						Event3.get_by_id(int(ksu.details[user_action])).key.delete()
+						Event.get_by_id(int(ksu.details[user_action])).key.delete()
 					ksu.details['LifePieceTo_' + status] = event.key.id()
 					event_dic = self.event_to_dic(event)
 
@@ -549,7 +570,7 @@ class Home(Handler):
 		
 		elif user_action in ['Activate50SlackCut', 'Activate100SlackCut']:
 					
-			game_log = self.update_game_log(Event3(event_type = user_action), self.game_log)
+			game_log = self.update_game_log(Event(event_type = user_action), self.game_log)
 						
 			self.response.out.write(json.dumps({
 				'mensaje': 'Salck cutter succesfully activated',
@@ -576,7 +597,7 @@ class Home(Handler):
 
 	def update_ksu_attribute(self, ksu, attr_key, attr_value):
 
-		attr_type = KASware3.attributes_guide[attr_key][0]
+		attr_type = constants.attributes_guide[attr_key][0]
 		fixed_key = attr_key
 		fixed_value = attr_value
 		event = None
@@ -599,7 +620,7 @@ class Home(Handler):
 		elif attr_type == 'Key':
 			fixed_value = None
 			if attr_value != '':
-				fixed_value = KSU3.get_by_id(int(attr_value)).key
+				fixed_value = KSU.get_by_id(int(attr_value)).key
 
 		elif attr_type == 'DateTime':
 			fixed_value = None
@@ -631,7 +652,7 @@ class Home(Handler):
 		details_dic = ksu.details
 
 		for attribute in ksu_attributes:
-			attr_type = KASware3.attributes_guide[attribute][0]
+			attr_type = constants.attributes_guide[attribute][0]
 
 			if attr_type in  ['String', 'Text', 'Integer', 'Boolean']:
 				ksu_dic[attribute] = getattr(ksu, attribute)
@@ -661,10 +682,10 @@ class Home(Handler):
 		return event_dic
 
 	def get_ksu_type_attributes(self, ksu_type):
-		attributes = KASware3.ksu_type_attributes['Base'] + KASware3.ksu_type_attributes[ksu_type] 
+		attributes = constants.ksu_type_attributes['Base'] + constants.ksu_type_attributes[ksu_type] 
 		
 		if ksu_type in ['Experience', 'Contribution', 'SelfAttribute', 'Person', 'Possesion', 'Environment']:
-			attributes += KASware3.ksu_type_attributes['LifePiece']
+			attributes += constants.ksu_type_attributes['LifePiece']
 		return attributes
 
 	def update_event_date(self, ksu, user_action):
@@ -790,10 +811,10 @@ class Home(Handler):
 
 		reason_status = 'NoReason'
 		if ksu.reason_id:
-			reason_ksu = KSU3.get_by_id(ksu.reason_id.id())
+			reason_ksu = KSU.get_by_id(ksu.reason_id.id())
 			reason_status = reason_ksu.status
 
-		event = Event3(
+		event = Event(
 			theory_id = ksu.theory_id,
 			ksu_id = ksu.key,
 			description = description,
@@ -814,23 +835,23 @@ class Home(Handler):
 			
 		for time_frame in ['current', 'previous']:
 			
-			for ksu_type in KASware3.ksu_types:
+			for ksu_type in constants.ksu_types:
 				dashboard_base[time_frame][ksu_type[0][0]] = {}
 
-				for event_type in KASware3.event_types:
+				for event_type in constants.event_types:
 					
 					dashboard_base[time_frame][ksu_type[0][0]][event_type] = self.make_template('events_total')
 
-			for event_type in KASware3.event_types:
+			for event_type in constants.event_types:
 
 				dashboard_base[time_frame][event_type] = self.make_template('events_total')
 
 		period_len = end_date.toordinal() - start_date.toordinal() + 1
 		previous_start_date = start_date - timedelta(days=period_len)
 		previous_end_date = start_date - timedelta(days=1)
-		history = Event3.query(Event3.theory_id == self.theory.key).filter(Event3.event_date >= previous_start_date, Event3.event_date <= end_date).order(-Event3.event_date).fetch()
+		history = Event.query(Event.theory_id == self.theory.key).filter(Event.event_date >= previous_start_date, Event.event_date <= end_date).order(-Event.event_date).fetch()
 	
-		ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).fetch()
+		ksu_set = KSU.query(KSU.theory_id == self.theory.key).fetch()
 				
 		monitored_ksus = []
 		monitored_ksus_ids = []
@@ -877,7 +898,7 @@ class Home(Handler):
 					ksu_score_summary[score_type] += event_dic[score_type]	
 
 		for time_frame in ['current', 'previous']:			
-			for event_type in KASware3.event_types:
+			for event_type in constants.event_types:
 				dashboard_base[time_frame][event_type] = self.add_average_to_events_total(dashboard_base[time_frame][event_type], period_len)
 
 		deep_scores = self.calculate_deep_scores(ksu_set, superficial_scores, 4)
@@ -1018,7 +1039,7 @@ class Home(Handler):
 				'sub_sections':[]
 			}
 
-			for ksu_type in KASware3.life_pieces:
+			for ksu_type in constants.life_pieces:
 				section['sub_sections'].append({
 					'glyphicon': ksu_type[1],
 					'score': dashboard_base['current'][ksu_type[0]][event_type]['score'],
@@ -1168,9 +1189,6 @@ class Home(Handler):
 
 		return deep_scores
 
-
-
-
 class Gate(Handler):
 	def get(self):
 		self.print_html('Gate.html')
@@ -1181,7 +1199,7 @@ class Gate(Handler):
 		email = post_details['email']
 		password = post_details['password']
 
-		theory = Theory.valid_login(email, password)
+		theory = self.valid_login(email, password)
 		if theory:
 			self.login(theory)
 			
@@ -1196,7 +1214,7 @@ class Gate(Handler):
 				vip.put()
 
 			elif vip and vip.allow_new_password:
-				theory.password_hash = make_password_hash(email, password)
+				theory.password_hash = self.make_password_hash(email, password)
 				theory.put()
 				vip.allow_new_password = False
 				vip.put()
@@ -1204,27 +1222,11 @@ class Gate(Handler):
 
 		self.redirect('/')
 		
-
-class UpdateVIPlist(Handler):
-	def get(self):
-		email = self.request.get('new_vip')
-		old_vip = VIPlist.get_by_email(email)
-
-		if not old_vip:
-			vip = VIPlist(email=email) 
-			vip.put()
-
-		self.redirect('/')
-		return
-
-		
-
 class LogOut(Handler):
 	def get(self):
 		self.logout()
 		self.redirect('/')
 
-	
 class PicuteUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 	# @super_civilian_bouncer
 	def post(self):		
@@ -1236,7 +1238,7 @@ class PicuteUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 		# logging.info(event_details)
 		# logging.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')	
 
-		ksu = KSU3.get_by_id(int(ksu_id))
+		ksu = KSU.get_by_id(int(ksu_id))
 		upload = self.get_uploads()[0]
 		
 		ksu.pic_key = upload.key();
@@ -1249,6 +1251,19 @@ class PicuteUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 		
 
 #--- Development handlers ----------
+class UpdateVIPlist(Handler):
+	def get(self):
+		email = self.request.get('new_vip')
+		old_vip = VIPlist.get_by_email(email)
+
+		if not old_vip:
+			vip = VIPlist(email=email) 
+			vip.put()
+
+		self.redirect('/')
+		return
+
+
 class PopulateRandomTheory(Handler):
 	
 	def get(self):
@@ -1258,31 +1273,6 @@ class PopulateRandomTheory(Handler):
 	def populateRandomTheory(self):
 		post_details = randomUser.createRandomUser()				
 		self.sign_up_user(post_details)
-
-
-#--- Validation and security functions ----------
-secret = 'elzecreto'
-
-def make_secure_val(val):
-    return '%s|%s' % (val, hashlib.sha256(secret + val).hexdigest())
-
-def check_secure_val(secure_val):
-	val = secure_val.split('|')[0]
-	if secure_val == make_secure_val(val):
-		return val
-
-def make_salt(lenght = 5):
-    return ''.join(random.choice(string.letters) for x in range(lenght))
-
-def make_password_hash(email, password, salt = None):
-	if not salt:
-		salt = make_salt()
-	h = hashlib.sha256(email + password + salt).hexdigest()
-	return '%s|%s' % (h, salt)
-
-def validate_password(email, password, h):
-	salt = h.split('|')[1]
-	return h == make_password_hash(email, password, salt)
 
 
 

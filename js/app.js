@@ -827,6 +827,34 @@ $(document).on('change', '.pic_input', function(){
 });
 
 
+$(document).on('focusin.autoExpand', 'textarea.autoExpand', function(){
+	var savedValue = this.value;
+	this.value = '';
+	this.rows = 1;
+	this.baseScrollHeight = this.scrollHeight;
+
+	this.rows = 2
+	this.lineHeight = this.scrollHeight - this.baseScrollHeight
+
+	this.rows = 1;
+	this.value = savedValue;        
+
+	rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / this.lineHeight); 
+	this.rows = 1 + rows;
+	})
+		.on('input.autoExpand', 'textarea.autoExpand', function(){
+			var minRows = 1 //this.getAttribute('data-min-rows')|0, rows;
+			this.rows = minRows;
+			rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / this.lineHeight); 
+			this.rows = minRows + rows;
+	});
+	function AdjustTextAreaHeight(target_textarea){
+		var scrollHeight = target_textarea[0].scrollHeight
+		var lineHeight = parseInt(target_textarea.css('line-height').replace('px',''));      	
+		target_textarea[0].rows = Math.ceil((scrollHeight - 4)/lineHeight)
+}
+
+
 function get_ksu_attr_value(ksu, attr_key){
 	// console.log(attr_key)
 	var KsuAttr = ksu.find('#' + attr_key)
@@ -1617,51 +1645,5 @@ var section_details = {
 	'piggy_bank': {'title': 'Piggy Bank', 'new_ksu_type': 'disabled', 'holder':'PiggyBankHolder'},
 	'streak':{'title': 'Flame Log', 'new_ksu_type': 'disabled', 'holder':'StreakHolder'},	
 }
-
-
-
-
-$(document).on('focusin.autoExpand', 'textarea.autoExpand', function(){
-        var savedValue = this.value;
-        this.value = '';
-        this.rows = 1;
-        this.baseScrollHeight = this.scrollHeight;
-        
-        this.rows = 2
-        this.lineHeight = this.scrollHeight - this.baseScrollHeight
-
-        this.rows = 1;
-        this.value = savedValue;        
- 
-        rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / this.lineHeight); 
-        this.rows = 1 + rows;
-
-    })
-    .on('input.autoExpand', 'textarea.autoExpand', function(){
-        var minRows = 1 //this.getAttribute('data-min-rows')|0, rows;
-        this.rows = minRows;
-        rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / this.lineHeight); 
-        this.rows = minRows + rows;
-    });
-	function AdjustTextAreaHeight(target_textarea){
-			var scrollHeight = target_textarea[0].scrollHeight
-			var lineHeight = parseInt(target_textarea.css('line-height').replace('px',''));      	
-			target_textarea[0].rows = Math.ceil((scrollHeight - 4)/lineHeight)
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
