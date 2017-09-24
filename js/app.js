@@ -1,6 +1,3 @@
-// Validated for KASware3
-
-// ------- Triggers ----
 var ksu_type_attributes, attributes_guide, reasons_guide, $zoom, t, start_time;
 
 $(document).ready(function(){
@@ -51,10 +48,8 @@ $(document).ready(function(){
 	})
 
 	$('#center_column').css({'height': $(window).height()})
-	$('#SectionSelectionBar').css({'min-height': $(window).height()})
-	
+	$('#SectionSelectionBar').css({'min-height': $(window).height()})	
 });
-
 
 
 $(window).on('resize', function(){
@@ -85,38 +80,45 @@ $('.SectionButton').on('click', function(){
 
 
 $('#CreateNewKSU').on('click',function(){
-	var selected_section = $('.SelectedSection').first().attr('value');
-	var ksu_type = section_details[selected_section]['new_ksu_type'];
-	var new_ksu = $('#KSUTemplate').clone();
+	CreateNewKSU()
 	
-	new_ksu = FixTemplateBasedOnKsuType(new_ksu, ksu_type)
-	new_ksu.attr('id', 'KSU');
-	new_ksu.attr('ksu_type', ksu_type)
-	new_ksu.find('#ksu_type').attr('value', ksu_type);
-	
-	new_ksu.find('#glyphicon').addClass(ksu_type_glyphicons[ksu_type])
-	new_ksu.find('#ShowDetailButton').addClass('hidden');
-	new_ksu.find('#SaveNewKSUButton').removeClass('hidden');
-	
-	new_ksu = add_reason_select_to_ksu(new_ksu, false);
-	new_ksu.prependTo('#TheoryHolder');
-	// console.log($('#ksu_subtype').val())
-	new_ksu = FixTemplateBasedOnKsuSubtype(new_ksu, $('#ksu_subtype').val());
-	new_ksu.removeClass('hidden');
-	// new_ksu.show()
-	new_ksu.find('#description').focus();
-	
+	function CreateNewKSU(){
+		var selected_section = $('.SelectedSection').first().attr('value');
+		var ksu_type = section_details[selected_section]['new_ksu_type'];
+		var new_ksu = $('#KSUTemplate').clone();
+		
+		new_ksu = FixTemplateBasedOnKsuType(new_ksu, ksu_type)
+		new_ksu.attr('id', 'KSU');
+		new_ksu.attr('ksu_type', ksu_type)
+		new_ksu.find('#ksu_type').attr('value', ksu_type);
+		
+		new_ksu.find('#glyphicon').addClass(ksu_type_glyphicons[ksu_type])
+		new_ksu.find('#ShowDetailButton').addClass('hidden');
+		new_ksu.find('#SaveNewKSUButton').removeClass('hidden');
+		
+		new_ksu = add_reason_select_to_ksu(new_ksu, false);
+		new_ksu.prependTo('#TheoryHolder');
+		// console.log($('#ksu_subtype').val())
+		new_ksu = FixTemplateBasedOnKsuSubtype(new_ksu, $('#ksu_subtype').val());
+		new_ksu.removeClass('hidden');
+		// new_ksu.show()
+		new_ksu.find('#description').focus();
+		
 
-	if(ksu_type != 'Action'){
-		ShowDetail(new_ksu);	
-	}
-	
+		if(ksu_type != 'Action'){
+			ShowDetail(new_ksu);	
+		}
+		
 
-	if(selected_section == 'mission'){
-		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
-		set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
+		if(selected_section == 'mission'){
+			var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+			set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
+		}
+		return new_ksu
 	}
 });
+
+
 
 
 $(document).on('click', '.KsuActionButton', function(){
@@ -147,6 +149,8 @@ $(document).on('click', '.KsuActionButton', function(){
 	$(this).prop("disabled",false);
 
 	function SaveNewKSU(ksu){
+		$('#CreateNewKSU').focus()
+
 		ksu.attr("value","")
 		
 		var lower_importance = parseInt(ksu.next().attr("importance"));
@@ -202,7 +206,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		} else {
 			$.ajax({
 				type: "POST",
-				url: "/KASware3",
+				url: "/",
 				dataType: 'json',
 				data: JSON.stringify({
 					'user_action': 'DeleteKSU',
@@ -538,7 +542,7 @@ $(document).on('click', '.EventActionButton', function(){
 		console.log('Deleting event...')
 		$.ajax({
 			type: "POST",
-			url: "/KASware3",
+			url: "/",
 			dataType: 'json',
 			data: JSON.stringify({
 				'user_action': 'DeleteEvent',
