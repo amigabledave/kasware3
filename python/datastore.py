@@ -57,7 +57,6 @@ class VIPlist(ndb.Model):
 		return VIPlist.query(VIPlist.email == email).get()
 
 
-
 class GameLog(ndb.Model):
 	theory_id = ndb.KeyProperty(kind=Theory, required=True)
 	created = ndb.DateTimeProperty(auto_now_add=True)
@@ -102,7 +101,8 @@ class KSU3(ndb.Model):
 	event_date = ndb.DateTimeProperty()
 
 	status = ndb.StringProperty() #Wish, Present, Past #Remplaza is_realized e is_active #Indicates if a 'LifePiece' is either a wish or a RTBG or part of my life situation. And if an objective is acomplished or not.
-	
+	importance = ndb.IntegerProperty(default=0)
+
 	in_graveyard = ndb.BooleanProperty(default=False) 
 	needs_mtnc = ndb.BooleanProperty(default=False) #Indicates if a 'LifePiece' requires additional effort to be preserved on a realized state 	
 	is_private = ndb.BooleanProperty(default=False)

@@ -408,7 +408,7 @@ class Home(Handler):
 			return	
 
 		elif user_action == 'RetrieveTheory':
-			ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).filter(KSU3.in_graveyard == False).fetch()
+			ksu_set = KSU3.query(KSU3.theory_id == self.theory.key).filter(KSU3.in_graveyard == False).order(-KSU3.importance).fetch()
 			ksu_output = []			
 			reasons_index = []
 			

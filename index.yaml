@@ -628,6 +628,13 @@ indexes:
 
 - kind: KSU3
   properties:
+  - name: in_graveyard
+  - name: theory_id
+  - name: importance
+    direction: desc
+
+- kind: KSU3
+  properties:
   - name: status
   - name: theory_id
   - name: event_date

@@ -111,6 +111,7 @@ attributes_guide = {
 	
 	'size': ['Integer', 'Radio'],
 	'counter': ['Integer', 'Standard'],
+	'importance': ['Integer', 'Standard'],
 	'event_date': ['DateTime', 'Standard'],
 
 	'status': ['String', 'Select'],
@@ -175,7 +176,8 @@ ksu_type_attributes = {
 		'ksu_subtype', 
 		'reason_id',
 		'link_type',
-		
+		'importance',
+
 		'description', 
 		# 'pic_key',
 		'pic_url',
