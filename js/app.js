@@ -110,12 +110,8 @@ $('#CreateNewKSU').on('click',function(){
 		// new_ksu.show()
 		new_ksu.find('#description').focus();
 		
-
-		if(ksu_type != 'Action'){
-			ShowDetail(new_ksu);	
-		}
+		ShowDetail(new_ksu);	
 		
-
 		if(selected_section == 'mission'){
 			var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
 			set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
@@ -191,9 +187,8 @@ $(document).on('click', '.KsuActionButton', function(){
 			
 			ksu.find('#ShowDetailButton').removeClass('hidden');
 			ksu.find('#SaveNewKSUButton').addClass('hidden');
-			if(get_ksu_attr_value(ksu, 'ksu_type') != 'Action'){
-				ShowDetail(ksu);	
-			};
+			
+			ShowDetail(ksu);			
 			AddReasonToSelect(data['ksu_id'], get_ksu_attr_value(ksu, 'ksu_subtype'), ksu.find('#description').val());
 
 			if(ksu.hasClass('PictureOnStandBy')){
@@ -710,7 +705,7 @@ $(document).on('change', '.SubtypeSelect', function(){
 
 
 $(document).on('change', '.ReasonSelect', function(){
-	
+	console.log('Hasta aqui si estamos...')
 	var ksu = $(this).closest('#KSU');
 	var attr_value = get_ksu_attr_value(ksu, $(this).attr("name"));
 	var old_value = ksu.find('#reason_holder').attr('reason_id');
