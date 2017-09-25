@@ -48,7 +48,7 @@ $(document).ready(function(){
 		
 		$("#strategy_ksu").find('#reason_label').text('Show strategy for')
 		console.log($("#strategy_ksu").find('#reason_placeholder'))
-		$("#strategy_ksu").find("#reason_id-selectized").attr('placeholder', 'Choose a target')
+		$("#strategy_ksu").find("#reason_id-selectized").attr('placeholder', 'Choose target life piece')
 		
 		// xx
 	})
