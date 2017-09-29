@@ -117,16 +117,17 @@ $('#CreateNewKSU').on('click',function(){
 		
 		new_ksu = add_reason_select_to_ksu(new_ksu, false);
 		new_ksu.prependTo('#TheoryHolder');
+		
 		// console.log($('#ksu_subtype').val())
 		new_ksu = FixTemplateBasedOnKsuSubtype(new_ksu, $('#ksu_subtype').val());
 		new_ksu.removeClass('hidden');
 		// new_ksu.show()
-		new_ksu.find('#description').focus();
-		
 		if(strategy_ksu_id){new_ksu.find('#reason_holder').attr('reason_id', strategy_ksu_id)}
 
-		ShowDetail(new_ksu);	
-		
+		ShowDetail(new_ksu);		
+		new_ksu.find('#description').focus();
+
+
 		if(selected_section == 'mission'){
 			// var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
 			var TodayDate = user_today;	
@@ -169,13 +170,21 @@ $(document).on('click', '.KsuActionButton', function(){
 
 		ksu.attr("value","")
 		
-		var lower_importance = parseInt(ksu.next().attr("importance"));
+		// var lower_importance = parseInt(ksu.next().attr("importance"));
 		
-		if (isNaN(lower_importance)){
-			lower_importance = 0;
+		// if (isNaN(lower_importance)){
+		// 	lower_importance = 0;
+		// }
+
+		// var importance = lower_importance + 10000
+		console.log($('.KSU').last())
+		var top_importance = parseInt($('.KSU').last().attr("importance"));
+		console.log(top_importance)
+		if (isNaN(top_importance)){
+			top_importance = 0;
 		}
 
-		var importance = lower_importance + 10000
+		var importance = top_importance + 10000
 		
 		ksu.attr("importance",importance)
 		
@@ -198,7 +207,7 @@ $(document).on('click', '.KsuActionButton', function(){
 			dataType: 'json',
 			data: JSON.stringify(attributes_dic)
 		}).done(function(data){
-			// console.log(data); 
+			// console.log(data);
 			ksu.attr("value",data['ksu_id']);
 			
 			ksu.find('#ShowDetailButton').removeClass('hidden');
@@ -216,7 +225,9 @@ $(document).on('click', '.KsuActionButton', function(){
 				ksu.removeClass('PictureOnStandBy');
 				ksu.find('#SavePic').trigger('click');
 			}
-			FixKsuVisibility(ksu)	
+			FixKsuVisibility(ksu)
+			ksu.appendTo('#TheoryHolder');
+
 		});	
 	};
 
@@ -898,7 +909,8 @@ function render_ksu(ksu_dic){
 
 	ksu.find('#reason_holder').attr('reason_id', ksu_dic['reason_id'])
 
-	ksu.prependTo('#TheoryHolder');
+	// ksu.prependTo('#TheoryHolder');
+	ksu.appendTo('#TheoryHolder');
 	ksu.removeClass('hidden');
 
 	if('best_time' in ksu_dic && ksu_dic['best_time'] != ''){
