@@ -390,6 +390,7 @@ class Home(Handler):
 				'game_log': self.game_log_to_dic(game_log),
 				'event_dic':event_dic,
 				'in_graveyard': ksu.in_graveyard,
+				'ksu_dic': self.ksu_to_dic(ksu),
 				}))
 			return
 
@@ -455,6 +456,7 @@ class Home(Handler):
 				'game_log': self.game_log_to_dic(self.game_log),
 				'game_logs': game_logs_output,
 				'reasons_index':reasons_index,
+				'user_today':(datetime.today()+timedelta(hours=int(self.theory.settings['timezone']))+timedelta(days=time_travel)).strftime('%Y-%m-%d'),
 				'ksu_type_attributes': constants.ksu_type_attributes,
 				'attributes_guide': constants.attributes_guide,
 				'reasons_guide': constants.reasons_guide,
@@ -696,7 +698,7 @@ class Home(Handler):
 
 		if user_action in ['Action_Done', 'Action_Skipped']:
 			repeats = ksu_details['repeats']
-			
+
 			if repeats == 'Never':
 				ksu.event_date = None
 			
@@ -704,6 +706,7 @@ class Home(Handler):
 				ksu.event_date = today
 
 			elif repeats == 'X_Days':
+				
 				x_days = int(ksu.details['every_x_days'])
 				ksu.event_date = today + timedelta(days=x_days)
 				

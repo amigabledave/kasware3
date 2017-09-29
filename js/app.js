@@ -1,4 +1,8 @@
-var ksu_type_attributes, attributes_guide, reasons_guide, $zoom, t, start_time;
+var ksu_type_attributes, attributes_guide, reasons_guide, $zoom, t, start_time, user_today;
+
+//Visibility variables
+var selected_section, section_ksu_type, search_string, hide_private_ksus;
+
 
 $(document).ready(function(){
 	$.ajax({
@@ -14,7 +18,11 @@ $(document).ready(function(){
 		// console.log(data)
 		ksu_type_attributes = data['ksu_type_attributes']
 		attributes_guide = data['attributes_guide']
-		reasons_guide = data['reasons_guide']		
+		reasons_guide = data['reasons_guide']
+		user_today = data['user_today']	
+		selected_section = $('.SelectedSection').first().attr('value');	
+		section_ksu_type = section_details[selected_section]['new_ksu_type'];
+		hide_private_ksus = $('#hide_private_ksus').prop("checked")		
 		// console.log(reasons_guide)	
 		RenderReasonsIndex(data['reasons_index'])
 		
@@ -46,11 +54,9 @@ $(document).ready(function(){
 		$("#TheoryHolder").sortable();
 		add_reason_select_to_ksu($("#strategy_ksu"), '')
 		
-		$("#strategy_ksu").find('#reason_label').text('Show strategy for')
+		$("#strategy_ksu").find('#reason_label').text('Show pieces connected to:')
 		console.log($("#strategy_ksu").find('#reason_placeholder'))
 		$("#strategy_ksu").find("#reason_id-selectized").attr('placeholder', 'Choose target life piece')
-		
-		// xx
 	})
 
 	$('#center_column').css({'height': $(window).height()})
@@ -65,12 +71,15 @@ $(window).on('resize', function(){
 
 
 $('.SectionButton').on('click', function(){
-	var section = $(this).attr('value');
+	section = $(this).attr('value');
+	
 	$('.SelectedSection').removeClass('SelectedSection')
 	$(this).addClass('SelectedSection').blur()
 	
-	 if(section != 'more'){
-		$('#SectionTitle').text(section_details[section]['title']);
+	if(section != 'more'){
+		$('#SectionTitle').text(section_details[selected_section]['title']);
+		selected_section = section
+		section_ksu_type = section_details[selected_section]['new_ksu_type'];
 		FixTheoryView()
 		window.scrollTo(0, 0);
 	
@@ -89,8 +98,7 @@ $('#CreateNewKSU').on('click',function(){
 	CreateNewKSU()
 	
 	function CreateNewKSU(){
-		var selected_section = $('.SelectedSection').first().attr('value');
-		var ksu_type = section_details[selected_section]['new_ksu_type'];
+		var ksu_type = section_ksu_type;
 		var new_ksu = $('#KSUTemplate').clone();
 		
 		new_ksu = FixTemplateBasedOnKsuType(new_ksu, ksu_type)
@@ -113,7 +121,8 @@ $('#CreateNewKSU').on('click',function(){
 		ShowDetail(new_ksu);	
 		
 		if(selected_section == 'mission'){
-			var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+			// var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+			var TodayDate = user_today;	
 			set_ksu_attr_value(new_ksu, 'event_date', TodayDate)
 		}
 		return new_ksu
@@ -188,14 +197,15 @@ $(document).on('click', '.KsuActionButton', function(){
 			ksu.find('#ShowDetailButton').removeClass('hidden');
 			ksu.find('#SaveNewKSUButton').addClass('hidden');
 			
-			ShowDetail(ksu);			
+			ShowDetail(ksu);						
 			AddReasonToSelect(data['ksu_id'], get_ksu_attr_value(ksu, 'ksu_subtype'), ksu.find('#description').val());
 
 			if(ksu.hasClass('PictureOnStandBy')){
 				AddKsu_idToPicInput(ksu);
 				ksu.removeClass('PictureOnStandBy');
 				ksu.find('#SavePic').trigger('click');
-			}	
+			}
+			FixKsuVisibility(ksu)	
 		});	
 	};
 
@@ -230,6 +240,7 @@ $(document).on('click', '.KsuActionButton', function(){
 
 	function ShowKsuDetail(ksu){
 		ShowDetail(ksu);
+		FixKsuVisibility(ksu) 
 		return
 	};
 
@@ -246,9 +257,7 @@ $(document).on('click', '.KsuActionButton', function(){
 			})
 		}).done(function(data){			
 			console.log(data); 
-			set_ksu_attr_value(ksu, 'event_date', data['new_event_date'])
-			var selected_section = $('.SelectedSection').first().attr('value');
-			
+			set_ksu_attr_value(ksu, 'event_date', data['new_event_date'])						
 			if(selected_section == 'mission' && inList(action, ['Action_Skipped','Action_Pushed'])){
 				ksu.addClass('hidden');				
 			}
@@ -263,6 +272,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		var ksu_subtype = get_ksu_attr_value(ksu, 'ksu_subtype');
 		var score =	ksu.find('#'+ ksu_subtype +'_Merits').text();
 		ksu.fadeOut('slow');
+		ksu.remove()
 		$.ajax({
 			type: "POST",
 			url: "/",
@@ -278,10 +288,9 @@ $(document).on('click', '.KsuActionButton', function(){
 			console.log(data); 
 			
 			if(!data['in_graveyard']){
-				ksu.fadeIn('slow')
-			} else {
-				ksu.remove()
-			}
+				var updated_ksu = render_ksu(data['ksu_dic']);
+				FixKsuVisibility(updated_ksu, $('.SelectedSection').first().attr('value'), {})		
+			} 
 
 			AdjustGame(data['game_log'])			
 			render_event(data['event_dic'])
@@ -651,14 +660,15 @@ $(document).on('focusin', '.TheoryAttr', function(){
 	if (theory.attr("value") == ''){return};
 
 	var initial_attr_value = get_ksu_attr_value(theory, $(this).attr("name"));
-	console.log('Se reconocio que se esta acutalizando un attributo')
-	console.log(initial_attr_value)
+	// console.log('Se reconocio que se esta acutalizando un attributo')
+	// console.log(initial_attr_value)
 	$(this).on('focusout', function(){
 		
 		var attr_value = get_ksu_attr_value(theory, $(this).attr("name"));
 		
 		if(initial_attr_value != attr_value){
 			// console.log('Se reconocio que el attributo cambio')
+			hide_private_ksus = $('#hide_private_ksus').prop("checked")
 			var theory_id = theory.attr("value");
 			var attr_key = $(this).attr("name");						
 			$.ajax({
@@ -887,6 +897,8 @@ function render_ksu(ksu_dic){
 	FormatBasedOnStatus(ksu, ksu_dic['status'])
 
 	AdjustTextAreaHeight(ksu.find('#description'))
+
+	return ksu
 }
 
 
@@ -1168,7 +1180,7 @@ function AddReasonToSelect(ksu_id, ksu_subtype, description){
 	$('#reasons_select').append($('<option>', {value:ksu_id, text:description, ksu_subtype:ksu_subtype}));
 };
 
-// xx
+
 function add_reason_select_to_ksu(ksu, reason_id){
 	// var selected_option = ksu.find('#reason').val()
 	ksu.find('#reason_holder').empty()
@@ -1301,9 +1313,80 @@ function UpdateKsuAttribute(ksu_id, attr_key, attr_value){
 };
 
 
-function FixTheoryView(){
-	var selected_section = $('.SelectedSection').first().attr('value');
-	var section_ksu_type = section_details[selected_section]['new_ksu_type'];
+function FixKsuVisibility(ksu){
+	
+	ksu.addClass('hidden')
+	
+	if(hide_private_ksus && get_ksu_attr_value(ksu, 'is_private')){return}
+
+	var is_visible = true
+
+	if(selected_section == 'mission'){
+		is_visible = InMission(ksu)
+
+	} else if(selected_section == 'purpose'){
+		is_visible = InPurpose(ksu)
+
+	} else if( selected_section != 'search'){
+		is_visible = ksu.attr('ksu_type') == section_ksu_type 
+
+	} else {
+		is_visible = InSearch(ksu, search_string)
+	}
+
+	if(is_visible){
+		ksu.removeClass('hidden')
+	}
+
+	function InSearch(ksu, search_string){
+		if (ksu.attr("value") == ''){return false};
+		var search_range = '';
+		var textareas = ksu.find('textarea');
+		
+		for (var i = textareas.length - 1; i >= 0; i--) {			
+			search_range = search_range + ' ' + $(textareas[i]).val()
+		}
+		search_range = search_range + ' ' + ksu.find('#tag').val()
+		
+		get_ksu_attr_value(ksu, 'description');
+		
+		search_range = search_range.toLowerCase()	
+		var words_searched = search_string.toLowerCase().split();
+		
+		for (var j = words_searched.length - 1; j >= 0; j--) {
+			if(!search_range.includes(words_searched[j]))
+			return false 
+		}
+
+		return true
+	}
+
+	function InMission(ksu){
+		// var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+		var TodayDate = user_today;
+		var target_date = get_ksu_attr_value(ksu, 'event_date');
+		var ksu_type = get_ksu_attr_value(ksu, 'ksu_type');
+
+		if(target_date == '' || !(inList(ksu_type, ['Action', 'Indicator']))){
+			return false
+		}
+		return target_date <= TodayDate
+	}
+
+	function InPurpose(ksu){
+		var ksu_type = get_ksu_attr_value(ksu, 'ksu_type');
+		var status = get_ksu_attr_value(ksu, 'status');
+
+		if(status == 'Pursuit' && ksu_type != 'Action'){
+			return true
+		}
+
+		return false	
+	}
+}
+
+
+function FixTheoryView(){	
 	var holder = section_details[selected_section]['holder'];
 
 	var holders = ['TheoryHolder', 'HistoryHolder', 'SettingsHolder', 'DashboardHolder', 'StreakHolder', 'PiggyBankHolder'];
@@ -1313,49 +1396,23 @@ function FixTheoryView(){
 	
 	$('#' + holder).removeClass('hidden')
 
-
 	if( holder == 'TheoryHolder'){
-		var ksu_set = $('.KSU');
 
+		var ksu_set = $('.KSU');
+		search_string = $('#search_string').val()
+		
 		for (var i = ksu_set.length - 1; i >= 0; i--) {
 			var ksu = $(ksu_set[i]);
+			FixKsuVisibility(ksu)
 			
-			if(selected_section == 'mission'){
-				ksu.addClass('hidden');
-				if(InMission(ksu)){
-					ksu.removeClass('hidden');
-				}
-
-			} else if(selected_section == 'purpose'){
-
-				ksu.addClass('hidden');
-				if(InPurpose(ksu)){
-					ksu.removeClass('hidden');
-				}
-
-			} else if( selected_section != 'search'){				
-				if(ksu.attr('ksu_type') == section_ksu_type){
-					ksu.removeClass('hidden');
-				} else {
-					ksu.addClass('hidden');
-				}
-
-			} else {
-				var search_string = $('#search_string').val()
-				
-				if(InSearch(ksu, search_string)){
-					ksu.removeClass('hidden');
-				} else {
-					ksu.addClass('hidden');
-				}
-			}
 		}		
 	} 
 
 	if( holder == 'DashboardHolder'){
 
-		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
-		
+		// var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+		var TodayDate = user_today;
+
 		var period_end_date = $('#period_end_date')
 		var period_duration = $('#period_duration')
 		
@@ -1382,52 +1439,6 @@ function FixTheoryView(){
 	}
 	
 	$('#CreateNewKSU').prop("disabled", section_ksu_type == 'disabled')
-
-
-	function InSearch(ksu, search_string){
-		if (ksu.attr("value") == ''){return false};
-		var search_range = '';
-		var textareas = ksu.find('textarea');
-		
-		for (var i = textareas.length - 1; i >= 0; i--) {			
-			search_range = search_range + ' ' + $(textareas[i]).val()
-		}
-		search_range = search_range + ' ' + ksu.find('#tag').val()
-		
-		get_ksu_attr_value(ksu, 'description');
-		
-		search_range = search_range.toLowerCase()	
-		var words_searched = search_string.toLowerCase().split();
-		
-		for (var j = words_searched.length - 1; j >= 0; j--) {
-			if(!search_range.includes(words_searched[j]))
-			return false 
-		}
-
-		return true
-	}
-
-	function InMission(ksu){
-		var TodayDate = new Date().toJSON().slice(0,10).replace(/-/g,'-');
-		var target_date = get_ksu_attr_value(ksu, 'event_date');
-		var ksu_type = get_ksu_attr_value(ksu, 'ksu_type');
-
-		if(target_date == '' || !(inList(ksu_type, ['Action', 'Indicator']))){
-			return false
-		}
-		return target_date <= TodayDate
-	}
-
-	function InPurpose(ksu){
-		var ksu_type = get_ksu_attr_value(ksu, 'ksu_type');
-		var status = get_ksu_attr_value(ksu, 'status');
-
-		if(status == 'Pursuit' && ksu_type != 'Action'){
-			return true
-		}
-
-		return false	
-	}	
 };
 
 
@@ -1462,6 +1473,7 @@ function FormatBasedOnStatus(ksu, status){
 		}
 	}
 }
+
 
 function add(target_timer, starting_minutes) {	
     
@@ -1556,7 +1568,6 @@ function RenderDashboard(dashboard_sections){
 		template.removeClass('hidden');
 		template.prependTo('#DashboardHolder');
 	}
-
 }
 
 function RenderDashboardSubsection(sub_section_dic, sub_section_template){
