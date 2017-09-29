@@ -255,8 +255,25 @@ $(document).on('click', '.KsuActionButton', function(){
 		return
 	};
 
-	function UpdateEventDate(ksu){
+	function UpdateEventDate(ksu){		
 		console.log('Update event date...')
+		if(ksu.attr("value")==''){
+			var event_date = '';
+			if(action == 'Action_Pushed') {
+				var TodaysDate = new Date();	
+				var system_today = TodaysDate.toJSON().slice(0,10).replace(/-/g,'-')		
+
+				var additional_days = 0
+				if(system_today == user_today){additional_days = 1}
+				
+				event_date = new Date(TodaysDate.getFullYear(), TodaysDate.getMonth(), TodaysDate.getDate() + additional_days, 0, 0, 0, 0).toJSON().slice(0,10).replace(/-/g,'-')				
+			} else if(action == 'SendToMission'){
+				event_date = user_today
+			}
+			set_ksu_attr_value(ksu, 'event_date', event_date)
+			return
+		}
+		
 		$.ajax({
 			type: "POST",
 			url: "/",
@@ -735,7 +752,6 @@ $('#strategy_ksu').on('change', function(){
 
 
 $(document).on('change', '.ReasonSelect', function(){
-	console.log('Hasta aqui si estamos...')
 	var ksu = $(this).closest('#KSU');
 	var attr_value = get_ksu_attr_value(ksu, $(this).attr("name"));
 	var old_value = ksu.find('#reason_holder').attr('reason_id');
