@@ -1,7 +1,7 @@
 var ksu_type_attributes, attributes_guide, reasons_guide, $zoom, t, start_time, user_today;
 
 //Visibility variables
-var selected_section, section_ksu_type, search_string, hide_private_ksus;
+var selected_section, section_ksu_type, search_string, strategy_ksu_id, hide_private_ksus;
 
 
 $(document).ready(function(){
@@ -52,16 +52,19 @@ $(document).ready(function(){
 		FixTheoryView()
 
 		$("#TheoryHolder").sortable();
-		add_reason_select_to_ksu($("#strategy_ksu"), '')
-		
-		$("#strategy_ksu").find('#reason_label').text('Show pieces connected to:')
-		console.log($("#strategy_ksu").find('#reason_placeholder'))
-		$("#strategy_ksu").find("#reason_id-selectized").attr('placeholder', 'Choose target life piece')
+		fix_strategy_ksu('')
 	})
 
 	$('#center_column').css({'height': $(window).height()})
 	$('#SectionSelectionBar').css({'min-height': $(window).height()})	
 });
+
+
+function fix_strategy_ksu(ksu_id){
+	add_reason_select_to_ksu($("#strategy_ksu"), ksu_id)
+	$("#strategy_ksu").find('#reason_label').text('Show pieces connected to:')
+	$("#strategy_ksu").find('.ReasonSelect').removeClass('ReasonSelect');
+}
 
 
 $(window).on('resize', function(){
@@ -77,11 +80,15 @@ $('.SectionButton').on('click', function(){
 	$(this).addClass('SelectedSection').blur()
 	
 	if(section != 'more'){
-		$('#SectionTitle').text(section_details[selected_section]['title']);
+		fix_strategy_ksu('')
+		strategy_ksu_id = undefined
+
+		$('#SectionTitle').text(section_details[section]['title']);
 		selected_section = section
 		section_ksu_type = section_details[selected_section]['new_ksu_type'];
 		FixTheoryView()
 		window.scrollTo(0, 0);
+		ShowOptionsBasedOnView(section)
 	
 	} else {
 		$('#more_buttons').toggleClass('hidden')
@@ -89,8 +96,6 @@ $('.SectionButton').on('click', function(){
 		$('#ShowLessSpan').toggleClass('hidden')
 		
 	}
-
-	ShowOptionsBasedOnView(section)
 });
 
 
@@ -118,6 +123,8 @@ $('#CreateNewKSU').on('click',function(){
 		// new_ksu.show()
 		new_ksu.find('#description').focus();
 		
+		if(strategy_ksu_id){new_ksu.find('#reason_holder').attr('reason_id', strategy_ksu_id)}
+
 		ShowDetail(new_ksu);	
 		
 		if(selected_section == 'mission'){
@@ -181,7 +188,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		} 
 		
 		attributes_dic['user_action'] = 'SaveNewKSU';
-		attributes_dic['reason_id'] = $('#reason_holder').attr('reason_id');
+		attributes_dic['reason_id'] = ksu.find('#reason_holder').attr('reason_id');		
 		attributes_dic['importance'] = importance;
 		console.log(attributes_dic);
 
@@ -197,8 +204,12 @@ $(document).on('click', '.KsuActionButton', function(){
 			ksu.find('#ShowDetailButton').removeClass('hidden');
 			ksu.find('#SaveNewKSUButton').addClass('hidden');
 			
-			ShowDetail(ksu);						
+			ShowDetail(ksu);
+
 			AddReasonToSelect(data['ksu_id'], get_ksu_attr_value(ksu, 'ksu_subtype'), ksu.find('#description').val());
+
+			console.log($('#strategy_ksu').find('#reason_id').val())
+			fix_strategy_ksu($('#strategy_ksu').find('#reason_id').val());
 
 			if(ksu.hasClass('PictureOnStandBy')){
 				AddKsu_idToPicInput(ksu);
@@ -714,6 +725,15 @@ $(document).on('change', '.SubtypeSelect', function(){
 });
 
 
+$('#strategy_ksu').on('change', function(){
+	var new_strategy_ksu_id = $('#strategy_ksu').find('#reason_id').val()
+	if (strategy_ksu_id != new_strategy_ksu_id){
+		strategy_ksu_id = new_strategy_ksu_id		
+		FixTheoryView()
+	}	
+})
+
+
 $(document).on('change', '.ReasonSelect', function(){
 	console.log('Hasta aqui si estamos...')
 	var ksu = $(this).closest('#KSU');
@@ -725,7 +745,7 @@ $(document).on('change', '.ReasonSelect', function(){
 	// if (ksu.attr("value") == ''){return};
 	
 	var ksu_id = ksu.attr("value");
-	HideShowLinkType(ksu)
+	// HideShowLinkType(ksu)
 	
 	if (ksu.attr("value") != ''){UpdateKsuAttribute(ksu_id, 'reason_id', attr_value)};
 });
@@ -1181,6 +1201,8 @@ function AddReasonToSelect(ksu_id, ksu_subtype, description){
 };
 
 
+
+
 function add_reason_select_to_ksu(ksu, reason_id){
 	// var selected_option = ksu.find('#reason').val()
 	ksu.find('#reason_holder').empty()
@@ -1209,10 +1231,16 @@ function remove_reason_select_from_ksu(ksu){
 
 function ShowOptionsBasedOnView(target_view){
 	var side_options = $('.SideOption');
+
 	for (var i = side_options.length - 1; i >= 0; i--) {
 		var option = $(side_options[i]);
 		option.addClass('hidden')
-		if( option.attr('target_view').includes(target_view)){
+		var option_views = option.attr('target_view')
+		if( option_views == 'theory'){
+			option_views = 'mission kas objectives purpose contributions experiences mybestself people possesions environment wisdom indicators search' 
+		}
+
+		if( option_views.includes(target_view)){
 			option.removeClass('hidden')
 		}
 	}
@@ -1318,6 +1346,11 @@ function FixKsuVisibility(ksu){
 	ksu.addClass('hidden')
 	
 	if(hide_private_ksus && get_ksu_attr_value(ksu, 'is_private')){return}
+
+	if(strategy_ksu_id){
+		var reason_id = ksu.find('#reason_holder').attr('reason_id')
+		if(strategy_ksu_id != reason_id){return}
+	}
 
 	var is_visible = true
 
@@ -1649,5 +1682,4 @@ var section_details = {
 	'piggy_bank': {'title': 'Piggy Bank', 'new_ksu_type': 'disabled', 'holder':'PiggyBankHolder'},
 	'streak':{'title': 'Flame Log', 'new_ksu_type': 'disabled', 'holder':'StreakHolder'},	
 }
-
-
+	

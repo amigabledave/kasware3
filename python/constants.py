@@ -203,7 +203,7 @@ ksu_type_attributes = {
 		'ksu_type', 
 		'ksu_subtype', 
 		'reason_id',
-		'link_type',
+		# 'link_type',
 		'importance',
 
 		'description', 
