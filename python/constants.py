@@ -51,7 +51,7 @@ ksu_types = [
 	]],
 	
 	#Life Pieces
-	[['Experience', 'Joy Generator', 'experiences'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
+	[['Experience', 'Generator', 'experiences'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
 		['Moment', 'Moment', True], # Una experiencia que tiene un antes y un despues				
 		['JoyMine', 'Joy Mine', ''], # Un tipo de momento mas que un momento en particular.... eg. hobbies
 	]],

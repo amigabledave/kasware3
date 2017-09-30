@@ -487,11 +487,12 @@ class Home(Handler):
 				child.reason_id = None
 				child.put()
 
-			ksu_events = Event.query(Event.ksu_id == ksu.key).fetch()
-			for event in ksu_events:
-				event.key.delete()
-
-			ksu.key.delete()
+			# ksu_events = Event.query(Event.ksu_id == ksu.key).fetch()			
+			# for event in ksu_events:
+			# 	event.key.delete()
+			# ksu.key.delete()
+			ksu.in_graveyard = True
+			ksu.put()
 			
 			self.response.out.write(json.dumps({
 				'mensaje':'KSU Borrado',
@@ -586,15 +587,12 @@ class Home(Handler):
 
 		if user_action in ['Action_Done', 'EndValue_Experienced']:
 			ksu = self.update_event_date(ksu, user_action)
+			ksu.counter = 0
 			if ksu.details['repeats'] == 'Never' and ksu.ksu_subtype != 'Reactive':
 				ksu.in_graveyard = True
 		
 		elif user_action == 'Milestone_Reached':
 			ksu.in_graveyard = True
-
-		elif user_action == 'EndValue_Experienced':
-			if ksu.ksu_subtype in ['Moment', 'Chapter']:
-				ksu.in_graveyard = True
 
 		elif user_action == 'Measurement_Recorded':
 			ksu = self.update_event_date(ksu, user_action)
@@ -700,7 +698,7 @@ class Home(Handler):
 		tomorrow = today + timedelta(days=1)
 		ksu_details = ksu.details
 
-		if user_action in ['Action_Done', 'Action_Skipped']:
+		if user_action in ['Action_Done', 'Action_Skipped', 'EndValue_Experienced']:
 			repeats = ksu_details['repeats']
 
 			if repeats == 'Never':

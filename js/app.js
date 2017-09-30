@@ -1554,18 +1554,16 @@ function FormatBasedOnStatus(ksu, status){
 function add(target_timer, starting_minutes) {	
     
 	var minutes_passed = Math.floor((parseFloat(new Date().valueOf()) - parseFloat(start_time.valueOf()))/(1000*60)); //
-	// console.log('Minutes passed: ' + minutes_passed)
+
 	var minutes_timer = target_timer.val()
 	var total_minutes = starting_minutes + minutes_passed		
-    // console.log('Munutes Timer: ' + minutes_timer)
-    // console.log('Total Minutes:' + total_minutes)
-    // console.log('-----------------------------')
+
     if (total_minutes > minutes_timer){
-    	var ksu = target_timer.closest('#KSU');
-    	UpdateMerits(ksu)
-		target_timer.val(total_minutes)    
+    	var ksu = target_timer.closest('#KSU');    	
+		target_timer.val(total_minutes)
+		UpdateMerits(ksu)
     	if(total_minutes % 5 == 0){
-    		UpdateKsuAttribute(ksu.attr('value'), 'timer', total_minutes)
+    		UpdateKsuAttribute(ksu.attr('value'), 'counter', total_minutes)
     	}
     }
 
