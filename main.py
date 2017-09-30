@@ -409,6 +409,7 @@ class Home(Handler):
 				'mensaje': 'Evento guardado',
 				'event_dic':event_dic,
 				'in_graveyard': ksu.in_graveyard,
+				'ksu_dic': self.ksu_to_dic(ksu),
 				}))
 			return
 
@@ -595,6 +596,9 @@ class Home(Handler):
 			if ksu.ksu_subtype in ['Moment', 'Chapter']:
 				ksu.in_graveyard = True
 
+		elif user_action == 'Measurement_Recorded':
+			ksu = self.update_event_date(ksu, user_action)
+
 		return ksu
 
 	def update_ksu_attribute(self, ksu, attr_key, attr_value):
@@ -743,11 +747,14 @@ class Home(Handler):
 					
 				ksu.event_date = datetime(next_year, next_month, next_day) 
 				
-		if user_action == 'Action_Pushed':
+		elif user_action == 'Action_Pushed':
 			ksu.event_date = tomorrow
 
-		if user_action == 'SendToMission':
+		elif user_action == 'SendToMission':
 			ksu.event_date = today
+
+		elif user_action == 'Measurement_Recorded':
+			ksu.event_date = today + timedelta(days=int(ksu.details['frequency']))
 
 		return ksu
 

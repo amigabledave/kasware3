@@ -331,7 +331,7 @@ $(document).on('click', '.KsuActionButton', function(){
 			
 			if(!data['in_graveyard']){
 				var updated_ksu = render_ksu(data['ksu_dic']);
-				FixKsuVisibility(updated_ksu, $('.SelectedSection').first().attr('value'), {})		
+				FixKsuVisibility(updated_ksu)		
 			} 
 
 			AdjustGame(data['game_log'])			
@@ -426,6 +426,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		
 		console.log(score);	
 		ksu.fadeOut('slow');
+		ksu.remove()
 		$.ajax({
 			type: "POST",
 			url: "/",
@@ -437,6 +438,8 @@ $(document).on('click', '.KsuActionButton', function(){
 			})
 		}).done(function(data){
 			console.log(data); 
+			var updated_ksu = render_ksu(data['ksu_dic']);
+			FixKsuVisibility(updated_ksu)	
 			render_event(data['event_dic'])
 		});
 		ShowDetail(ksu)
