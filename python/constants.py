@@ -37,70 +37,62 @@ l_weekdays = [
 
 l_repeatdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-
 ksu_types = [
 
 	#Actions	
-	[['Action', 'Action'], [
+	[['Action', 'Action', 'mission kas'], [
 		['Proactive', 'Proactive', True],
 		['Reactive', 'Reactive', ''],
-		# ['Negative', 'Negative', '']
 	]],	
 
-	[['Objective', 'Mile Stone'], [ #Group actions in a well define purpose
-		['BigObjective', 'Objective', True], #If the parent is another objective then its a milestone#'Milestone',
-		# ['MiniObjective', 'Mini Objective', ''], #If the parent is another objective then its a milestone#'Milestone',		
+	[['Objective', 'Mile Stone', 'purpose objectives'], [ #Group actions in a well define purpose
+		['MiniObjective', 'Mini Objective', True], 
+		['BigObjective', 'Objective', ''], 
 	]],
 	
 	#Life Pieces
-	[['Experience', 'Generator'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
-		['Moment', 'Moment', True], # Whaterver < Nice < Very nice < Memorable < Epic < Legendary				
-		# ['Chapter', 'Chapter', ''], #Agrupa varios momentos, pero no es un momento en si por lo que no tiene importancia. El padre puede ser otro chapter .E.g. Estar jugando el juego de aventura en turno >> #E.g. Estar jugando Zelda breath of the wild		
-		['JoyMine', 'Joy Mine', ''], #Algo concreto que genera momentos del mismo tipo... E.g. Estar jugando Zelda breath of the wild
+	[['Experience', 'Joy Generator', 'experiences'], [#What do you want to be doing? #'Surroundings = Aqui entra estar viviendo en Canada
+		['Moment', 'Moment', True], # Una experiencia que tiene un antes y un despues				
+		['JoyMine', 'Joy Mine', ''], # Un tipo de momento mas que un momento en particular.... eg. hobbies
 	]],
 
-	[['Contribution', 'Contribution'], [ #Whats the impact you want to have in others peoples life and the envieronment? Antes Meaning GreaterGood
+	[['Contribution', 'Contribution', 'contributions'], [ #Whats the impact you want to have in others peoples life and the envieronment? Antes Meaning GreaterGood
 		['StarFish', 'Star Fish', True], # Cada Star Fish matters, son contribuciones targeteadas para mejorar la vida de una persona o grupo en especifico
-		# ['Calling', 'Calling', ''], # Aqui entran el trabajo que harias aunque no te pagaran	
 		['WorldChange', 'World Change', ' '] #Aqui entran cualquier aspiraciones de cambiar el status del mundo mas alla de la vida de algunos individuos en particular
 	]],
 	
-	[['SelfAttribute', 'Attribute'], [# Antes Self. #Who is the best person you could be? 'Antes tenia Achievemnt pero ahora queda en meaning',
-		['Attitude', 'Attitude', ''], #'SoulSkill', #Connciousness and inner peace
+	[['SelfAttribute', 'Attribute', 'mybestself'], [# Antes Self. #Who is the best person you could be? 'Antes tenia Achievemnt pero ahora queda en meaning',
+		['Attitude', 'Attitude', ''], #'SoulSkill', #Connciousness and inner peace #Here also enters how other people perceives me
 		['KnowledgeOrSkill', 'Skill or Knowledge', True], #MindSkill Knowledge and skills		
 		['BodyFeature', 'Body Feature', ''], #PhisicalAttribute, Health and vitality
-		['Achievement', 'Achievement', ''], #Personal achievement.
-		['Role', 'Role', ''], #Role to Others  Dad, Friend, Lover, etc. 
+		# ['Achievement', 'Achievement', ''], #Personal achievement.
+		# ['Role', 'Role', ''], #Role to Others  Dad, Friend, Lover, etc. 
 	]],
 
-	[['Person', 'Person'], [ #Who you want in your life 'Love', #Important People. Love & Friendship
+	[['Person', 'Person', 'people'], [ #Who you want in your life 'Love', #Important People. Love & Friendship
 		['Individual', 'Individual', True], #Person #If the parent is another person, then the parent is a group of people #'Group',
-		['Group', 'Group', ''],
-		# ['Relationship', 'Relationship', ''], #E.g. Sexual Partner, Someone to Play Magic, Etc... El padre solo puede ser una persona y puede tener varios padres
+		['Group', 'Group', ''],		
 	]],
 
-	[['Possesion', 'Possesion'], [ #What you want to have
+	[['Possesion', 'Possesion', 'possesions'], [ #What you want to have
 		['Thing', 'Thing', True], #For personal use 	
 		['Service', 'Service Access'], #For personal use
 		['Asset', 'Asset', ''], #Dinero o assets tangibles. Tambien aqui entra un Paycheck que a final de cuentas es un activo.. 
-		# ['Job', 'Job', ''], #Aqui entran los trabajos que no harias si no te pagaran
 	]],	
 
-	[['Environment', 'Environment'], [ #Surrondings... Quiero de alguna forma indicar que se trata de los lugares donde pasas tiempo...
+	[['Environment', 'Environment', 'environment'], [ #Surrondings... Quiero de alguna forma indicar que se trata de los lugares donde pasas tiempo...
 		['Private', 'Private', True],
 		['Public', 'Public', ''], #Aqui entran los paises donde quieres vivir u otros lugares donde te gustaria pasar buena parte de tu tiempo
-		# ['Order', 'Order', ''], #Algun attributo particular del lugar en cuestion #Ahora ya lo voy a ver como un upgrade de la cosa en cuestion
-		#Tambien entra orden aqui. e.g. "Tener un cuarto ordenado"
 	]],
 
-	#Other	
-	[['Wisdom', 'Wisdom'], [#Idea #Your personal constitution. Non actionable knowledge that you believe should guide your behaviour.
+	#Other#Maybe also Reflexions and Decisions
+	[['Wisdom', 'Wisdom', 'wisdom'], [#Idea #Your personal constitution. Non actionable knowledge that you believe should guide your behaviour.		
+		['Idea', 'Idea', True], #If the idea has a parent then is not a principle. BRILIANT!
 		['Principle', 'Principle', ''], #Sirve para organizar y auditar
-		['Idea', 'Idea', True], #If the idea has a parent then is not a principle. BRILIANT!		
 		['Learning', 'Learning', '']
 	]], 
 
-	[['Indicator', 'Indicator'], [#A concreate metric you pick to measure success
+	[['Indicator', 'Indicator', 'indicators'], [#A concreate metric you pick to measure success
 		['Reality', 'Reality', ''],
 		['Perception', 'Perception', True],
 	]],

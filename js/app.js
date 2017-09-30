@@ -2,6 +2,7 @@ var ksu_type_attributes, attributes_guide, reasons_guide, $zoom, t, start_time, 
 
 //Visibility variables
 var selected_section, section_ksu_type, search_string, strategy_ksu_id, hide_private_ksus;
+var invalid_dic = {}; 
 
 
 $(document).ready(function(){
@@ -56,13 +57,15 @@ $(document).ready(function(){
 	})
 
 	$('#center_column').css({'height': $(window).height()})
-	$('#SectionSelectionBar').css({'min-height': $(window).height()})	
+	$('#SectionSelectionBar').css({'min-height': $(window).height()})
+	ShowOptionsBasedOnView('mission')	
 });
 
 
 function fix_strategy_ksu(ksu_id){
 	add_reason_select_to_ksu($("#strategy_ksu"), ksu_id)
 	$("#strategy_ksu").find('#reason_label').text('Show pieces connected to:')
+	$("#strategy_ksu").find('#reason_label').addClass('SideOptionsTitle')	
 	$("#strategy_ksu").find('.ReasonSelect').removeClass('ReasonSelect');
 }
 
@@ -1230,7 +1233,6 @@ function AddReasonToSelect(ksu_id, ksu_subtype, description){
 
 
 
-
 function add_reason_select_to_ksu(ksu, reason_id){
 	// var selected_option = ksu.find('#reason').val()
 	ksu.find('#reason_holder').empty()
@@ -1380,6 +1382,15 @@ function FixKsuVisibility(ksu){
 		if(strategy_ksu_id != reason_id){return}
 	}
 
+	// var invalid_options = $('#SideOptionsContainer').find("input:checkbox:not(:checked)");
+	// console.log(invalid_options)
+	// for (var i = invalid_options.length - 1; i >= 0; i--) {
+	// 	var option = invalid_options[i]
+	// 	var invalid_value = option.attr('invalid_value')
+	// 	var target_attr = option.attr('target_attr')
+	// 	if(get_ksu_attr_value(ksu, target_attr) == invalid_value){return}
+	// } // XX Aqui nos quedamos intentando hacer que se oculten los subtypos not checked
+
 	var is_visible = true
 
 	if(selected_section == 'mission'){
@@ -1448,6 +1459,7 @@ function FixKsuVisibility(ksu){
 
 
 function FixTheoryView(){	
+
 	var holder = section_details[selected_section]['holder'];
 
 	var holders = ['TheoryHolder', 'HistoryHolder', 'SettingsHolder', 'DashboardHolder', 'StreakHolder', 'PiggyBankHolder'];
@@ -1683,10 +1695,8 @@ var ksu_type_glyphicons = {
 	'Environment': 'glyphicon-home',
 }
 
-
 var section_details = {
 	
-
 	'mission':{'title': "Today's Mission", 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},
 	'kas': {'title': 'Key Action Set', 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},  
 	'objectives': {'title': 'Milestones', 'new_ksu_type': 'Objective', 'holder':'TheoryHolder'}, 

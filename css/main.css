@@ -231,6 +231,14 @@ input::-webkit-inner-spin-button {
     padding-bottom: 10px;
     padding-top: 10px;
     border-color: white;
+    color: white;
+}
+
+
+.SideOptionsTitle{
+    color: white; 
+    font-weight: lighter;
+    font-size: 18px;
 }
 
 

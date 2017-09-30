@@ -209,9 +209,9 @@
 				<br><br><br>
 			</div>
 
-			<div class="col-xs-2" style="padding-top: 35px; width: 26%; padding-right: 60px;" >
+			<div class="col-xs-2" style="padding-top: 35px; width: 26%; padding-right: 60px;" id="SideOptions">
 
-				<div class="row SideOption SideOptionsContainer" target_view="theory" style="padding-bottom: 5px;">
+				<div class="row hidden SideOption SideOptionsContainer" target_view="theory" style="padding-bottom: 5px;">
 				
 					<div class="col-xs-12 form-group" style="font-size: 14px; color: white; margin-bottom: 0px;" id="strategy_ksu">
 						<div class="row">
@@ -229,7 +229,24 @@
 					</div>
 					
 				</div>
-				
+
+
+				{% for ksu_type in constants['ksu_types'] %}
+				<div class="row hidden SideOption SideOptionsContainer" target_view="{{ksu_type[0][2]}}" style="margin-top: 30px;">
+					<div class="col-xs-12" name="subtype_col" id="subtype_col">
+						<div class="row"><div class="col-xs-12 SideOptionsTitle"> {{ksu_type[0][1]}} Type </div></div>
+
+						{% for ksu_subtype in ksu_type[1] %}						
+						<div class="row"><div class="col-xs-12"><label class="checkbox-inline">
+							<input type="checkbox"  exclude_value="{{ksu_subtype[0]}}" target_attr="ksu_subtype" class="ExcludeCheckbox" checked="checked">{{ksu_subtype[1]}}	
+						</label></div></div>
+						
+						{% endfor %}
+					</div>
+				</div>
+
+				{% endfor %}
+
 				<div class="row SideOption hidden SideOptionsContainer" target_view="dashboard">
 				
 					<div class="col-xs-8 form-group" style="font-size: 14px; color: white;">
