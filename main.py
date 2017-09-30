@@ -793,8 +793,8 @@ class Home(Handler):
 				event_type = 'RealitySnapshot'
 
 		event_date = (datetime.today() + timedelta(hours=int(self.theory.settings['timezone'])) + timedelta(days=time_travel))
-		if ksu.event_date and ksu_subtype not in ['Action', 'Objective']:
-			event_date = ksu.event_date
+		# if ksu.event_date and ksu_type not in ['Action', 'Objective']:
+		# 	event_date = ksu.event_date
 
 		size = ksu.size
 		if 'size' in event_details:
