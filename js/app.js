@@ -173,21 +173,17 @@ $(document).on('click', '.KsuActionButton', function(){
 
 		ksu.attr("value","")
 		
-		// var lower_importance = parseInt(ksu.next().attr("importance"));
-		
-		// if (isNaN(lower_importance)){
-		// 	lower_importance = 0;
-		// }
-
-		// var importance = lower_importance + 10000
-		console.log($('.KSU').last())
-		var top_importance = parseInt($('.KSU').last().attr("importance"));
-		console.log(top_importance)
-		if (isNaN(top_importance)){
-			top_importance = 0;
+		var lower_importance = parseInt(ksu.next().attr("importance"));
+		if (isNaN(lower_importance)){
+			lower_importance = 0;
 		}
-
-		var importance = top_importance + 10000
+		var importance = lower_importance + 10000
+		
+		// var top_importance = parseInt($('.KSU').last().attr("importance"));		
+		// if (isNaN(top_importance)){
+		// 	top_importance = 0;
+		// }
+		// var importance = top_importance + 10000
 		
 		ksu.attr("importance",importance)
 		
@@ -229,7 +225,7 @@ $(document).on('click', '.KsuActionButton', function(){
 				ksu.find('#SavePic').trigger('click');
 			}
 			FixKsuVisibility(ksu)
-			ksu.appendTo('#TheoryHolder');
+			ksu.prependTo('#TheoryHolder');
 
 		});	
 	};
@@ -915,8 +911,8 @@ function render_ksu(ksu_dic){
 
 	ksu.find('#reason_holder').attr('reason_id', ksu_dic['reason_id'])
 
-	// ksu.prependTo('#TheoryHolder');
-	ksu.appendTo('#TheoryHolder');
+	ksu.prependTo('#TheoryHolder');
+	// ksu.appendTo('#TheoryHolder');
 	ksu.removeClass('hidden');
 
 	if('best_time' in ksu_dic && ksu_dic['best_time'] != ''){
