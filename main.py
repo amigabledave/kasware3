@@ -96,9 +96,7 @@ class Handler(webapp2.RequestHandler):
 		game_log_user_date = game_log.user_date
 		ksu_set = KSU.query(KSU.theory_id == theory.key).filter(KSU.status == 'Critical').filter(KSU.event_date != None).filter(KSU.event_date <= game_log_user_date).fetch()
 		
-		for ksu in ksu_set:
-			print ksu.description
-			
+		for ksu in ksu_set:			
 			reason_status = 'NoReason'
 			if ksu.reason_id:
 				reason_ksu = KSU.get_by_id(ksu.reason_id.id())
@@ -708,10 +706,9 @@ class Home(Handler):
 				ksu.event_date = today
 
 			elif repeats == 'X_Days':
-				
 				x_days = int(ksu.details['every_x_days'])
 				ksu.event_date = today + timedelta(days=x_days)
-				
+
 			elif repeats == 'Week':
 				todays_weekday = today.weekday()
 				

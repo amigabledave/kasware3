@@ -386,6 +386,7 @@ $(document).on('click', '.KsuActionButton', function(){
 		console.log('End value experienced...')
 						
 		ksu.fadeOut('slow');
+		ksu.remove()
 		$.ajax({
 			type: "POST",
 			url: "/",
@@ -401,9 +402,8 @@ $(document).on('click', '.KsuActionButton', function(){
 			console.log(data); 
 			
 			if(!data['in_graveyard']){
-				ksu.fadeIn('slow')
-			} else {
-				ksu.remove()
+				var updated_ksu = render_ksu(data['ksu_dic']);
+				FixKsuVisibility(updated_ksu)		
 			}
 
 			AdjustGame(data['game_log'])
@@ -1699,7 +1699,7 @@ var ksu_type_glyphicons = {
 var section_details = {
 	
 	'mission':{'title': "Today's Mission", 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},
-	'kas': {'title': 'Key Action Set', 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},  
+	'kas': {'title': 'Key Actions Set', 'new_ksu_type': 'Action', 'holder':'TheoryHolder'},  
 	'objectives': {'title': 'Milestones', 'new_ksu_type': 'Objective', 'holder':'TheoryHolder'}, 
 	'purpose':{'title': "Current Purpose", 'new_ksu_type': 'disabled', 'holder':'TheoryHolder'},
 
